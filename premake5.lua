@@ -26,7 +26,7 @@ workspace "DAT205"
 
         includedirs {
             "%{prj.name}/src",
-            "%{prj.name}/vendor/include"
+            "%{prj.name}/vendor/spdlog/include"
         }
 
         filter "system:windows"
@@ -70,7 +70,8 @@ workspace "DAT205"
         }
 
         includedirs {
-            "%{wks.location.relpath}/Core/src"
+            "%{wks.location.relpath}/Core/src",
+            "%{wks.location.relpath}/Core/vendor/spdlog/include"
         }
 
         links {
