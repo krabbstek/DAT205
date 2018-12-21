@@ -108,10 +108,12 @@ namespace core {
 
 		float Distance(const vec3& vec) const;
 		float Dot(const vec3& vec) const;
+		inline static float Dot(const vec3& left, const vec3& right) { return left.Dot(right); }
 		vec3 Cross(const vec3& right) const;
+		inline static vec3 Cross(const vec3& left, const vec3& right) { return left.Cross(right); }
 		float Magnitude() const;
 		vec3& Normalize();
-		vec3 Normalized() const;
+		inline static vec3 Normalize(vec3 vec) { return vec.Normalize(); }
 
 		std::string ToString() const;
 		friend std::ostream& operator<<(std::ostream& os, const vec3& vec);
