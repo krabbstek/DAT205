@@ -237,6 +237,8 @@ namespace core {
 		elements[INDEX(1, 1)] = 1.0f;
 
 		elements[INDEX(3, 3)] = 1.0f;
+
+		return mat4(elements);
 	}
 
 	mat4 mat4::RotateZ(float radians)
@@ -420,6 +422,8 @@ namespace core {
 		elements[INDEX(2, 3)] = (far + near) * _nf;
 
 		elements[INDEX(3, 3)] = 1.0f;
+
+		return mat4(elements);
 	}
 
 	mat4 mat4::Perspective(float fov, float aspectRatio, float near, float far)
@@ -437,6 +441,8 @@ namespace core {
 		elements[INDEX(2, 3)] = 2 * far * near * _nf;
 
 		elements[INDEX(3, 2)] = -1.0f;
+
+		return mat4(elements);
 	}
 
 	mat4 mat4::LookAt(const vec3& cameraPosition, const vec3& objectPosition, const vec3& up)
