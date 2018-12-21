@@ -8,3 +8,4 @@
 #include <vector>
 
 #include "Common.h"
+#include "Log.h"
