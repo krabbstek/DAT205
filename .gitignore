@@ -1,0 +1,15 @@
+# Binaries
+bin
+bin-int
+
+# Project files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Visual Studio files
+.vs/
+
+# Premake
+Premake/
