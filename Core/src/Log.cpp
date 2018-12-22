@@ -9,7 +9,10 @@ namespace core {
 
 	void Log::Init()
 	{
+		AllocConsole();
+
 		s_Console = spdlog::stdout_color_mt("DAT205");
+		s_Console->set_pattern("%^[%T] (%l): %v%$");
 		s_Console->set_level(spdlog::level::trace);
 	}
 
