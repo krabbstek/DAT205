@@ -58,7 +58,7 @@ workspace "DAT205"
 
     project "Sandbox"
         location "Sandbox"
-        kind "ConsoleApp"
+        kind "WindowedApp"
         language "C++"
 
         targetdir ("bin/" .. outputdir .. "/%{prj.name}")
