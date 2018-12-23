@@ -23,9 +23,14 @@ namespace core {
 		static unsigned int s_Height;
 		static bool s_VSync;
 		static Window* s_Window;
+		static bool s_Running;
 
+		/* Function pointer to user-defined OnStart function. */
 		static void(*s_OnStart)(void);
+		/* Function pointer to user-defined OnUpdate function. */
 		static void(*s_OnUpdate)(void);
+		/* Function pointer to user-defined OnRender function. */
+		static void(*s_OnRender)(void);
 
 		friend int ::WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 	};
