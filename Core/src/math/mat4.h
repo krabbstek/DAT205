@@ -13,13 +13,13 @@ namespace core {
 		union
 		{
 			float elements[4 * 4];
-			vec4 v[4];
+			vec4 col[4];
 			struct
 			{
-				vec4 c0;
-				vec4 c1;
-				vec4 c2;
-				vec4 c3;
+				vec4 col0;
+				vec4 col1;
+				vec4 col2;
+				vec4 col3;
 			};
 		};
 
@@ -65,8 +65,11 @@ namespace core {
 		/* Standard matrix multiplication. */
 		mat4& Multiply(const mat4& matrix);
 
+		vec3 Multiply(const vec3& vec) const;
+		vec4 Multiply(const vec4& vec) const;
+
 		inline mat4& operator*=(const mat4& matrix) { return Multiply(matrix); }
-		friend mat4 operator*(mat4 left, const mat4& right);
+		friend mat4 CORE_API operator*(mat4 left, const mat4& right);
 
 		float Determinant() const;
 

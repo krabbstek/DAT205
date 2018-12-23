@@ -84,21 +84,21 @@ namespace core {
 		inline vec4& operator/=(const vec3& vec) { return Divide(vec); }
 		inline vec4& operator/=(const vec4& vec) { return Divide(vec); }
 
-		friend vec4 operator+(vec4 vec, float f);
-		friend vec4 operator+(float f, vec4 vec);
-		friend vec4 operator+(vec4 left, const vec4& right);
+		friend CORE_API vec4 operator+(vec4 vec, float f);
+		friend CORE_API vec4 operator+(float f, vec4 vec);
+		friend CORE_API vec4 operator+(vec4 left, const vec4& right);
 
-		friend vec4 operator-(vec4 vec, float f);
-		friend vec4 operator-(float f, vec4 vec);
-		friend vec4 operator-(vec4 left, const vec4& right);
+		friend CORE_API vec4 operator-(vec4 vec, float f);
+		friend CORE_API vec4 operator-(float f, vec4 vec);
+		friend CORE_API vec4 operator-(vec4 left, const vec4& right);
 
-		friend vec4 operator*(vec4 vec, float f);
-		friend vec4 operator*(float f, vec4 vec);
-		friend vec4 operator*(vec4 left, const vec4& right);
+		friend CORE_API vec4 operator*(vec4 vec, float f);
+		friend CORE_API vec4 operator*(float f, vec4 vec);
+		friend CORE_API vec4 operator*(vec4 left, const vec4& right);
 
-		friend vec4 operator/(vec4 vec, float f);
-		friend vec4 operator/(float f, vec4 vec);
-		friend vec4 operator/(vec4 left, const vec4& right);
+		friend CORE_API vec4 operator/(vec4 vec, float f);
+		friend CORE_API vec4 operator/(float f, vec4 vec);
+		friend CORE_API vec4 operator/(vec4 left, const vec4& right);
 
 		bool operator<(const vec4& vec) const;
 		bool operator<=(const vec4& vec) const;
@@ -115,7 +115,7 @@ namespace core {
 		inline static vec4 Normalize(vec4 vec) { return vec.Normalize(); }
 
 		std::string ToString() const;
-		friend std::ostream& operator<<(std::ostream& os, const vec4& vec);
+		friend CORE_API std::ostream& operator<<(std::ostream& os, const vec4& vec);
 	};
 
 }
