@@ -562,6 +562,126 @@ namespace core {
 	}
 
 
+	vec3 mat4::Multiply(const vec3& vec) const
+	{
+		vec3 result;
+
+		result.x = elements[INDEX(0, 0)] * vec.x
+			+ elements[INDEX(0, 1)] * vec.y
+			+ elements[INDEX(0, 2)] * vec.z
+			+ elements[INDEX(0, 3)];
+
+		result.y = elements[INDEX(1, 0)] * vec.x
+			+ elements[INDEX(1, 1)] * vec.y
+			+ elements[INDEX(1, 2)] * vec.z
+			+ elements[INDEX(1, 3)];
+
+		result.z = elements[INDEX(2, 0)] * vec.x
+			+ elements[INDEX(2, 1)] * vec.y
+			+ elements[INDEX(2, 2)] * vec.z
+			+ elements[INDEX(2, 3)];
+
+		return vec;
+	}
+
+	vec3 mat4::RightMultiply(const vec3& vec) const
+	{
+		vec3 result;
+
+		result.x = elements[INDEX(0, 0)] * vec.x
+			+ elements[INDEX(1, 0)] * vec.y
+			+ elements[INDEX(2, 0)] * vec.z
+			+ elements[INDEX(3, 0)];
+
+		result.y = elements[INDEX(0, 1)] * vec.x
+			+ elements[INDEX(1, 1)] * vec.y
+			+ elements[INDEX(2, 1)] * vec.z
+			+ elements[INDEX(3, 1)];
+
+		result.z = elements[INDEX(0, 2)] * vec.x
+			+ elements[INDEX(1, 2)] * vec.y
+			+ elements[INDEX(2, 2)] * vec.z
+			+ elements[INDEX(3, 2)];
+
+		return vec;
+	}
+
+	vec4 mat4::Multiply(const vec4& vec) const
+	{
+		vec3 result;
+
+		result.x = elements[INDEX(0, 0)] * vec.x
+			+ elements[INDEX(0, 1)] * vec.y
+			+ elements[INDEX(0, 2)] * vec.z
+			+ elements[INDEX(0, 3)] * vec.w;
+
+		result.y = elements[INDEX(1, 0)] * vec.x
+			+ elements[INDEX(1, 1)] * vec.y
+			+ elements[INDEX(1, 2)] * vec.z
+			+ elements[INDEX(1, 3)] * vec.w;
+
+		result.z = elements[INDEX(2, 0)] * vec.x
+			+ elements[INDEX(2, 1)] * vec.y
+			+ elements[INDEX(2, 2)] * vec.z
+			+ elements[INDEX(2, 3)] * vec.w;
+
+		result.w = elements[INDEX(3, 0)] * vec.x
+			+ elements[INDEX(3, 1)] * vec.y
+			+ elements[INDEX(3, 2)] * vec.z
+			+ elements[INDEX(3, 3)] * vec.w;
+
+		return vec;
+	}
+
+	vec4 mat4::RightMultiply(const vec4& vec) const
+	{
+		vec3 result;
+
+		result.x = elements[INDEX(0, 0)] * vec.x
+			+ elements[INDEX(1, 0)] * vec.y
+			+ elements[INDEX(2, 0)] * vec.z
+			+ elements[INDEX(3, 0)] * vec.w;
+
+		result.y = elements[INDEX(0, 1)] * vec.x
+			+ elements[INDEX(1, 1)] * vec.y
+			+ elements[INDEX(2, 1)] * vec.z
+			+ elements[INDEX(3, 1)] * vec.w;
+
+		result.z = elements[INDEX(0, 2)] * vec.x
+			+ elements[INDEX(1, 2)] * vec.y
+			+ elements[INDEX(2, 2)] * vec.z
+			+ elements[INDEX(3, 2)] * vec.w;
+
+		result.w = elements[INDEX(0, 3)] * vec.x
+			+ elements[INDEX(1, 3)] * vec.y
+			+ elements[INDEX(2, 3)] * vec.z
+			+ elements[INDEX(3, 3)] * vec.w;
+
+		return vec;
+	}
+
+
+	vec3 CORE_API operator*(const mat4& matrix, const vec3& vec)
+	{
+		return matrix.Multiply(vec);
+	}
+
+	vec3 CORE_API operator*(const vec3& vec, const mat4& matrix)
+	{
+		return matrix.RightMultiply(vec);
+	}
+
+	vec4 CORE_API operator*(const mat4& matrix, const vec4& vec)
+	{
+		return matrix.Multiply(vec);
+	}
+
+	vec4 CORE_API operator*(const vec4& vec, const mat4& matrix)
+	{
+		return matrix.RightMultiply(vec);
+	}
+
+
 #define a11 elements[INDEX(0, 0)]
 #define a12 elements[INDEX(0, 1)]
 #define a13 elements[INDEX(0, 2)]
@@ -698,7 +818,6 @@ namespace core {
 
 		return *this;
 	}
-
 
 #define a11 matrix.elements[INDEX(0, 0)]
 #define a12 matrix.elements[INDEX(0, 1)]

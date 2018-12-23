@@ -65,11 +65,18 @@ namespace core {
 		/* Standard matrix multiplication. */
 		mat4& Multiply(const mat4& matrix);
 
-		vec3 Multiply(const vec3& vec) const;
-		vec4 Multiply(const vec4& vec) const;
-
 		inline mat4& operator*=(const mat4& matrix) { return Multiply(matrix); }
 		friend mat4 CORE_API operator*(mat4 left, const mat4& right);
+
+		vec3 Multiply(const vec3& vec) const;
+		vec3 RightMultiply(const vec3& vec) const;
+		vec4 Multiply(const vec4& vec) const;
+		vec4 RightMultiply(const vec4& vec) const;
+
+		friend CORE_API vec3 operator*(const mat4& matrix, const vec3& vec);
+		friend CORE_API vec3 operator*(const vec3& vec, const mat4& matrix);
+		friend CORE_API vec4 operator*(const mat4& matrix, const vec4& vec);
+		friend CORE_API vec4 operator*(const vec4& vec, const mat4& matrix);
 
 		float Determinant() const;
 
