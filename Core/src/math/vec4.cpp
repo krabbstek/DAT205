@@ -408,7 +408,7 @@ namespace core {
 		return ss.str();
 	}
 
-	std::ostream& CORE_API operator<<(std::ostream& os, const vec4& vec)
+	CORE_API std::ostream& operator<<(std::ostream& os, const vec4& vec)
 	{
 		return os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")";
 	}
