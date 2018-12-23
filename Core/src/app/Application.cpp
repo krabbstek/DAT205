@@ -10,8 +10,11 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
 
 namespace core {
+
+	void RenderImGui();
 
 	HINSTANCE Application:: s_hInstance = 0;
 	const char* Application::s_WindowTitle = nullptr;
@@ -66,6 +69,7 @@ namespace core {
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(s_Window->m_Window, true);
+		ImGui_ImplOpenGL3_Init("#version 130");
 
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -138,7 +142,20 @@ namespace core {
 	{
 		s_Window->Clear();
 		s_OnRender();
+		RenderImGui();
 		s_Window->Render();
+	}
+
+	void RenderImGui()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		ImGui::Begin("Test");
+		ImGui::Text("TEXT");
+		ImGui::End();
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
 }
