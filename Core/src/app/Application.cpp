@@ -6,9 +6,10 @@
 
 #include "graphics/GLCommon.h"
 
-#include <Windows.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <examples/imgui_impl_glfw.h>
 
 namespace core {
 
@@ -24,7 +25,7 @@ namespace core {
 	void(*Application::s_OnUpdate)() = 0;
 	void(*Application::s_OnRender)() = 0;
 
-	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void))
+	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void), void(*OnRender)(void))
 	{
 		s_WindowTitle = windowTitle;
 		s_Width = width;
@@ -32,6 +33,7 @@ namespace core {
 		s_VSync = vSync;
 		s_OnStart = OnStart;
 		s_OnUpdate = OnUpdate;
+		s_OnRender = OnRender;
 
 		Log::Init();
 		CORE_TRACE("Initialized Log.");
@@ -59,10 +61,17 @@ namespace core {
 			return false;
 		}
 		CORE_TRACE("Initialized GLEW.");
+		GLCall(CORE_INFO("OpenGL version: {}.", glGetString(GL_VERSION)));
+
+		ImGui::CreateContext();
+		ImGui::StyleColorsDark();
+		ImGui_ImplGlfw_InitForOpenGL(s_Window->m_Window, true);
 
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		glfwSwapBuffers(s_Window->m_Window);
+
+		s_OnStart();
 
 		CORE_INFO("Finished initialization.");
 
@@ -72,6 +81,9 @@ namespace core {
 	void Application::Terminate()
 	{
 		CORE_TRACE("Terminating application...");
+
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 
 		if (s_Window)
 			delete s_Window;
@@ -84,10 +96,49 @@ namespace core {
 
 	void Application::Run()
 	{
+		constexpr double upsPerNs = UPDATES_PER_SECOND / 1e9;
+		constexpr float secondsPerUpdate = 1.0f / UPDATES_PER_SECOND;
+		std::chrono::time_point<std::chrono::steady_clock> tPrev, tCurrent;
+		tPrev = std::chrono::high_resolution_clock::now();
+		std::chrono::nanoseconds deltaTime;
+		double deltaUpdate = 0.0;
+
 		while (s_Running)
 		{
+			tCurrent = std::chrono::high_resolution_clock::now();
+			deltaTime = tCurrent - tPrev;
+			deltaUpdate += upsPerNs * deltaTime.count();
+			tPrev = tCurrent;
 
+			while (deltaUpdate >= 1.0)
+			{
+				Update(secondsPerUpdate);
+				deltaUpdate -= 1;
+			}
+
+			Render();
+
+			if (glfwWindowShouldClose(s_Window->m_Window))
+			{
+				s_Running = false;
+				continue;
+			}
+
+			std::this_thread::sleep_for(std::chrono::microseconds(SLEEP_FOR_MICROSECONDS));
 		}
+	}
+
+	void Application::Update(float secondsPerUpdate)
+	{
+		s_Window->Update(secondsPerUpdate);
+		s_OnUpdate();
+	}
+
+	void Application::Render()
+	{
+		s_Window->Clear();
+		s_OnRender();
+		s_Window->Render();
 	}
 
 }

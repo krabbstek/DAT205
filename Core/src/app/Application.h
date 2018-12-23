@@ -6,15 +6,20 @@
 
 namespace core {
 
+#define UPDATES_PER_SECOND 60
+#define SLEEP_FOR_MICROSECONDS 100
+
 	class CORE_API Window;
 
 	class CORE_API Application
 	{
 	public:
-		static bool Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void));
+		static bool Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void), void(*OnRender)(void));
 		static void Terminate();
 
 		static void Run();
+		static void Update(float secondsPerUpdate);
+		static void Render();
 
 	protected:
 		static HINSTANCE s_hInstance;
