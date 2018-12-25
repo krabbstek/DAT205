@@ -4,6 +4,11 @@
 
 #include "GLCommon.h"
 
+#include "math/vec2.h"
+#include "math/vec3.h"
+#include "math/vec4.h"
+#include "math/mat4.h"
+
 namespace core {
 
 	GLuint GLShader::s_CurrentRendererID = 0;
@@ -136,11 +141,70 @@ namespace core {
 	}
 
 
-	unsigned int GLShader::GetUniformLocation(std::string& uniformName)
+	void GLShader::SetUniform1f(const std::string& uniformName, float value)
 	{
-		auto i = m_UniformLocations.find(uniformName);
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform1f(m_RendererID, location, value));
+	}
+
+	void GLShader::SetUniform1i(const std::string& uniformName, int  value)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform1i(m_RendererID, location, value));
+	}
+
+
+	void GLShader::SetUniform2f(std::string& uniformName, float x, float y)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform2f(m_RendererID, location, x, y));
+	}
+
+	void GLShader::SetUniform2f(std::string& uniformName, const vec2& vec)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform2fv(m_RendererID, location, 1, &vec.x));
+	}
+
+
+	void GLShader::SetUniform3f(std::string& uniformName, float x, float y, float z)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform3f(m_RendererID, location, x, y, z));
+	}
+
+	void GLShader::SetUniform3f(std::string& uniformName, const vec3& vec)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform3fv(m_RendererID, location, 1, &vec.x));
+	}
+
+
+	void GLShader::SetUniform4f(std::string& uniformName, float x, float y, float z, float w)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform4f(m_RendererID, location, x, y, z, w));
+	}
+
+	void GLShader::SetUniform4f(std::string& uniformName, const vec4& vec)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform4fv(m_RendererID, location, 1, &vec.x));
+	}
+
+
+	void GLShader::SetUniformMat4(const std::string& uniformName, const mat4& matrix)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, &matrix.elements[0]));
+	}
+
+
+	unsigned int GLShader::GetUniformLocation(const std::string& uniformName)
+	{
+		auto entry = m_UniformLocations.find(uniformName);
 		// Uniform location not found in map
-		if (i == m_UniformLocations.end())
+		if (entry == m_UniformLocations.end())
 		{
 			GLCall(unsigned int location = glGetUniformLocation(m_RendererID, uniformName.c_str()));
 			m_UniformLocations[uniformName] = location;
@@ -148,7 +212,7 @@ namespace core {
 		}
 		// Uniform location found in map
 		else
-			return i->second;
+			return entry->second;
 	}
 
 }
