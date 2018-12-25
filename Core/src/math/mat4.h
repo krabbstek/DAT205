@@ -10,18 +10,7 @@ namespace core {
 	struct CORE_API mat4
 	{
 	public:
-		union
-		{
-			float elements[4 * 4];
-			vec4 col[4];
-			struct
-			{
-				vec4 col0;
-				vec4 col1;
-				vec4 col2;
-				vec4 col3;
-			};
-		};
+		float elements[4 * 4];
 
 	public:
 		mat4();

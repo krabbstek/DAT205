@@ -22,7 +22,9 @@ workspace "DAT205"
             "%{prj.name}/Core.h",
             "%{prj.name}/res/**",
             "%{prj.name}/src/**.h",
-            "%{prj.name}/src/**.cpp"
+            "%{prj.name}/src/**.cpp",
+            "%{prj.name}/vendor/**.h",
+            "%{prj.name}/vendor/**.cpp"
         }
 
         includedirs {

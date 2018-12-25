@@ -2,6 +2,8 @@
 
 #include "Common.h"
 
+#pragma warning(disable: 4244)
+
 namespace core {
 
 #define PI 3.141592653589793
@@ -20,3 +22,5 @@ namespace core {
 	constexpr float CORE_API Clamp(float val, float min, float max);
 
 }
+
+#pragma warning(default: 4244)
