@@ -819,6 +819,8 @@ namespace core {
 		return *this;
 	}
 
+#pragma warning(disable: 4005)
+
 #define a11 matrix.elements[INDEX(0, 0)]
 #define a12 matrix.elements[INDEX(0, 1)]
 #define a13 matrix.elements[INDEX(0, 2)]
@@ -835,6 +837,8 @@ namespace core {
 #define a42 matrix.elements[INDEX(3, 1)]
 #define a43 matrix.elements[INDEX(3, 2)]
 #define a44 matrix.elements[INDEX(3, 3)]
+
+#pragma warning(default: 4005)
 
 
 	mat4 mat4::Inverse(const mat4& matrix)
