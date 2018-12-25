@@ -16,7 +16,7 @@ namespace core {
 
 	void RenderImGui();
 
-	HINSTANCE Application:: s_hInstance = 0;
+	HINSTANCE Application::s_hInstance = 0;
 	const char* Application::s_WindowTitle = nullptr;
 	unsigned int Application::s_Width = 0;
 	unsigned int Application::s_Height = 0;
@@ -27,6 +27,11 @@ namespace core {
 	void(*Application::s_OnStart)() = 0;
 	void(*Application::s_OnUpdate)() = 0;
 	void(*Application::s_OnRender)() = 0;
+
+	unsigned int _Application_Frames = 0;
+	unsigned int _Application_ImGui_Frames = 0;
+	unsigned int _Application_Updates = 0;
+	unsigned int _Application_ImGui_Updates = 0;
 
 	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void), void(*OnRender)(void))
 	{
@@ -102,8 +107,9 @@ namespace core {
 	{
 		constexpr double upsPerNs = UPDATES_PER_SECOND / 1e9;
 		constexpr float secondsPerUpdate = 1.0f / UPDATES_PER_SECOND;
-		std::chrono::time_point<std::chrono::steady_clock> tPrev, tCurrent;
+		std::chrono::time_point<std::chrono::steady_clock> tPrev, tCurrent, tFpsUpsPrev, tFpsUpsCurrent;
 		tPrev = std::chrono::high_resolution_clock::now();
+		tFpsUpsPrev = std::chrono::high_resolution_clock::now();
 		std::chrono::nanoseconds deltaTime;
 		double deltaUpdate = 0.0;
 
@@ -113,6 +119,16 @@ namespace core {
 			deltaTime = tCurrent - tPrev;
 			deltaUpdate += upsPerNs * deltaTime.count();
 			tPrev = tCurrent;
+
+			tFpsUpsCurrent = std::chrono::high_resolution_clock::now();
+			if (tFpsUpsCurrent - tFpsUpsPrev >= std::chrono::seconds(1))
+			{
+				_Application_ImGui_Frames = _Application_Frames;
+				_Application_ImGui_Updates = _Application_Updates;
+				_Application_Frames = 0;
+				_Application_Updates = 0;
+				tFpsUpsPrev += std::chrono::seconds(1);
+			}
 
 			while (deltaUpdate >= 1.0)
 			{
@@ -136,26 +152,43 @@ namespace core {
 	{
 		s_Window->Update(secondsPerUpdate);
 		s_OnUpdate();
+		_Application_Updates++;
 	}
 
 	void Application::Render()
 	{
 		s_Window->Clear();
-		s_OnRender();
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 		RenderImGui();
+
+		s_OnRender();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		s_Window->Render();
+		_Application_Frames++;
 	}
 
 	void RenderImGui()
 	{
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::Begin("Test");
-		ImGui::Text("TEXT");
-		ImGui::End();
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		static ImGuiWindowFlags fpsUpsFlags = ImGuiWindowFlags_NoTitleBar
+			| ImGuiWindowFlags_NoScrollbar
+			| ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoSavedSettings
+			| ImGuiWindowFlags_NoInputs
+			| ImGuiWindowFlags_NoBackground;
+
+		ImGui::Begin("FPS / UPS", false, fpsUpsFlags);
+		ImGui::SetWindowPos({ 0, 0 });
+		ImGui::SetWindowSize({ 64, 64 });
+		ImGui::Text("FPS: %d", _Application_ImGui_Frames);
+		ImGui::Text("UPS: %d", _Application_ImGui_Updates);
+		ImGui::End();	
 	}
 
 }
