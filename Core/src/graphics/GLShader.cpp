@@ -135,4 +135,20 @@ namespace core {
 		}
 	}
 
+
+	unsigned int GLShader::GetUniformLocation(std::string& uniformName)
+	{
+		auto i = m_UniformLocations.find(uniformName);
+		// Uniform location not found in map
+		if (i == m_UniformLocations.end())
+		{
+			GLCall(unsigned int location = glGetUniformLocation(m_RendererID, uniformName.c_str()));
+			m_UniformLocations[uniformName] = location;
+			return location;
+		}
+		// Uniform location found in map
+		else
+			return i->second;
+	}
+
 }
