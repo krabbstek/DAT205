@@ -7,6 +7,9 @@
 #include <app/Application.h>
 #include <app/Window.h>
 
+#include <graphics/GLVertexArray.h>
+#include <graphics/GLVertexBuffer.h>
+
 #include <math/math_util.h>
 #include <math/vec2.h>
 #include <math/vec3.h>
