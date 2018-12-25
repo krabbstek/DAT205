@@ -142,7 +142,7 @@ namespace core {
 	{
 		s_Window->Clear();
 		s_OnRender();
-		RenderImGui();
+		//RenderImGui();
 		s_Window->Render();
 	}
 
