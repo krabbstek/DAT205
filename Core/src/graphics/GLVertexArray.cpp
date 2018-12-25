@@ -11,8 +11,8 @@ namespace core {
 		unsigned int i = 0;
 		unsigned int stride = 0;
 		GLCall(glGenVertexArrays(1, &m_RendererID));
-		Bind();
 		vbo.Bind();
+		Bind();
 		for (std::pair<GLuint, unsigned int> location : layout.m_Layout)
 		{
 			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, stride, /*pointer =*/ 0));
