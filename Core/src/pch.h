@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <chrono>
+#include <fstream>
+#include <istream>
 #include <iostream>
 #include <sstream>
 #include <string>
