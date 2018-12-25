@@ -15,7 +15,15 @@ namespace core {
 
 	GLVertexBuffer::~GLVertexBuffer()
 	{
-		GLCall(glDeleteBuffers(1, &m_RendererID));
+		if (m_RendererID)
+		{
+			if (s_CurrentRendererID == m_RendererID)
+			{
+				GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+				s_CurrentRendererID = 0;
+			}
+			GLCall(glDeleteBuffers(1, &m_RendererID));
+		}
 	}
 
 
