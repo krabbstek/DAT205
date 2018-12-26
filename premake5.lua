@@ -30,6 +30,7 @@ workspace "DAT205"
         includedirs {
             "%{prj.name}/src",
             "%{prj.name}/vendor/spdlog/include",
+            "%{prj.name}/vendor/stb",
             "GLEW/include",
             "GLFW/include",
             "ImGui"
