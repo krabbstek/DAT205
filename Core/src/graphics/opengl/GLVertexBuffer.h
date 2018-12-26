@@ -27,16 +27,15 @@ namespace core {
 	class CORE_API GLVertexBufferLayout
 	{
 	public:
-		void Push(GLuint type, unsigned int count)
-		{
-			m_Layout.push_back(LayoutElement(type, count));
-		}
+		GLVertexBufferLayout();
+
+		void Push(GLuint type, unsigned int count);
 
 		static unsigned int GetElementSize(GLuint type);
 
 	private:
-		/* std::pair< Element type , Element count > */
 		std::vector<LayoutElement> m_Layout;
+		unsigned int m_Stride;
 
 		friend class CORE_API GLVertexArray;
 	};

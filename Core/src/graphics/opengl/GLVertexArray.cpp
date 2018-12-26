@@ -9,15 +9,15 @@ namespace core {
 	GLVertexArray::GLVertexArray(const GLVertexBuffer& vbo, const GLVertexBufferLayout& layout)
 	{
 		unsigned int i = 0;
-		unsigned int stride = 0;
+		unsigned int offset = 0;
 		GLCall(glGenVertexArrays(1, &m_RendererID));
 		vbo.Bind();
 		Bind();
 		for (std::pair<GLuint, unsigned int> location : layout.m_Layout)
 		{
-			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, stride, /*pointer =*/ 0));
+			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, layout.m_Stride, /*pointer =*/ (const void*)offset));
 			GLCall(glEnableVertexAttribArray(i++));
-			stride += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
+			offset += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
 		}
 	}
 
