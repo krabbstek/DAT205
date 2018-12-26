@@ -8,15 +8,16 @@ GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
 GLVertexArray* vao;
 GLShader* shader;
+GLTexture* texture;
 
 void core::OnStart()
 {
-	float v[] = 
+float v[] = 
 	{
-		-0.5f, -0.5f,
-		 0.5f, -0.5f,
-		 0.5f,  0.5f,
-		-0.5f,  0.5f,
+		-0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.0f, 1.0f,
 	};
 	unsigned int i[] = 
 	{
@@ -25,6 +26,7 @@ void core::OnStart()
 	};
 	vbo = new GLVertexBuffer(v, sizeof(v));
 	GLVertexBufferLayout layout;
+	layout.Push(GL_FLOAT, 2);
 	layout.Push(GL_FLOAT, 2);
 	vao = new GLVertexArray(*vbo, layout);
 	vao->Bind();
@@ -36,8 +38,14 @@ void core::OnStart()
 	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
 	shader->CompileShaders();
 	shader->Bind();
-	shader->SetUniform4f("color", vec4(0.2f, 0.3f, 0.8f, 1.0f));
-	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
+	//shader->SetUniform4f("color", vec4(0.2f, 0.3f, 0.8f, 1.0f));
+	//shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
+
+	texture = new GLTexture("../Core/res/textures/Test.jpg", GL_RGB);
+	texture->Bind(0);
+
+	vao->Bind();
+	ibo->Bind();
 }
 
 void core::OnUpdate()

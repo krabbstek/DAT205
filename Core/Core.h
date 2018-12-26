@@ -9,6 +9,7 @@
 
 #include <graphics/opengl/GLIndexBuffer.h>
 #include <graphics/opengl/GLShader.h>
+#include <graphics/opengl/GLTexture.h>
 #include <graphics/opengl/GLVertexArray.h>
 #include <graphics/opengl/GLVertexBuffer.h>
 
