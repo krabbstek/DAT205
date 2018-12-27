@@ -6,16 +6,17 @@
 
 namespace core {
 
-	GLVertexArray::GLVertexArray(const GLVertexBuffer& vbo, const GLVertexBufferLayout& layout)
+	GLVertexArray::GLVertexArray(const GLVertexBuffer& vbo)
 	{
+		const GLVertexBufferLayout& layout = vbo.GetVertexBufferLayout();
 		unsigned int i = 0;
 		unsigned int offset = 0;
 		GLCall(glGenVertexArrays(1, &m_RendererID));
 		vbo.Bind();
 		Bind();
-		for (std::pair<GLuint, unsigned int> location : layout.m_Layout)
+		for (std::pair<GLuint, unsigned int> location : layout.GetLayoutElements())
 		{
-			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, layout.m_Stride, /*pointer =*/ (const void*)offset));
+			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, layout.GetStride(), /*pointer =*/ (const void*)offset));
 			GLCall(glEnableVertexAttribArray(i++));
 			offset += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
 		}

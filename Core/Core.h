@@ -12,6 +12,7 @@
 #include <graphics/opengl/GLTexture.h>
 #include <graphics/opengl/GLVertexArray.h>
 #include <graphics/opengl/GLVertexBuffer.h>
+#include <graphics/opengl/GLVertexBufferLayout.h>
 
 #include <math/math_util.h>
 #include <math/vec2.h>
