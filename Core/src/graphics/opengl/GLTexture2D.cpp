@@ -15,6 +15,11 @@ namespace core {
 		GLCall(glGenTextures(1, &m_RendererID));
 	}
 
+	GLTexture2D::~GLTexture2D()
+	{
+		GLCall(glDeleteTextures(1, &m_RendererID));
+	}
+
 
 	void GLTexture2D::Load(GLuint openGLFormat, const unsigned char* data, unsigned int width, unsigned int height, GLuint dataFormat, GLuint type)
 	{
@@ -22,11 +27,6 @@ namespace core {
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, openGLFormat, width, height, 0, dataFormat, type, data));
 		m_Width = width;
 		m_Height = height;
-
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	}
 
 	bool GLTexture2D::LoadFromFile(const char* filePath)
@@ -69,9 +69,36 @@ namespace core {
 	}
 
 
-	GLTexture2D::~GLTexture2D()
+	void GLTexture2D::SetWrapS(GLuint parameter) const
 	{
-		GLCall(glDeleteTextures(1, &m_RendererID));
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, parameter));
+	}
+
+	void GLTexture2D::SetWrapT(GLuint parameter) const
+	{
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, parameter));
+	}
+
+	void GLTexture2D::SetWrapST(GLuint parameter) const
+	{
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, parameter));
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, parameter));
+	}
+
+	void GLTexture2D::SetMinFilter(GLuint parameter) const
+	{
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, parameter));
+	}
+
+	void GLTexture2D::SetMagFilter(GLuint parameter) const
+	{
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, parameter));
+	}
+
+	void GLTexture2D::SetMinMagFilter(GLuint parameter) const
+	{
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, parameter));
+		GLCall(glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, parameter));
 	}
 
 

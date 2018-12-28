@@ -53,6 +53,8 @@ float v[] =
 
 	texture = new GLTexture2D();
 	texture->LoadFromFile("../Core/res/textures/Test.png");
+	texture->SetWrapST(GL_CLAMP_TO_EDGE);
+	texture->SetMinMagFilter(GL_LINEAR);
 	texture->Bind(0);
 
 	vao->Bind();
