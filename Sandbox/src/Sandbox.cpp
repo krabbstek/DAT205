@@ -8,13 +8,17 @@ GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
 GLVertexArray* vao;
 GLShader* shader;
-GLTexture* texture;
+GLTexture2D* texture;
+GLFramebuffer* velocityBuffer;
 
 float t = 0;
 mat4 prevMVP, MVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
 
 void core::OnStart()
 {
+	//velocityBuffer = new GLFramebuffer(1280, 720, GL_RG16F, true);
+	//velocityBuffer->Bind();
+
 	MVP = projection;
 	prevMVP = projection;
 
@@ -41,15 +45,14 @@ float v[] =
 	ibo->Bind();
 
 	shader = new GLShader();
-	//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
-	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vert.glsl");
-	//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
-	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_frag.glsl");
+	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
+	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
 	shader->CompileShaders();
 	shader->Bind();
 	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 
-	texture = new GLTexture("../Core/res/textures/Test.png", GL_RGBA);
+	texture = new GLTexture2D();
+	texture->LoadFromFile("../Core/res/textures/Test.png");
 	texture->Bind(0);
 
 	vao->Bind();
@@ -64,8 +67,8 @@ void core::OnUpdate(float deltaTime)
 	prevMVP = MVP;
 	MVP = projection * mat4::Translate(x, 0.0f, 0.0f);
 
-	shader->SetUniformMat4("prevMVP", prevMVP);
-	shader->SetUniformMat4("MVP", MVP);
+	//shader->SetUniformMat4("prevMVP", prevMVP);
+	//shader->SetUniformMat4("MVP", MVP);
 }
 
 void core::OnRender()

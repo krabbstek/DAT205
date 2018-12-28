@@ -7,9 +7,10 @@
 #include <app/Application.h>
 #include <app/Window.h>
 
+#include <graphics/opengl/GLFramebuffer.h>
 #include <graphics/opengl/GLIndexBuffer.h>
 #include <graphics/opengl/GLShader.h>
-#include <graphics/opengl/GLTexture.h>
+#include <graphics/opengl/GLTexture2D.h>
 #include <graphics/opengl/GLVertexArray.h>
 #include <graphics/opengl/GLVertexBuffer.h>
 #include <graphics/opengl/GLVertexBufferLayout.h>
