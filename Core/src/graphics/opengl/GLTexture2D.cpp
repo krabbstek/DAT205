@@ -20,10 +20,10 @@ namespace core {
 		GLCall(glDeleteTextures(1, &m_RendererID));
 	}
 
-
+	
 	void GLTexture2D::Load(GLuint openGLFormat, const unsigned char* data, unsigned int width, unsigned int height, GLuint dataFormat, GLuint type)
 	{
-		Bind();
+		Bind(MAX_TEXTURES - 1);
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, openGLFormat, width, height, 0, dataFormat, type, data));
 		m_Width = width;
 		m_Height = height;

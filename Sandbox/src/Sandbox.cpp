@@ -9,6 +9,7 @@ GLVertexBuffer* vbo;
 GLVertexArray* vao;
 GLShader* shader;
 GLTexture2D* texture;
+GLTexture2D* colorOverlayTexture;
 GLFramebuffer* velocityBuffer;
 
 float t = 0;
@@ -56,6 +57,17 @@ float v[] =
 	texture->SetWrapST(GL_CLAMP_TO_EDGE);
 	texture->SetMinMagFilter(GL_LINEAR);
 	texture->Bind(0);
+
+	float t[] =
+	{
+		1.0f, 1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f, 1.0f,
+	};
+	colorOverlayTexture = new GLTexture2D();
+	colorOverlayTexture->Load(GL_RGBA32F, (unsigned char*)t, 2, 2, GL_RGBA, GL_FLOAT);
+	colorOverlayTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+	colorOverlayTexture->SetMinMagFilter(GL_LINEAR);
+	colorOverlayTexture->Bind(1);
 
 	vao->Bind();
 	ibo->Bind();
