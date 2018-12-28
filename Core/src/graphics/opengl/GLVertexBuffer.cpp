@@ -17,11 +17,6 @@ namespace core {
 	{
 		if (m_RendererID)
 		{
-			if (s_CurrentRendererID == m_RendererID)
-			{
-				GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-				s_CurrentRendererID = 0;
-			}
 			GLCall(glDeleteBuffers(1, &m_RendererID));
 		}
 	}
@@ -29,23 +24,12 @@ namespace core {
 
 	void GLVertexBuffer::Bind() const
 	{
-		if (s_CurrentRendererID != m_RendererID)
-		{
-			GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
-			s_CurrentRendererID = m_RendererID;
-		}
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererID));
 	}
 
-	void GLVertexBuffer::Unbind() const
+	void GLVertexBuffer::Unbind()
 	{
-		if (s_CurrentRendererID)
-		{
-			GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-			s_CurrentRendererID = 0;
-		}
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
-
-
-	GLuint GLVertexBuffer::s_CurrentRendererID = 0;
 
 }

@@ -15,12 +15,10 @@ namespace core {
 		~GLVertexArray();
 
 		void Bind() const;
-		void Unbind() const;
+		static void Unbind();
 
 	private:
 		GLuint m_RendererID;
-
-		static GLuint s_CurrentRendererID;
 	};
 
 }

@@ -18,13 +18,11 @@ namespace core {
 		inline const GLVertexBufferLayout& GetVertexBufferLayout() const { return m_Layout; }
 
 		void Bind() const;
-		void Unbind() const;
+		static void Unbind();
 
 	private:
 		GLuint m_RendererID;
 		GLVertexBufferLayout m_Layout;
-
-		static GLuint s_CurrentRendererID;
 	};
 
 }
