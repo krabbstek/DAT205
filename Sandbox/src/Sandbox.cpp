@@ -4,6 +4,11 @@
 
 using namespace core;
 
+GLIndexBuffer* fullscreenTextureIBO;
+GLShader* fullscreenTextureShader;
+GLVertexArray* fullscreenTextureVAO;
+GLVertexBuffer* fullscreenTextureVBO;
+
 GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
 GLVertexArray* vao;
@@ -17,13 +22,38 @@ mat4 prevMVP, MVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, 
 
 void core::OnStart()
 {
-	//velocityBuffer = new GLFramebuffer(1280, 720, GL_RG16F, true);
-	//velocityBuffer->Bind();
+	{
+		float fullscreenTextureVertices[] =
+		{
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f,  1.0f, 1.0f,
+			-1.0f,  1.0f,  0.0f, 1.0f,
+		};
+		unsigned int fullscreenTextureIndices[] =
+		{
+			0, 1, 2,
+			0, 2, 3,
+		};
+
+		fullscreenTextureIBO = new GLIndexBuffer(fullscreenTextureIndices, sizeof(fullscreenTextureIndices) / sizeof(unsigned int));
+		fullscreenTextureVBO = new GLVertexBuffer(fullscreenTextureVertices, sizeof(fullscreenTextureVertices));
+		GLVertexBufferLayout fullscreenTextureLayout;
+		fullscreenTextureLayout.Push(GL_FLOAT, 2);
+		fullscreenTextureLayout.Push(GL_FLOAT, 2);
+		fullscreenTextureVBO->SetVertexBufferLayout(fullscreenTextureLayout);
+		fullscreenTextureVAO = new GLVertexArray(*fullscreenTextureVBO);
+
+		fullscreenTextureShader = new GLShader();
+		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_texture_vs.glsl");
+		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_texture_fs.glsl");
+		fullscreenTextureShader->CompileShaders();
+	}
 
 	MVP = projection;
 	prevMVP = projection;
 
-float v[] = 
+	float v[] = 
 	{
 		-0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f,  1.0f, 0.0f,
@@ -58,17 +88,6 @@ float v[] =
 	texture->SetMinMagFilter(GL_LINEAR);
 	texture->Bind(0);
 
-	float t[] =
-	{
-		1.0f, 1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f, 1.0f,
-	};
-	colorOverlayTexture = new GLTexture2D();
-	colorOverlayTexture->Load(GL_RGBA32F, (unsigned char*)t, 2, 2, GL_RGBA, GL_FLOAT);
-	colorOverlayTexture->SetWrapST(GL_CLAMP_TO_EDGE);
-	colorOverlayTexture->SetMinMagFilter(GL_LINEAR);
-	colorOverlayTexture->Bind(1);
-
 	vao->Bind();
 	ibo->Bind();
 }
@@ -87,5 +106,9 @@ void core::OnUpdate(float deltaTime)
 
 void core::OnRender()
 {
+	fullscreenTextureShader->Bind();
+	fullscreenTextureVAO->Bind();
+	fullscreenTextureIBO->Bind();
+
 	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
 }
