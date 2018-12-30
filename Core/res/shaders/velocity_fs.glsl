@@ -7,5 +7,5 @@ out vec4 out_Color;
 
 void main()
 {
-	out_Color = 15 * (pos - prevPos);
+	out_Color = 10 * (pos - prevPos);
 }
