@@ -108,8 +108,9 @@ namespace core {
 		GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 	}
 
-	void GLTexture2D::Unbind()
+	void GLTexture2D::Unbind(unsigned int slot)
 	{
+		GLCall(glActiveTexture(GL_TEXTURE0 + slot));
 		GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
