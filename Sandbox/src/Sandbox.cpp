@@ -4,10 +4,14 @@
 
 using namespace core;
 
+// Objects for rendering rectangle textures in full window
 GLIndexBuffer* fullscreenTextureIBO;
 GLShader* fullscreenTextureShader;
 GLVertexArray* fullscreenTextureVAO;
 GLVertexBuffer* fullscreenTextureVBO;
+
+GLFramebuffer* velocityFramebuffer;
+GLTexture2D* velocityTexture;
 
 GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
@@ -15,13 +19,10 @@ GLVertexArray* vao;
 GLShader* shader;
 GLTexture2D* texture;
 GLTexture2D* colorOverlayTexture;
-GLFramebuffer* velocityBuffer;
-
-float t = 0;
-mat4 prevMVP, MVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
 
 void core::OnStart()
 {
+	// Create fullscreen texture objects
 	{
 		float fullscreenTextureVertices[] =
 		{
@@ -50,8 +51,15 @@ void core::OnStart()
 		fullscreenTextureShader->CompileShaders();
 	}
 
-	MVP = projection;
-	prevMVP = projection;
+	// Create velocity framebuffer
+	{
+		velocityFramebuffer = new GLFramebuffer(1280, 720);
+		velocityTexture = velocityFramebuffer->AttachRGBColorTexture();
+		velocityFramebuffer->GenerateDepthStencilRenderbuffer();
+		velocityFramebuffer->ClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+
+		GLFramebuffer::Unbind();
+	}
 
 	float v[] = 
 	{
@@ -94,21 +102,23 @@ void core::OnStart()
 
 void core::OnUpdate(float deltaTime)
 {
-	t += deltaTime;
-
-	float x = sin(t * PI);
-	prevMVP = MVP;
-	MVP = projection * mat4::Translate(x, 0.0f, 0.0f);
-
-	//shader->SetUniformMat4("prevMVP", prevMVP);
-	//shader->SetUniformMat4("MVP", MVP);
+	
 }
 
 void core::OnRender()
 {
+	velocityFramebuffer->Bind();
+	GLFramebuffer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	vao->Bind();
+	ibo->Bind();
+	shader->Bind();
+	texture->Bind();
+	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
+
+	GLFramebuffer::Unbind();
 	fullscreenTextureShader->Bind();
 	fullscreenTextureVAO->Bind();
 	fullscreenTextureIBO->Bind();
-
-	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
+	velocityTexture->Bind();
+	glDrawElements(GL_TRIANGLES, fullscreenTextureIBO->Count(), GL_UNSIGNED_INT, 0);
 }

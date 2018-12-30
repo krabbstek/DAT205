@@ -8,7 +8,7 @@ smooth in vec2 texCoords;
 
 out vec4 out_Color;
 
-uniform float uVelocityScale = 0.1;
+uniform float uVelocityScale = 0.5;
 uniform sampler2D tex;
 
 const int NUM_SAMPLES = 10;
