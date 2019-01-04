@@ -6,20 +6,10 @@
 
 namespace core {
 
-	GLVertexArray::GLVertexArray(const GLVertexBuffer& vbo)
+	GLVertexArray::GLVertexArray()
+		: m_NumLocations(0)
 	{
-		const GLVertexBufferLayout& layout = vbo.GetVertexBufferLayout();
-		unsigned int i = 0;
-		unsigned int offset = 0;
 		GLCall(glGenVertexArrays(1, &m_RendererID));
-		vbo.Bind();
-		Bind();
-		for (std::pair<GLuint, unsigned int> location : layout.GetLayoutElements())
-		{
-			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, layout.GetStride(), /*pointer =*/ (const void*)offset));
-			GLCall(glEnableVertexAttribArray(i++));
-			offset += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
-		}
 	}
 
 	GLVertexArray::~GLVertexArray()
@@ -27,6 +17,22 @@ namespace core {
 		if (m_RendererID)
 		{
 			GLCall(glDeleteVertexArrays(1, &m_RendererID));
+		}
+	}
+
+
+	void GLVertexArray::AddVertexBuffer(const GLVertexBuffer& vbo)
+	{
+		const GLVertexBufferLayout& layout = vbo.GetVertexBufferLayout();
+		unsigned int offset = 0;
+		
+		vbo.Bind();
+		Bind();
+		for (std::pair<GLuint, unsigned int> location : layout.GetLayoutElements())
+		{
+			GLCall(glVertexAttribPointer(m_NumLocations, location.second, location.first, /*normalized =*/ GL_FALSE, layout.GetStride(), /*pointer =*/ (const void*)offset));
+			GLCall(glEnableVertexAttribArray(m_NumLocations++));
+			offset += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
 		}
 	}
 
