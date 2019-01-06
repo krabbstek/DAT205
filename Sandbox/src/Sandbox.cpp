@@ -23,12 +23,15 @@ GLTexture2D* colorOverlayTexture;
 
 float t = 0.0f;
 mat4 translate(1.0f);
-mat4 MVP, prevMVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);  //mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
 
 void core::OnStart()
 {
-	MVP = projection;
-	prevMVP = projection;
+	Model::LoadOBJModelFromFile("../Core/res/models/house/cottage_obj.obj");
+
+	MVP = projection * view;
+	prevMVP = projection * view;
 
 	// Create fullscreen texture objects
 	{
@@ -51,11 +54,10 @@ void core::OnStart()
 		fullscreenTextureLayout.Push(GL_FLOAT, 2);
 		fullscreenTextureLayout.Push(GL_FLOAT, 2);
 		fullscreenTextureVBO->SetVertexBufferLayout(fullscreenTextureLayout);
-		fullscreenTextureVAO = new GLVertexArray(*fullscreenTextureVBO);
+		fullscreenTextureVAO = new GLVertexArray();
+		fullscreenTextureVAO->AddVertexBuffer(*fullscreenTextureVBO);
 
 		fullscreenTextureShader = new GLShader();
-		//fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_texture_vs.glsl");
-		//fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_texture_fs.glsl");
 		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_vs.glsl");
 		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_fs.glsl");
 		fullscreenTextureShader->CompileShaders();
@@ -92,21 +94,17 @@ void core::OnStart()
 		layout.Push(GL_FLOAT, 2);
 		layout.Push(GL_FLOAT, 2);
 		vbo->SetVertexBufferLayout(layout);
-		vao = new GLVertexArray(*vbo);
+		vao = new GLVertexArray();
+		vao->AddVertexBuffer(*vbo);
 		vao->Bind();
 		ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
 		ibo->Bind();
 
 		shader = new GLShader();
-		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
-		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
-		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/velocity_vs.glsl");
-		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/velocity_fs.glsl");
 		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vs.glsl");
 		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_fs.glsl");
 		shader->CompileShaders();
 		shader->Bind();
-		//shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 
 		texture = new GLTexture2D();
 		texture->LoadFromFile("../Core/res/textures/Test.png");
@@ -123,7 +121,7 @@ void core::OnUpdate(float deltaTime)
 
 	prevMVP = MVP;
 	translate = mat4::Translate(x, 0.0f, 0.0f);
-	MVP = projection * translate;
+	MVP = projection * view * translate;
 
 	shader->SetUniformMat4("MVP", MVP);
 	shader->SetUniformMat4("prevMVP", prevMVP);

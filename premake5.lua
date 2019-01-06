@@ -23,18 +23,14 @@ workspace "DAT205"
             "%{prj.name}/res/**",
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp",
-            "%{prj.name}/vendor/**.h",
-            "%{prj.name}/vendor/**.cpp",
-            "%{prj.name}/vendor/rapidxml/*.hpp"
-        }
-
-        excludes {
-            "%{prj.name}/vendor/rapidxml/test/simple.cpp"
+            "%{prj.name}/vendor/stb/**.h",
+            "%{prj.name}/vendor/stb/**.cpp",
+            "%{prj.name}/vendor/spdlog/**.h",
+            "%{prj.name}/vendor/spdlog/**.cpp"
         }
 
         includedirs {
             "%{prj.name}/src",
-            "%{prj.name}/vendor/rapidxml",
             "%{prj.name}/vendor/spdlog/include",
             "%{prj.name}/vendor/stb",
             "GLEW/include",
@@ -55,7 +51,7 @@ workspace "DAT205"
             systemversion "latest"
 
             defines {
-                "CORE_BUILD_DLL"
+                "CORE_BUILD_DLL",
             }
 
             postbuildcommands
@@ -94,6 +90,7 @@ workspace "DAT205"
 
         includedirs {
             "%{wks.location.relpath}/Core/src",
+            "%{wks.location.relpath}/Core/vendor/rapidxml",
             "%{wks.location.relpath}/Core/vendor/spdlog/include",
             "%{wks.location.relpath}/GLEW/include"
         }
@@ -295,3 +292,68 @@ workspace "DAT205"
             defines { "NDEBUG" }
             buildoptions "/MD"
             optimize "Full"
+
+
+--    project "ColladaDOM"
+--        location "ColladaDOM"
+--        kind "SharedLib"
+--        language "C++"
+--
+--        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+--        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+--
+--        files {
+--            "%{prj.name}/dom/external-libs/**.h",
+--            "%{prj.name}/dom/external-libs/**.c",
+--            "%{prj.name}/dom/external-libs/**.cpp",
+--            "%{prj.name}/dom/include/1.5/**.h",
+--            "%{prj.name}/dom/include/dae.h",
+--            "%{prj.name}/dom/include/dom.h",
+--            "%{prj.name}/dom/include/dae/**.h",
+--            "%{prj.name}/dom/include/modules/**.h",
+--            "%{prj.name}/dom/src/1.5/**.cpp",
+--            "%{prj.name}/dom/src/dae/**.cpp",
+--            "%{prj.name}/dom/src/modules/**.cpp"
+--        }
+--
+--        includedirs {
+--            "%{prj.name}",
+--            "%{prj.name}/dom/include",
+--            "%{prj.name}/dom/external-libs/libxml2-new/include",
+--            "%{prj.name}/dom/external-libs/minizip-1.1",
+--            "%{prj.name}/dom/external-libs/pcre-8.02",
+--            "%{prj.name}/dom/external-libs/tinyxml",
+--            "%{prj.name}/dom/external-libs/zlib-1.2.5",
+--        }
+--
+--        defines {
+--            "DOM_DYNAMIC",
+--            "DOM_EXPORT",
+--            "NO_BOOST",
+--            "auto_ptr=unique_ptr"
+--        }
+--
+--        filter "system:windows"
+--            cppdialect "C++17"
+--            staticruntime "On"
+--            systemversion "latest"
+--
+--            postbuildcommands
+--            {
+--                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+--            }
+--
+--        filter "configurations:Debug"
+--            defines { "DEBUG" }
+--            buildoptions "/MDd"
+--            symbols "On"
+--
+--        filter "configurations:Release"
+--            defines { "NDEBUG" }
+--            buildoptions "/MD"
+--            optimize "On"
+--
+--        filter "configurations:Dist"
+--            defines { "NDEBUG" }
+--            buildoptions "/MD"
+--            optimize "Full"

@@ -7,6 +7,8 @@
 #include <app/Application.h>
 #include <app/Window.h>
 
+#include <graphics/Model.h>
+
 #include <graphics/opengl/GLFramebuffer.h>
 #include <graphics/opengl/GLIndexBuffer.h>
 #include <graphics/opengl/GLShader.h>
@@ -21,3 +23,5 @@
 #include <math/vec4.h>
 #include <math/mat4.h>
 #include <math/Quaternion.h>
+
+#include <system/file_utils.h>
