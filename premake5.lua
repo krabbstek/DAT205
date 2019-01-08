@@ -35,14 +35,16 @@ workspace "DAT205"
             "%{prj.name}/vendor/stb",
             "GLEW/include",
             "GLFW/include",
-            "ImGui"
+            "ImGui",
+            "Assimp/include"
         }
 
         links {
             "GLEW",
             "GLFW",
             "ImGui",
-            "Opengl32"
+            "Opengl32",
+            "Assimp"
         }
 
         filter "system:windows"
@@ -52,6 +54,7 @@ workspace "DAT205"
 
             defines {
                 "CORE_BUILD_DLL",
+                "ASSIMP_DLL"
             }
 
             postbuildcommands
@@ -294,66 +297,79 @@ workspace "DAT205"
             optimize "Full"
 
 
---    project "ColladaDOM"
---        location "ColladaDOM"
---        kind "SharedLib"
---        language "C++"
---
---        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
---        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
---
---        files {
---            "%{prj.name}/dom/external-libs/**.h",
---            "%{prj.name}/dom/external-libs/**.c",
---            "%{prj.name}/dom/external-libs/**.cpp",
---            "%{prj.name}/dom/include/1.5/**.h",
---            "%{prj.name}/dom/include/dae.h",
---            "%{prj.name}/dom/include/dom.h",
---            "%{prj.name}/dom/include/dae/**.h",
---            "%{prj.name}/dom/include/modules/**.h",
---            "%{prj.name}/dom/src/1.5/**.cpp",
---            "%{prj.name}/dom/src/dae/**.cpp",
---            "%{prj.name}/dom/src/modules/**.cpp"
---        }
---
---        includedirs {
---            "%{prj.name}",
---            "%{prj.name}/dom/include",
---            "%{prj.name}/dom/external-libs/libxml2-new/include",
---            "%{prj.name}/dom/external-libs/minizip-1.1",
---            "%{prj.name}/dom/external-libs/pcre-8.02",
---            "%{prj.name}/dom/external-libs/tinyxml",
---            "%{prj.name}/dom/external-libs/zlib-1.2.5",
---        }
---
---        defines {
---            "DOM_DYNAMIC",
---            "DOM_EXPORT",
---            "NO_BOOST",
---            "auto_ptr=unique_ptr"
---        }
---
---        filter "system:windows"
---            cppdialect "C++17"
---            staticruntime "On"
---            systemversion "latest"
---
---            postbuildcommands
---            {
---                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
---            }
---
---        filter "configurations:Debug"
---            defines { "DEBUG" }
---            buildoptions "/MDd"
---            symbols "On"
---
---        filter "configurations:Release"
---            defines { "NDEBUG" }
---            buildoptions "/MD"
---            optimize "On"
---
---        filter "configurations:Dist"
---            defines { "NDEBUG" }
---            buildoptions "/MD"
---            optimize "Full"
+    project "Assimp"
+        location "Assimp"
+        kind "SharedLib"
+        language "C++"
+
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+        files {
+            "%{prj.name}/revision.h",
+            "%{prj.name}/code/**.h",
+            "%{prj.name}/code/**.cpp",
+            "%{prj.name}/contrib/irrXML/*.h",
+            "%{prj.name}/contrib/irrXML/*.cpp",
+            "%{prj.name}/contrib/unzip/*.h",
+            "%{prj.name}/contrib/unzip/*.c",
+            "%{prj.name}/contrib/utf8cpp/**.h",
+            "%{prj.name}/contrib/zip/*.h",
+            "%{prj.name}/contrib/zip/*.c",
+            "%{prj.name}/contrib/zlib/*.h",
+            "%{prj.name}/contrib/zlib/*.c",
+            "%{prj.name}/include/**.h",
+            "%{prj.name}/include/**.hpp"
+        }
+
+        excludes {
+            "%{prj.name}/code/Importer/**.cpp",
+            "%{prj.name}/code/Blender*",
+            "%{prj.name}/code/glTF*",
+        }
+
+        includedirs {
+            "%{prj.name}",
+            "%{prj.name}/contrib/irrXML",
+            "%{prj.name}/contrib/unzip",
+            "%{prj.name}/contrib/zlib",
+            "%{prj.name}/include",
+            "%{prj.name}/include/assimp"
+        }
+
+        defines {
+            "ASSIMP_BUILD_DLL_EXPORT",
+            "ASSIMP_BUILD_NO_EXPORT",
+            "ASSIMP_BUILD_NO_BLEND_IMPORTER",
+            "ASSIMP_BUILD_NO_C4D_IMPORTER",
+            "ASSIMP_BUILD_NO_GLTF_IMPORTER",
+            "ASSIMP_BUILD_NO_IFC_IMPORTER",
+            "ASSIMP_BUILD_NO_OPENGEX_IMPORTER",
+            "ASSIMP_BUILD_NO_STEP_IMPORTER",
+            "ASSIMP_IMPORTER_GLTF_USE_OPEN3DGC"
+        }
+
+        filter "system:windows"
+            cppdialect "C++17"
+            staticruntime "On"
+            systemversion "latest"
+
+            postbuildcommands
+            {
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+            }
+
+        filter "configurations:Debug"
+            defines { "DEBUG" }
+            buildoptions "/MDd"
+            symbols "On"
+
+        filter "configurations:Release"
+            defines { "NDEBUG" }
+            buildoptions "/MD"
+            optimize "On"
+
+        filter "configurations:Dist"
+            defines { "NDEBUG" }
+            buildoptions "/MD"
+            optimize "Full"
