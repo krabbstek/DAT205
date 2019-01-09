@@ -24,11 +24,14 @@ GLTexture2D* colorOverlayTexture;
 float t = 0.0f;
 mat4 translate(1.0f);
 mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
-mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
+mat4 view = mat4::Translate(0.0f, 0.0f, 2.0f) * mat4::RotateY(0.5f);
+
+Mesh* cube;
 
 void core::OnStart()
 {
 	//Model::LoadOBJModelFromFile("../Core/res/models/house/cottage_obj.obj");
+	cube = Mesh::Cube();
 
 	MVP = projection * view;
 	prevMVP = projection * view;
@@ -152,9 +155,9 @@ void core::OnRender()
 #endif
 
 	GLFramebuffer::SetDefaultFramebuffer();
-	vao->Bind();
-	ibo->Bind();
+	cube->GetVertexArray()->Bind();
+	cube->GetIndexBuffer()->Bind();
 	shader->Bind();
 	texture->Bind();
-	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, cube->GetIndexBuffer()->Count(), GL_UNSIGNED_INT, 0);
 }

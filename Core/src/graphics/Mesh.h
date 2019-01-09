@@ -15,7 +15,10 @@ namespace core {
 
 		static Mesh* Cube();
 
-		inline void SetShader(GLShader* shader) { m_Shader = shader; };
+		inline void SetShader(GLShader* shader) { m_Shader = shader; }
+
+		inline GLIndexBuffer* GetIndexBuffer() const { return m_IBO; }
+		inline GLVertexArray* GetVertexArray() const { return m_VAO; }
 
 	protected:
 		GLIndexBuffer* m_IBO;
