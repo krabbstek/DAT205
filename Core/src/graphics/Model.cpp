@@ -226,6 +226,8 @@ namespace core {
 
 		GLIndexBuffer* ibo = new GLIndexBuffer(i, indices.size());
 
+		//auto m = importer.ReadFile("../Core/res/models/dragon/Dragon 2.5_dae.dae", 0);
+
 		model->m_VAO = vao;
 		model->m_IBO = ibo;
 

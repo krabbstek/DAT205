@@ -23,12 +23,12 @@ GLTexture2D* colorOverlayTexture;
 
 float t = 0.0f;
 mat4 translate(1.0f);
-mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);  //mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
 mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
 
 void core::OnStart()
 {
-	Model::LoadOBJModelFromFile("../Core/res/models/house/cottage_obj.obj");
+	//Model::LoadOBJModelFromFile("../Core/res/models/house/cottage_obj.obj");
 
 	MVP = projection * view;
 	prevMVP = projection * view;
@@ -79,10 +79,10 @@ void core::OnStart()
 	{
 		float v[] =
 		{
-			-0.5f, -0.5f,  0.0f, 0.0f,
-			 0.5f, -0.5f,  1.0f, 0.0f,
-			 0.5f,  0.5f,  1.0f, 1.0f,
-			-0.5f,  0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+			 0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
+			 0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
 		};
 		unsigned int i[] =
 		{
@@ -92,6 +92,7 @@ void core::OnStart()
 		vbo = new GLVertexBuffer(v, sizeof(v));
 		GLVertexBufferLayout layout;
 		layout.Push(GL_FLOAT, 2);
+		layout.Push(GL_FLOAT, 3);
 		layout.Push(GL_FLOAT, 2);
 		vbo->SetVertexBufferLayout(layout);
 		vao = new GLVertexArray();
@@ -101,8 +102,10 @@ void core::OnStart()
 		ibo->Bind();
 
 		shader = new GLShader();
-		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vs.glsl");
-		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_fs.glsl");
+		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vs.glsl");
+		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_fs.glsl");
+		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
+		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
 		shader->CompileShaders();
 		shader->Bind();
 
@@ -123,12 +126,14 @@ void core::OnUpdate(float deltaTime)
 	translate = mat4::Translate(x, 0.0f, 0.0f);
 	MVP = projection * view * translate;
 
-	shader->SetUniformMat4("MVP", MVP);
-	shader->SetUniformMat4("prevMVP", prevMVP);
+	//shader->SetUniformMat4("MVP", MVP);
+	//shader->SetUniformMat4("prevMVP", prevMVP);
+	shader->SetUniformMat4("transformation", MVP);
 }
 
 void core::OnRender()
 {
+#if 0
 	velocityFramebuffer->Bind();
 	GLFramebuffer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	vao->Bind();
@@ -144,4 +149,12 @@ void core::OnRender()
 	velocityFramebufferColorTexture->Bind(0);
 	velocityFramebufferVelocityTexture->Bind(1);
 	glDrawElements(GL_TRIANGLES, fullscreenTextureIBO->Count(), GL_UNSIGNED_INT, 0);
+#endif
+
+	GLFramebuffer::SetDefaultFramebuffer();
+	vao->Bind();
+	ibo->Bind();
+	shader->Bind();
+	texture->Bind();
+	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
 }
