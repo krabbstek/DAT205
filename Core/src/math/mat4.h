@@ -53,9 +53,10 @@ namespace core {
 
 		/* Standard matrix multiplication. */
 		mat4& Multiply(const mat4& matrix);
+		static mat4 Multiply(const mat4& left, const mat4& right);
 
 		inline mat4& operator*=(const mat4& matrix) { return Multiply(matrix); }
-		friend mat4 CORE_API operator*(mat4 left, const mat4& right);
+		friend mat4 CORE_API operator*(const mat4& left, const mat4& right);
 
 		vec3 Multiply(const vec3& vec) const;
 		vec3 RightMultiply(const vec3& vec) const;
