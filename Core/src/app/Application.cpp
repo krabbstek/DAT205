@@ -81,7 +81,8 @@ namespace core {
 		ImGui_ImplGlfw_InitForOpenGL(s_Window->m_Window, true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 
-		GLCall(glClearColor(0.0f, 0.2f, 0.0f, 0.0f));
+		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		GLCall(glEnable(GL_DEPTH_TEST));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		glfwSwapBuffers(s_Window->m_Window);
 
