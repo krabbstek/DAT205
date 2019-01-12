@@ -6,15 +6,16 @@ namespace core {
 
 	class CORE_API Entity;
 
-	enum ComponentType
+	enum CORE_API ComponentType
 	{
 		NONE = 0,
+		TRANSFORM,
 	};
 
 	class CORE_API Component
 	{
 	public:
-		virtual ~Component();
+		virtual ~Component() {}
 
 		virtual ComponentType GetComponentType() const = 0;
 

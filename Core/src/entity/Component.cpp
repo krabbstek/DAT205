@@ -6,12 +6,6 @@
 
 namespace core {
 
-	Component::~Component()
-	{
-		if (!m_Entity)
-		{
-			m_Entity->RemoveComponentInternal(GetComponentType());
-		}
-	}
+	
 
 }
