@@ -11,6 +11,9 @@ namespace core {
 	class CORE_API Entity
 	{
 	public:
+		Entity() {}
+		virtual ~Entity();
+
 		/// <summary>
 		///	Adds component to entity. Replaces old component of same type if it exists.
 		///	Returns old component of same type if it exists.
@@ -25,17 +28,35 @@ namespace core {
 
 		/// <summary>
 		/// Removes component from entity if the entity contains the exact same component.
+		/// Also deletes component from memory.
 		/// Returns true if the component was successfully removed, false otherwise.
 		/// </summary>
 		bool RemoveComponent(Component* component);
 		/// <summary>
 		/// Removes component of specific type from entity.
-		/// Returns pointer to removed component.
+		/// Also deletes component from memory.
+		/// Returns true if component was removed and deleted.
 		/// </summary>
-		Component* RemoveComponent(ComponentType componentType);
+		bool RemoveComponent(ComponentType componentType);
 
 	protected:
 		std::unordered_map<ComponentType, Component*> m_Components;
+
+	private:
+		/// <summary>
+		/// Removes exact component if entity contains it.
+		/// Returns true if a component was removed, nullptr otherwise.
+		/// Does not delete component from memory.
+		/// </summary>
+		bool RemoveComponentInternal(Component* component);
+		/// <summary>
+		/// Removes component of specific component type from entity.
+		/// Returns pointer to removed component if a component was removed, nullptr otherwise.
+		/// Does not delete component from memory.
+		/// </summary>
+		Component* RemoveComponentInternal(ComponentType componentType);
+
+		friend class CORE_API Component;
 	};
 
 }
