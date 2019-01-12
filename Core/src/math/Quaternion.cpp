@@ -103,7 +103,73 @@ namespace core {
 	}
 
 
-	Quaternion operator*(const Quaternion& left, const Quaternion& right)
+	vec3 Quaternion::TransformPosition(const vec3& vec) const
+	{
+		float w1 = -x * vec.x - y * vec.y - z * vec.z;
+		float x1 = w * vec.x + y * vec.z - z * vec.y;
+		float y1 = w * vec.y + z * vec.x - x * vec.z;
+		float z1 = w * vec.z + x * vec.y - y * vec.x;
+
+		//float w2 = w1 * w + x1 * x + y1 * y + z1 * z;
+		float x2 = -w1 * x + x1 * w - y1 * z + z1 * y;
+		float y2 = -w1 * y + x1 * z + y1 * w - z1 * x;
+		float z2 = -w1 * z - x1 * y + y1 * x + z1 * w;
+
+		return vec3(x2, y2, z2);
+	}
+
+	vec4 Quaternion::TransformPosition(const vec4& vec) const
+	{
+		float w1 = -x * vec.x - y * vec.y - z * vec.z;
+		float x1 = w * vec.x + y * vec.z - z * vec.y;
+		float y1 = w * vec.y + z * vec.x - x * vec.z;
+		float z1 = w * vec.z + x * vec.y - y * vec.x;
+
+		//float w2 = w1 * w + x1 * x + y1 * y + z1 * z;
+		float x2 = -w1 * x + x1 * w - y1 * z + z1 * y;
+		float y2 = -w1 * y + x1 * z + y1 * w - z1 * x;
+		float z2 = -w1 * z - x1 * y + y1 * x + z1 * w;
+
+		return vec4(x2, y2, z2, 1.0f);
+	}
+
+
+	mat4 Quaternion::Matrix() const
+	{
+		mat4 rotation;
+
+		float w2 = w * w;
+		float x2 = x * x;
+		float y2 = y * y;
+		float z2 = z * z;
+
+		float xy = 2.0f * x * y;
+		float xz = 2.0f * x * z;
+		float yz = 2.0f * y * z;
+
+		float xw = 2.0f * x * w;
+		float yw = 2.0f * y * w;
+		float zw = 2.0f * z * w;
+
+		rotation.elements[0 + 0 * 4] = w2 + x2 - y2 - z2;
+		rotation.elements[1 + 0 * 4] = xy + zw;
+		rotation.elements[2 + 0 * 4] = xz - yw;
+
+		rotation.elements[0 + 1 * 4] = xy - zw;
+		rotation.elements[1 + 1 * 4] = w2 - x2 + y2 - z2;
+		rotation.elements[2 + 1 * 4] = yz + xw;
+
+		rotation.elements[0 + 2 * 4] = xz + yw;
+		rotation.elements[1 + 2 * 4] = yz - xw;
+		rotation.elements[2 + 2 * 4] = w2 - x2 - y2 + z2;
+
+		rotation.elements[3 + 3 * 4] = 1.0f;
+
+		return rotation;
+	}
+
+
+	Quaternion CORE_API operator*(const Quaternion& left, const Quaternion& right)
 	{
 		return Quaternion::Multiply(left, right);
 	}

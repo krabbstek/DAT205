@@ -6,6 +6,7 @@ namespace core {
 
 	struct vec3;
 	struct vec4;
+	struct mat4;
 
 	struct CORE_API Quaternion
 	{
@@ -31,7 +32,12 @@ namespace core {
 		Quaternion& Invert();
 		static Quaternion Inverse(const Quaternion& quat);
 
-		friend Quaternion operator*(const Quaternion& left, const Quaternion& right);
+		vec3 TransformPosition(const vec3& vec) const;
+		vec4 TransformPosition(const vec4& vec) const;
+
+		mat4 Matrix() const;
+
+		friend Quaternion CORE_API operator*(const Quaternion& left, const Quaternion& right);
 		inline Quaternion& operator*=(const Quaternion& quat) { return Multiply(quat); }
 
 		Quaternion& Normalize();
