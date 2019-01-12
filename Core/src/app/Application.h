@@ -14,7 +14,7 @@ namespace core {
 	class CORE_API Application
 	{
 	public:
-		static bool Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(float), void(*OnRender)(void));
+		static bool Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(float), void(*OnRender)(void), void(*OnQuit)(void));
 		static void Terminate();
 
 		static void Run();
@@ -36,6 +36,8 @@ namespace core {
 		static void(*s_OnUpdate)(float);
 		/* Function pointer to user-defined OnRender function. */
 		static void(*s_OnRender)(void);
+		/* Function pointer to user-defined OnQuit function. */
+		static void(*s_OnQuit)(void);
 
 		friend int ::WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 	};

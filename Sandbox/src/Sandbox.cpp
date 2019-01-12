@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "../Core.h"
+#include "Core.h"
+#include "imgui.h"
 
 using namespace core;
 
@@ -21,16 +22,18 @@ GLShader* shader;
 GLTexture2D* texture;
 GLTexture2D* colorOverlayTexture;
 
+Mesh* cube;
+
 float t = 0.0f;
 mat4 translate(1.0f);
 mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
 mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
 
-Mesh* cube;
+float rx, ry, rz;
 
 void core::OnStart()
 {
-	//Model::LoadOBJModelFromFile("../Core/res/models/house/cottage_obj.obj");
+	Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae");
 	cube = Mesh::Cube();
 
 	MVP = projection * view;
@@ -61,8 +64,8 @@ void core::OnStart()
 		fullscreenTextureVAO->AddVertexBuffer(*fullscreenTextureVBO);
 
 		fullscreenTextureShader = new GLShader();
-		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_vs.glsl");
-		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_fs.glsl");
+		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../res/shaders/fullscreen_motion_blur_texture_vs.glsl");
+		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../res/shaders/fullscreen_motion_blur_texture_fs.glsl");
 		fullscreenTextureShader->CompileShaders();
 	}
 
@@ -105,15 +108,16 @@ void core::OnStart()
 		ibo->Bind();
 
 		shader = new GLShader();
-		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vs.glsl");
-		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_fs.glsl");
-		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
-		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
+		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../res/shaders/basic_motion_blur_vs.glsl");
+		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../res/shaders/basic_motion_blur_fs.glsl");
+		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../res/shaders/basic_vert.glsl");
+		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../res/shaders/basic_frag.glsl");
 		shader->CompileShaders();
 		shader->Bind();
+		cube->SetShader(shader);
 
 		texture = new GLTexture2D();
-		texture->LoadFromFile("../Core/res/textures/Test.png");
+		texture->LoadFromFile("../res/textures/Test.png");
 		texture->SetWrapST(GL_CLAMP_TO_EDGE);
 		texture->SetMinMagFilter(GL_LINEAR);
 		texture->Bind(0);
@@ -127,7 +131,9 @@ void core::OnUpdate(float deltaTime)
 
 	prevMVP = MVP;
 	translate = mat4::Translate(x, 0.0f, 0.0f);
-	MVP = projection * view * translate;
+	//MVP = projection * view * translate;
+	Quaternion qx = Quaternion::Rotation(vec3(1.0f, 0.0f, 0.0f), PI / 4);
+	MVP = projection * view * qx.Matrix();
 
 	//shader->SetUniformMat4("MVP", MVP);
 	//shader->SetUniformMat4("prevMVP", prevMVP);
@@ -136,6 +142,19 @@ void core::OnUpdate(float deltaTime)
 
 void core::OnRender()
 {
+	ImGui::Begin("SandBox1");
+	ImGui::SliderAngle("RX", &rx, -180.0f, 180.0f);
+	ImGui::SliderAngle("RY", &ry, -180.0f, 180.0f);
+	ImGui::SliderAngle("RZ", &rz, -180.0f, 180.0f);
+	ImGui::End();
+	
+	Quaternion qx = Quaternion::Rotation(vec3(1.0f, 0.0f, 0.0f), rx);
+	Quaternion qy = Quaternion::Rotation(vec3(0.0f, 1.0f, 0.0f), ry);
+	Quaternion qz = Quaternion::Rotation(vec3(0.0f, 0.0f, 1.0f), rz);
+	Quaternion q = qx * qy * qz;
+	MVP = projection * view * q.Matrix();
+	shader->SetUniformMat4("transformation", MVP);
+
 #if 0
 	velocityFramebuffer->Bind();
 	GLFramebuffer::Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -155,9 +174,26 @@ void core::OnRender()
 #endif
 
 	GLFramebuffer::SetDefaultFramebuffer();
-	cube->GetVertexArray()->Bind();
-	cube->GetIndexBuffer()->Bind();
-	shader->Bind();
-	texture->Bind();
-	glDrawElements(GL_TRIANGLES, cube->GetIndexBuffer()->Count(), GL_UNSIGNED_INT, 0);
+	cube->Render();
+}
+
+void core::OnQuit()
+{
+	delete fullscreenTextureIBO;
+	delete fullscreenTextureShader;
+	delete fullscreenTextureVAO;
+	delete fullscreenTextureVBO;
+
+	delete velocityFramebuffer;
+	delete velocityFramebufferColorTexture;
+	delete velocityFramebufferVelocityTexture;
+
+	delete ibo;
+	delete vbo;
+	delete vao;
+	delete shader;
+	delete texture;
+	delete colorOverlayTexture;
+
+	delete cube;
 }
