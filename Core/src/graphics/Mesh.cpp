@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 
+#include "opengl/GLCommon.h"
 #include "opengl/GLVertexBuffer.h"
 
 namespace core {
@@ -99,6 +100,23 @@ namespace core {
 		cube = new Mesh(&vao, &ibo, nullptr);
 
 		return cube;
+	}
+
+
+	void Mesh::Render()
+	{
+		m_Shader->Bind();
+		m_VAO->Bind();
+		m_IBO->Bind();
+		for (unsigned int i = 0; i < m_Textures.size(); i++)
+		{
+			GLTexture2D* texture = m_Textures.at(i);
+			if (texture)
+				texture->Bind(i);
+			else
+				GLTexture2D::Unbind(i);
+		}
+		GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
 	}
 
 }
