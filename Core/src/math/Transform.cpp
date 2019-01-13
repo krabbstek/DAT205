@@ -5,7 +5,7 @@
 namespace core {
 
 	Transform::Transform()
-		: m_RotationOrder(YXZ)
+		: position(0.0f), rotation(0.0f), scale(1.0f)
 	{
 	}
 
@@ -13,34 +13,18 @@ namespace core {
 	mat4 Transform::GetTransformationMatrix() const
 	{
 		mat4 t = mat4::Translate(position);
-		Quaternion qx = Quaternion::RotateX(rotation.x);
-		Quaternion qy = Quaternion::RotateY(rotation.y);
-		Quaternion qz = Quaternion::RotateZ(rotation.z);
-		Quaternion q;
-		switch (m_RotationOrder)
-		{
-		case XYZ:
-			q = qx * qy * qz;
-			break;
-		case XZY:
-			q = qx * qz * qy;
-			break;
-		case YXZ:
-			q = qy * qx * qz;
-			break;
-		case YZX:
-			q = qy * qz = qx;
-			break;
-		case ZXY:
-			q = qz * qx * qy;
-			break;
-		case ZYX:
-			q = qz * qy * qx;
-			break;
-		}
-		mat4 r = q.Matrix();
+		Quaternion qr = Quaternion::RotateY(rotation.y) * Quaternion::RotateX(rotation.x) * Quaternion::RotateZ(rotation.z);
+		mat4 r = qr.Matrix();
 		mat4 s = mat4::Scale(scale);
+
 		return t * r * s;
+	}
+
+
+	ComponentType* Transform::GetComponentTypeStatic()
+	{
+		static ComponentType type = { "Transform" };
+		return &type;
 	}
 
 }
