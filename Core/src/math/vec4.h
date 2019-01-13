@@ -100,6 +100,8 @@ namespace core {
 		friend CORE_API vec4 operator/(float f, vec4 vec);
 		friend CORE_API vec4 operator/(vec4 left, const vec4& right);
 
+		inline vec4 operator-() const { return vec4(-x, -y, -z, -w); }
+
 		bool operator<(const vec4& vec) const;
 		bool operator<=(const vec4& vec) const;
 		bool operator>(const vec4& vec) const;
