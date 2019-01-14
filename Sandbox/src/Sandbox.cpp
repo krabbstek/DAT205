@@ -14,6 +14,8 @@ GLTexture2D* colorOverlayTexture;
 
 Mesh* cube;
 
+Entity* testEntity;
+
 float t = 0.0f;
 mat4 translate(1.0f);
 mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
@@ -65,6 +67,11 @@ void core::OnStart()
 		texture->SetMinMagFilter(GL_LINEAR);
 		texture->Bind(0);
 	}
+
+	testEntity = new Entity();
+	testEntity->AddComponent(new Transform());
+	testEntity->AddComponent(new Camera());
+	testEntity->GetComponent<Camera>()->SetPerspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
 }
 
 void core::OnUpdate(float deltaTime)
@@ -84,6 +91,7 @@ void core::OnRender()
 	Quaternion qy = Quaternion::Rotation(vec3(0.0f, 1.0f, 0.0f), ry);
 	Quaternion qz = Quaternion::Rotation(vec3(0.0f, 0.0f, 1.0f), rz);
 	Quaternion q = qx * qy * qz;
+	projection = testEntity->GetComponent<Camera>()->GetProjectionMatrix();
 	MVP = projection * view * q.Matrix();
 	shader->SetUniformMat4("transformation", MVP);
 
@@ -100,5 +108,6 @@ void core::OnQuit()
 	delete texture;
 	delete colorOverlayTexture;
 
+	delete testEntity;
 	delete cube;
 }

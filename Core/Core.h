@@ -9,6 +9,7 @@
 #include <entity/Component.h>
 #include <entity/Entity.h>
 
+#include <graphics/Camera.h>
 #include <graphics/Mesh.h>
 #include <graphics/Model.h>
 
@@ -26,5 +27,6 @@
 #include <math/vec4.h>
 #include <math/mat4.h>
 #include <math/Quaternion.h>
+#include <math/Transform.h>
 
 #include <system/file_utils.h>
