@@ -20,6 +20,16 @@ namespace core {
 		return t * r * s;
 	}
 
+	mat4 Transform::GetInverseTransformationMatrix() const
+	{
+		mat4 t = mat4::Translate(-position);
+		Quaternion qr = Quaternion::RotateZ(-rotation.z) * Quaternion::RotateX(-rotation.x) * Quaternion::RotateY(-rotation.y);
+		mat4 r = qr.Matrix();
+		mat4 s = mat4::Scale(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z);
+
+		return s * r * t;
+	}
+
 
 	ComponentType* Transform::GetComponentTypeStatic()
 	{
