@@ -12,6 +12,12 @@ namespace core {
 	{
 	}
 
+	Mesh::~Mesh()
+	{
+		delete m_VAO;
+		delete m_IBO;
+	}
+
 
 	Mesh* Mesh::Cube()
 	{
@@ -63,11 +69,11 @@ namespace core {
 		layout.Push(GL_FLOAT, 3);
 		layout.Push(GL_FLOAT, 3);
 		layout.Push(GL_FLOAT, 2);
-		static GLVertexBuffer vbo(v, sizeof(v));
-		vbo.SetVertexBufferLayout(layout);
+		GLVertexBuffer* vbo = new GLVertexBuffer(v, sizeof(v));
+		vbo->SetVertexBufferLayout(layout);
 
-		static GLVertexArray vao = GLVertexArray();
-		vao.AddVertexBuffer(vbo);
+		GLVertexArray* vao = new GLVertexArray();
+		vao->AddVertexBuffer(*vbo);
 
 		static unsigned int i[] =
 		{
@@ -95,9 +101,9 @@ namespace core {
 			20, 21, 22,
 			20, 22, 23,
 		};
-		static GLIndexBuffer ibo = GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
+		GLIndexBuffer* ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
 
-		cube = new Mesh(&vao, &ibo, nullptr);
+		cube = new Mesh(vao, ibo, nullptr);
 
 		return cube;
 	}

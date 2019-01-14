@@ -16,6 +16,7 @@ namespace core {
 	{
 	public:
 		Mesh(GLVertexArray* vao, GLIndexBuffer* ibo, GLShader* shader);
+		~Mesh();
 
 		static Mesh* Cube();
 
