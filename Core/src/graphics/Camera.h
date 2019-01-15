@@ -15,6 +15,8 @@ namespace core {
 
 		void GenerateViewMatrix();
 
+		vec3 GetForward() const;
+
 		inline void SetPerspective(float fov, float aspectRatio, float near, float far) { m_ProjectionMatrix = mat4::Perspective(fov, aspectRatio, near, far); }
 		inline void SetOrthographic(float left, float right, float bottom, float top, float near, float far) { m_ProjectionMatrix = mat4::Orthographic(left, right, bottom, top, near, far); }
 
