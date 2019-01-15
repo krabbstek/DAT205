@@ -22,6 +22,7 @@ namespace core {
 			delete entry->second;
 
 		m_Components[type] = component;
+		component->m_Entity = this;
 	}
 
 
