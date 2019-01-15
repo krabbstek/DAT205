@@ -2,10 +2,10 @@
 
 #include "Common.h"
 
-namespace core {
+#include "vec2.h"
+#include "vec3.h"
 
-	struct CORE_API vec2;
-	struct CORE_API vec3;
+namespace core {
 
 	struct CORE_API vec4
 	{
@@ -20,6 +20,8 @@ namespace core {
 			{
 				float r, g, b, a;
 			};
+			vec2 xy;
+			vec3 xyz;
 		};
 
 	public:
