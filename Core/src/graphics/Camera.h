@@ -19,6 +19,7 @@ namespace core {
 		inline void SetOrthographic(float left, float right, float bottom, float top, float near, float far) { m_ProjectionMatrix = mat4::Orthographic(left, right, bottom, top, near, far); }
 
 		inline const mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
+		inline const mat4& GetViewMatrix() const { return m_ViewMatrix; }
 
 		inline virtual ComponentType* GetComponentType() const { return GetComponentTypeStatic(); }
 		static ComponentType* GetComponentTypeStatic();
