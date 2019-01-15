@@ -72,6 +72,9 @@ void core::OnStart()
 	testEntity->AddComponent(new Transform());
 	testEntity->AddComponent(new Camera());
 	testEntity->GetComponent<Camera>()->SetPerspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
+
+	vec3 move = -2.0f * testEntity->GetComponent<Camera>()->GetForward();
+	testEntity->GetComponent<Transform>()->Move(move);
 }
 
 void core::OnUpdate(float deltaTime)
@@ -92,6 +95,8 @@ void core::OnRender()
 	Quaternion qz = Quaternion::Rotation(vec3(0.0f, 0.0f, 1.0f), rz);
 	Quaternion q = qx * qy * qz;
 	projection = testEntity->GetComponent<Camera>()->GetProjectionMatrix();
+	testEntity->GetComponent<Camera>()->GenerateViewMatrix();
+	view = testEntity->GetComponent<Camera>()->GetViewMatrix();
 	MVP = projection * view * q.Matrix();
 	shader->SetUniformMat4("transformation", MVP);
 
