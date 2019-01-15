@@ -37,6 +37,10 @@ namespace core {
 		vec3(const vec3& vec);
 		vec3(const vec4& vec);
 
+		inline static vec3 X() { return vec3(1.0f, 0.0f, 0.0f); }
+		inline static vec3 Y() { return vec3(0.0f, 1.0f, 0.0f); }
+		inline static vec3 Z() { return vec3(0.0f, 0.0f, 1.0f); }
+
 		vec3& Add(float f);
 		vec3& Add(float x, float y);
 		vec3& Add(float x, float y, float z);
