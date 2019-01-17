@@ -51,6 +51,8 @@ namespace core {
 		static mat4 Perspective(float fov, float aspectRatio, float near, float far);
 		static mat4 LookAt(const vec3& cameraPosition, const vec3& objectPosition, const vec3& up = { 0.0f, 1.0f, 0.0f });
 
+		vec4 GetColumn(unsigned int col) const;
+
 		mat4& Add(const mat4& matrix);
 		mat4& Subtract(const mat4& matrix);
 

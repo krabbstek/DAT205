@@ -471,6 +471,15 @@ namespace core {
 	}
 
 
+	vec4 mat4::GetColumn(unsigned int col) const
+	{
+		if (col > 3)
+			return vec4();
+
+		return vec4(*((vec4*)&elements[col * 4]));
+	}
+
+
 	mat4& mat4::Add(const mat4& matrix)
 	{
 		elements[0] += matrix.elements[0];
