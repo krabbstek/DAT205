@@ -9,6 +9,9 @@
 #include <entity/Component.h>
 #include <entity/Entity.h>
 
+#include <event/Event.h>
+#include <event/KeyEvent.h>
+
 #include <graphics/Camera.h>
 #include <graphics/Mesh.h>
 #include <graphics/Model.h>

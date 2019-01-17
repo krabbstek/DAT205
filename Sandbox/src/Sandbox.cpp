@@ -23,8 +23,61 @@ mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
 
 float rx, ry, rz;
 
+vec2 direction;
+float speed = 2.0f;
+
+void KeyCallback(KeyEvent& event)
+{
+	switch (event.GetEventType())
+	{
+	case EventType::KeyPressed:
+		switch (event.GetKeyCode())
+		{
+		case 'W':
+			direction.y = 1.0f;
+			break;
+
+		case 'S':
+			direction.y = -1.0f;
+			break;
+
+		case 'A':
+			direction.x = -1.0f;
+			break;
+
+		case 'D':
+			direction.x = 1.0f;
+			break;
+		}
+		break;
+
+	case EventType::KeyReleased:
+		switch (event.GetKeyCode())
+		{
+		case 'W':
+		case 'S':
+			direction.y = 0.0f;
+			break;
+
+		case 'A':
+		case 'D':
+			direction.x = 0.0f;
+			break;
+		}
+	}
+}
+
 void core::OnStart()
 {
+	Application::SetKeyPressedEventCallback(KeyCallback, 'W');
+	Application::SetKeyPressedEventCallback(KeyCallback, 'A');
+	Application::SetKeyPressedEventCallback(KeyCallback, 'S');
+	Application::SetKeyPressedEventCallback(KeyCallback, 'D');
+	Application::SetKeyReleasedEventCallback(KeyCallback, 'W');
+	Application::SetKeyReleasedEventCallback(KeyCallback, 'A');
+	Application::SetKeyReleasedEventCallback(KeyCallback, 'S');
+	Application::SetKeyReleasedEventCallback(KeyCallback, 'D');
+
 	//Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae");
 	cube = Mesh::Cube();
 
@@ -71,7 +124,7 @@ void core::OnStart()
 	testEntity = new Entity();
 	testEntity->AddComponent(new Transform());
 	testEntity->AddComponent(new Camera());
-	testEntity->GetComponent<Camera>()->SetPerspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
+	testEntity->GetComponent<Camera>()->SetPerspective(DegToRad(60.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
 
 	vec3 move = -2.0f * testEntity->GetComponent<Camera>()->GetForward();
 	testEntity->GetComponent<Transform>()->Move(move);
@@ -79,7 +132,14 @@ void core::OnStart()
 
 void core::OnUpdate(float deltaTime)
 {
-	
+	if (direction.x != 0.0f || direction.y != 0.0f)
+	{
+		vec3 forward = testEntity->GetComponent<Camera>()->GetForward();
+		vec3 right = forward.Cross(vec3::Y()).Normalize();
+
+		vec3 move = vec3::Normalize(forward * direction.y + right * direction.x);
+		testEntity->GetComponent<Transform>()->Move((speed * deltaTime) * move);
+	}
 }
 
 void core::OnRender()
