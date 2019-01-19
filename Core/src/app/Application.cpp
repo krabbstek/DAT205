@@ -144,7 +144,9 @@ namespace core {
 				_Application_Updates = 0;
 				tFpsUpsPrev += std::chrono::seconds(1);
 
+#ifdef CORE_CONTINUOUSLY_PRINT_MEMORY_STATUS
 				Allocator::PrintStatus();
+#endif
 			}
 
 			while (deltaUpdate >= 1.0)
