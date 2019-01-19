@@ -6,4 +6,6 @@
 	#define CORE_API __declspec(dllimport)
 #endif
 
+#include "system/Memory.h"
+
 #define BIT(x) (1 << x)
