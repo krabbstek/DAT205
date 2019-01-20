@@ -20,8 +20,6 @@ namespace core {
 	private:
 		GLuint m_RendererID;
 		unsigned int m_Count;
-
-		static GLuint s_CurrentRendererID;
 	};
 
 }

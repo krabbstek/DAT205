@@ -11,9 +11,6 @@
 
 namespace core {
 
-	GLuint GLShader::s_CurrentRendererID = 0;
-
-
 	GLShader::GLShader()
 		: m_RendererID(0)
 	{
@@ -23,11 +20,6 @@ namespace core {
 	{
 		if (m_RendererID)
 		{
-			if (s_CurrentRendererID == m_RendererID)
-			{
-				GLCall(glUseProgram(0));
-				s_CurrentRendererID = 0;
-			}
 			GLCall(glDeleteProgram(m_RendererID));
 		}
 	}
@@ -113,20 +105,12 @@ namespace core {
 
 	void GLShader::Bind() const
 	{
-		if (m_RendererID != s_CurrentRendererID)
-		{
-			GLCall(glUseProgram(m_RendererID));
-			s_CurrentRendererID = m_RendererID;
-		}
+		GLCall(glUseProgram(m_RendererID));
 	}
 
 	void GLShader::Unbind() const
 	{
-		if (s_CurrentRendererID)
-		{
-			GLCall(glUseProgram(0));
-			s_CurrentRendererID = 0;
-		}
+		GLCall(glUseProgram(0));
 	}
 
 
