@@ -21,7 +21,7 @@ unsigned int indices[] =
 };
 
 Dissolve2DTest::Dissolve2DTest()
-	: m_IBO(indices, sizeof(indices) / sizeof(unsigned int)), m_VBO(vertices, sizeof(vertices)), m_VAO()
+	: m_IBO(indices, sizeof(indices) / sizeof(unsigned int)), m_VBO(vertices, sizeof(vertices)), m_VAO(), m_EmissionThreshold(0.03f), m_EmissionColor({ 1.0f, 1.0f, 1.0f })
 {
 	core::GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
