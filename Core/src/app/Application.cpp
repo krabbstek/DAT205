@@ -54,6 +54,8 @@ namespace core {
 		Log::Init();
 		CORE_TRACE("Initialized Log.");
 
+		Allocator::PrintStatus();
+
 		if (!glfwInit())
 		{
 			CORE_ERROR("Failed to initialize GLFW!");
@@ -113,6 +115,8 @@ namespace core {
 			delete s_Window;
 
 		glfwTerminate();
+
+		Allocator::PrintStatus();
 
 		Log::Terminate();
 	}

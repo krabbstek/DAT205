@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Core.h"
+#include "CoreMain.h"
 #include "imgui.h"
 
 using namespace core;
