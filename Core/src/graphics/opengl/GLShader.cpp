@@ -120,10 +120,17 @@ namespace core {
 		GLCall(glProgramUniform1f(m_RendererID, location, value));
 	}
 
-	void GLShader::SetUniform1i(const std::string& uniformName, int  value)
+	void GLShader::SetUniform1i(const std::string& uniformName, int value)
 	{
 		int location = GetUniformLocation(uniformName);
 		GLCall(glProgramUniform1i(m_RendererID, location, value));
+	}
+
+
+	void GLShader::SetUniform1fv(const std::string& uniformName, float* values, unsigned int count)
+	{
+		int location = GetUniformLocation(uniformName);
+		GLCall(glProgramUniform1fv(m_RendererID, location, count, values));
 	}
 
 
