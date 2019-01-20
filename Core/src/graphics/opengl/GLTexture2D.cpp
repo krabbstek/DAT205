@@ -25,6 +25,7 @@ namespace core {
 	{
 		Bind(MAX_TEXTURES - 1);
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, openGLFormat, width, height, 0, dataFormat, type, data));
+		GLCall(glGenerateTextureMipmap(m_RendererID));
 		m_Width = width;
 		m_Height = height;
 	}
