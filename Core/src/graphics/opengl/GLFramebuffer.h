@@ -15,9 +15,9 @@ namespace core {
 		~GLFramebuffer();
 
 		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
-		GLTexture2D* AttachTexture(GLuint internalFormat, unsigned int attachment = 0) const;
+		GLTexture2D* AttachTexture(GLuint internalFormat, GLuint storageType, unsigned int attachment = 0) const;
 		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
-		void AttachTexture(GLTexture2D& texture, GLuint internalFormat, unsigned int attachment = 0) const;
+		void AttachTexture(GLTexture2D& texture, GLuint internalFormat, GLuint storageType, unsigned int attachment = 0) const;
 
 		void GenerateDepthStencilRenderbuffer();
 		
@@ -26,6 +26,9 @@ namespace core {
 
 		void ClearColor(float r, float g, float b, float a) const;
 		static void Clear(GLuint mask);
+
+		void EnableBlending(GLenum srcFactor, GLenum dstFactor) const;
+		static void GLFramebuffer::EnableDefaultBlending(GLenum srcFactor, GLenum dstFactor);
 
 		void Bind() const;
 		static void Unbind();

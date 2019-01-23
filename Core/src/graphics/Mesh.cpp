@@ -7,6 +7,11 @@
 
 namespace core {
 
+	Mesh::Mesh(GLVertexArray* vao, GLIndexBuffer* ibo)
+		: m_VAO(vao), m_IBO(ibo), m_Shader(0)
+	{
+	}
+
 	Mesh::Mesh(GLVertexArray* vao, GLIndexBuffer* ibo, GLShader* shader)
 		: m_VAO(vao), m_IBO(ibo), m_Shader(shader)
 	{
@@ -14,8 +19,10 @@ namespace core {
 
 	Mesh::~Mesh()
 	{
-		delete m_VAO;
-		delete m_IBO;
+		if (m_VAO)
+			delete m_VAO;
+		if (m_IBO)
+			delete m_IBO;
 	}
 
 
@@ -111,7 +118,11 @@ namespace core {
 
 	void Mesh::Render()
 	{
-		m_Shader->Bind();
+		if (!(m_VAO && m_IBO))
+			return;
+
+		if (m_Shader)
+			m_Shader->Bind();
 		m_VAO->Bind();
 		m_IBO->Bind();
 		for (unsigned int i = 0; i < m_Textures.size(); i++)
