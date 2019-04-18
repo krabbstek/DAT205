@@ -1,18 +1,10 @@
-# Binaries
-bin
-bin-int
-
-# Project files
+# Visual studio files
+.vs/*
 *.sln
 *.vcxproj
-*.vcxproj.filters
 *.vcxproj.user
+*.vcxproj.filters
 
-# Visual Studio files
-.vs/
-
-# Premake
-Premake/
-
-# ImGui .ini
-imgui.ini
+# Binaries and intermediates
+bin/*
+bin-int/*
