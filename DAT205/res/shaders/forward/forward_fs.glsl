@@ -95,5 +95,8 @@ void main()
 	
 	metalTerm *= u_Material.albedo.rgb;
 	vec3 microfacetTerm = u_Material.metalness * metalTerm + (1.0 - u_Material.metalness) * dielectricTerm;
-	out_Color = u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * totalDiffuseTerm;
+	//out_Color = u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * totalDiffuseTerm;
+
+	//out_Color = u_Material.albedo.rgb;
+	out_Color = vec3(0.8, 0.2, 0.2);
 }

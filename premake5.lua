@@ -21,6 +21,7 @@ workspace "DAT205"
             "%{prj.name}/src/**.cpp",
             "%{prj.name}/vendor/**.h",
             "%{prj.name}/vendor/**.c",
+            "%{prj.name}/vendor/**.cc",
             "%{prj.name}/vendor/**.cpp",
         }
 
@@ -44,6 +45,7 @@ workspace "DAT205"
             "%{prj.name}/vendor/glad/include",
             "%{prj.name}/vendor/imgui",
             "%{prj.name}/vendor/stb",
+            "%{prj.name}/vendor/tinyobj",
             "%{wks.relpath}/Dependencies/GLFW/include",
         }
 

@@ -5,8 +5,7 @@
 GLVertexBuffer::GLVertexBuffer(const void* data, unsigned int size)
 {
 	GLCall(glGenBuffers(1, &m_RendererID));
-	Bind();
-	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+	SetData(data, size);
 }
 
 GLVertexBuffer::~GLVertexBuffer()
@@ -15,6 +14,13 @@ GLVertexBuffer::~GLVertexBuffer()
 	{
 		GLCall(glDeleteBuffers(1, &m_RendererID));
 	}
+}
+
+
+void GLVertexBuffer::SetData(const void* data, unsigned int size) const
+{
+	Bind();
+	GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
 
