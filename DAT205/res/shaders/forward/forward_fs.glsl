@@ -4,28 +4,25 @@
 
 in vec3 viewSpacePosition;
 in vec3 viewSpaceNormal;
+in vec2 texCoords;
 
 out vec3 out_Color;
 
 uniform struct Material
 {
 	vec4 albedo;
+	float emission;
 	float reflectivity;
 	float shininess;
 	float metalness;
 	float fresnel;
 } u_Material;
 
-struct Light
+uniform struct Light
 {
 	vec4 viewSpacePosition;
 	vec4 color;
-};
-
-layout (std430, binding = 3) buffer LightBuffer
-{
-	Light lights[];
-};
+} u_Light;
 
 
 float F(float wi_wh)
@@ -61,42 +58,35 @@ void main()
 	vec3 metalTerm = vec3(0.0);
 	vec3 diffuseTermPreComp = u_Material.albedo.rgb * (1.0 / PI);
 
-	uint numLights = lights.length();
+	vec3 wi = u_Light.viewSpacePosition.xyz - viewSpacePosition;
+	float inv_d2 = 1.0 / dot(wi, wi);
+	wi = normalize(wi);
+	float n_wi = dot(n, wi);
+	/*if (n_wi <= 0.0)
+		return;*/
 
-	for (int i = 0; i < numLights; i++)
-	{
-		vec3 wi = lights[i].viewSpacePosition.xyz - viewSpacePosition;
-		float lightThreshold = lights[i].color.a;
-		float inv_d2 = max(1.0 / dot(wi, wi) - lightThreshold, 0.0);
-		wi = normalize(wi);
-		float n_wi = dot(n, wi);
-		if (n_wi <= 0.0)
-			continue;
+	vec3 Li = u_Light.color.rgb * inv_d2;
+	vec3 wh = normalize(wi + wo);
 
-		vec3 Li = lights[i].color.rgb * inv_d2;
-		vec3 wh = normalize(wi + wo);
+	float n_wh = dot(n, wh);
+	float wi_wh = dot(wi, wh);
+	float wo_wh = dot(wo, wh);
 
-		float n_wh = dot(n, wh);
-		float wi_wh = dot(wi, wh);
-		float wo_wh = dot(wo, wh);
+	float F = F(wi_wh);
+	float D = D(n_wh);
+	float G = G(n_wi, n_wo, n_wh, wo_wh);
 
-		float F = F(wi_wh);
-		float D = D(n_wh);
-		float G = G(n_wi, n_wo, n_wh, wo_wh);
+	float brdf = brdf(F, D, G, n_wo, n_wi);
 
-		float brdf = brdf(F, D, G, n_wo, n_wi);
-
-		vec3 n_wi_Li = n_wi * Li;
-		vec3 diffuseTerm = diffuseTermPreComp * n_wi_Li;
-		dielectricTerm += brdf * n_wi * Li + (1.0 - F) * diffuseTerm;
-		metalTerm += brdf * n_wi_Li;
-		totalDiffuseTerm += diffuseTerm;
-	}
+	vec3 n_wi_Li = n_wi * Li;
+	vec3 diffuseTerm = diffuseTermPreComp * n_wi_Li;
+	dielectricTerm += brdf * n_wi * Li + (1.0 - F) * diffuseTerm;
+	metalTerm += brdf * n_wi_Li;
+	totalDiffuseTerm += diffuseTerm;
 	
 	metalTerm *= u_Material.albedo.rgb;
 	vec3 microfacetTerm = u_Material.metalness * metalTerm + (1.0 - u_Material.metalness) * dielectricTerm;
 	//out_Color = u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * totalDiffuseTerm;
 
-	//out_Color = u_Material.albedo.rgb;
-	out_Color = vec3(0.8, 0.2, 0.2);
+	out_Color = u_Material.albedo.rgb;
 }

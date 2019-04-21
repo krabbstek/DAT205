@@ -31,7 +31,8 @@ GLFWwindow* window;
 
 Renderer renderer;
 
-Material material;
+std::shared_ptr<Model> fighterModel;
+std::vector<std::shared_ptr<GLShader>> shaders;
 
 enum RENDER_MODE
 {
@@ -65,14 +66,7 @@ int main()
 
 		PlaneMesh planeMesh({ 0.0f, -0.5f, 0.0f }, { 24.0f, 24.0f });
 
-		material.albedo = vec4(0.2f, 0.3f, 0.8f);
-		material.emission = 0.0f;
-		material.reflectivity = 1.0f;
-		material.shininess = 1.0f;
-		material.metalness = 0.5f;
-		material.fresnel = 0.5f;
-
-		std::shared_ptr<Model> model = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj"));
+		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj"));
 
 		GLCall(glEnable(GL_DEPTH_TEST));
 		GLCall(glCullFace(GL_BACK));
@@ -86,6 +80,7 @@ int main()
 			// Default rendering
 			InitDefaultRendering();
 		}
+
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();
@@ -102,19 +97,24 @@ int main()
 
 			// Render
 			std::shared_ptr<RenderTechnique> currentRenderTechnique = renderModes[currentRenderMode].first;
-			//currentRenderTechnique->Render(planeMesh);
-			currentRenderTechnique->Render(*model);
+			fighterModel->modelMatrix = mat4::RotateY(currentTime.time_since_epoch().count() * 1e-9f) * mat4::Scale(0.5f);
+			currentRenderTechnique->Render(*fighterModel);
 			currentRenderTechnique->Render();
 			
 #ifdef USE_IMGUI
 			ImGuiRender();
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+ImGui::Render();
+ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
-			
-			glfwSwapBuffers(window);
+
+glfwSwapBuffers(window);
 		}
 	}
+
+	fighterModel.reset();
+
+	for (int i = 0; i < shaders.size(); i++)
+		shaders[i].reset();
 
 	for (int i = 0; i < NUM_RENDER_MODES; i++)
 		renderModes[i].first.reset();
@@ -177,6 +177,10 @@ void ImGuiRender()
 
 	ImGui::Begin("Config");
 
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+	ImGui::Separator();
+
 	ImGui::Text("Render mode");
 	for (int i = 0; i < NUM_RENDER_MODES; i++)
 		ImGui::RadioButton(renderModes[i].second.c_str(), (int*)&currentRenderMode, i);
@@ -189,14 +193,57 @@ void ImGuiRender()
 
 	ImGui::Separator();
 
-	ImGui::Separator();
+	static int meshIndex = 0;
+	static int materialIndex = fighterModel->GetMeshes()[meshIndex].materialIndex;
+	static auto meshGetter = [](void* vec, int index, const char** text)
+	{
+		auto& vector = *static_cast<std::vector<Mesh>*>(vec);
+		if (index < 0 || index >= static_cast<int>(vector.size()))
+			return false;
+		*text = vector[index].name.c_str();
+		return true;
+	};
+	static auto materialGetter = [](void* vec, int index, const char** text)
+	{
+		auto& vector = *static_cast<std::vector<Material>*>(vec);
+		if (index < 0 || index >= static_cast<int>(vector.size())) 
+			return false;
+		*text = vector[index].name.c_str();
+		return true;
+	};
 
-	ImGui::Text("Material");
-	ImGui::ColorEdit3("Albedo", &material.albedo.r);
-	ImGui::SliderFloat("Reflectivity", &material.reflectivity, 0.0f, 1.0f, "%.2f", 1.0f);
-	ImGui::SliderFloat("Shininess", &material.shininess, 0.0f, 1000.0f, "%.2f", 3.0f);
-	ImGui::SliderFloat("Metalness", &material.metalness, 0.0f, 1.0f, "%.2f", 1.0f);
-	ImGui::SliderFloat("Fresnel", &material.fresnel, 0.0f, 1.0f, "%.2f", 1.0f);
+	if (ImGui::CollapsingHeader("Meshes", true))
+	{
+		Mesh& mesh = fighterModel->GetMeshes()[meshIndex];
+
+		if (ImGui::ListBox("Meshes", &meshIndex, meshGetter, (void*)&fighterModel->GetMeshes(), fighterModel->GetMeshes().size(), 8))
+			materialIndex = mesh.materialIndex;
+
+		char name[256];
+		strcpy(name, mesh.name.c_str());
+		if (ImGui::InputText("Mesh Name", name, 256)) 
+			mesh.name = name;
+
+		Material& selectedMaterial = fighterModel->GetMaterials()[materialIndex];
+		if (ImGui::Combo("Material", &materialIndex, materialGetter, (void *)&fighterModel->GetMaterials(), fighterModel->GetMaterials().size()))
+			mesh.materialIndex = materialIndex;
+	}
+
+	if (ImGui::CollapsingHeader("Materials", true))
+	{
+		ImGui::ListBox("Materials", &materialIndex, materialGetter, (void*)&fighterModel->GetMaterials(), fighterModel->GetMaterials().size(), 8);
+		Material& material = fighterModel->GetMaterials()[materialIndex];
+		char name[256];
+		strcpy(name, material.name.c_str());
+		if (ImGui::InputText("Material Name", name, 256)) 
+			material.name = name;
+		ImGui::ColorEdit3("Color", &material.albedo.x);
+		ImGui::SliderFloat("Reflectivity", &material.reflectivity, 0.0f, 1.0f);
+		ImGui::SliderFloat("Metalness", &material.metalness, 0.0f, 1.0f);
+		ImGui::SliderFloat("Fresnel", &material.fresnel, 0.0f, 1.0f);
+		ImGui::SliderFloat("shininess", &material.shininess, 0.0f, 25000.0f);
+		ImGui::SliderFloat("Emission", &material.emission, 0.0f, 10.0f);
+	}
 
 	ImGui::End();
 }
@@ -220,6 +267,13 @@ void InitDefaultRendering()
 	forwardShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/forward/forward_vs.glsl");
 	forwardShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/forward/forward_fs.glsl");
 	forwardShader->CompileShaders();
+
+	forwardShader->SetUniform4f("u_Light.viewSpacePosition", renderer.camera.GetViewMatrix() * vec4(10.0f));
+	forwardShader->SetUniform4f("u_Light.color", vec4(1000.0f));
+
+	Material material;
+	material.albedo = vec4(1.0f);
+	material.Bind(*forwardShader);
 
 	// Render passes
 	std::shared_ptr<ClearDefaultFramebufferPass> clearDefaultFramebufferPass = std::make_shared<ClearDefaultFramebufferPass>(renderer, std::shared_ptr<GLShader>());
