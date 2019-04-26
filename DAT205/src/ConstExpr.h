@@ -5,10 +5,12 @@
 constexpr unsigned int g_WindowWidth = 1280;
 constexpr unsigned int g_WindowHeight = 720;
 
-constexpr float g_FOV = DegToRad(75.0f);
+constexpr float g_FOV = DegToRad(60.0f);
 constexpr float g_AspectRatio = float(g_WindowWidth) / float(g_WindowHeight);
 constexpr float g_NearPlaneDepth = 1.0f;
 constexpr float g_FarPlaneDepth = 100.0f;
+
+constexpr float g_MaxPitchAngle = DegToRad(85.0f);
 
 constexpr int g_NumGraphSamples = 240;
 constexpr float g_LargeGraphSizeX = 320.0f;

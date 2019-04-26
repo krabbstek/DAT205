@@ -11,9 +11,13 @@ public:
 	~GLTexture2D();
 
 	/* Loads image in data with format dataFormat and type type to texture with format openGLFormat. */
-	void Load(GLuint openGLFormat, const unsigned char* data, unsigned int width, unsigned int height, GLuint dataFormat, GLuint type);
+	void Load(GLuint openGLFormat, const void* data, unsigned int width, unsigned int height, GLuint dataFormat, GLuint type);
+	/* Loads image in data with format dataFormat and type type to texture with format openGLFormat into specified level. */
+	void Load(GLuint openGLFormat, const void* data, unsigned int width, unsigned int height, GLuint dataFormat, GLuint type, int level);
 	/* Loads image from file into texture. */
 	bool LoadFromFile(const char* filePath);
+	/* Loads image from file into texture in specified level. */
+	bool LoadFromFile(const char* filePath, int level);
 
 	void SetWrapS(GLuint parameter) const;
 	void SetWrapT(GLuint parameter) const;

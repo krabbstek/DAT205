@@ -2,6 +2,7 @@
 
 #include "graphics/Renderable.h"
 
+#include "graphics/Material.h"
 #include "graphics/opengl/OpenGL.h"
 
 class PlaneMesh : public Renderable
@@ -18,4 +19,5 @@ private:
 	std::shared_ptr<GLIndexBuffer> m_IBO;
 	vec3 m_Position;
 	vec3 m_Scale;
+	Material m_Material;
 };

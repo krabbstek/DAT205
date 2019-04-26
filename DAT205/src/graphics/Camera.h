@@ -11,4 +11,5 @@ public:
 	mat4 projectionMatrix;
 	
 	mat4 GetViewMatrix() const;
+	vec3 GetWorldSpaceForward() const;
 };

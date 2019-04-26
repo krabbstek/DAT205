@@ -18,6 +18,7 @@ public:
 		};
 		vec2 xy;
 		vec3 xyz;
+		vec3 rgb;
 	};
 
 public:

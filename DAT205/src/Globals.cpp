@@ -2,7 +2,9 @@
 
 #include "ConstExpr.h"
 
-float g_GlobalLightIntensity = 1000.0f;
-vec3 g_GlobalLightPosition = vec3(10.0f, 10.0f, 10.0f);
+Light g_GlobalLight = { vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1000.0f, 1000.0f, 1000.0f, 1.0f) };
+
+float g_EnvironmentMultiplier = 1.0f;
 
 float g_Time;
+float g_DeltaTime = 0.0f;

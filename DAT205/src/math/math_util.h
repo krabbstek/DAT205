@@ -15,7 +15,14 @@ inline constexpr float RadToDeg(float radians)
 }
 
 
-constexpr float Clamp(float val, float min, float max);
+constexpr float Clamp(float val, float min, float max)
+{
+	if (val <= min)
+		return min;
+	else if (val >= max)
+		return max;
+	return val;
+}
 
 
 inline constexpr float LinearInterpolate(float t, float t0, float t1)
