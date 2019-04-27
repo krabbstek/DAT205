@@ -4,6 +4,8 @@
 
 #define PI 3.141592653589793
 
+struct vec3;
+
 inline constexpr float DegToRad(float degrees)
 {
 	return degrees * (PI / 180.0);
@@ -31,5 +33,10 @@ inline constexpr float LinearInterpolate(float t, float t0, float t1)
 }
 
 float CubicInterpolate(float t);
+
+
+void ConcentricSampleDisk(float *dx, float *dy);
+vec3 CosineSampleHemisphere();
+float RandF();
 
 #pragma warning(default: 4244)

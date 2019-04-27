@@ -10,6 +10,7 @@ out vec3 out_Color;
 
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
+layout (binding = 9) uniform sampler2D u_SSAOTexture;
 
 uniform int u_NumTileCols;
 uniform int u_TileSize;
@@ -154,7 +155,9 @@ vec3 calculateIndirectIlluminationTerm()
 	vec3 irradiance = u_EnvironmentMultiplier * texture(u_IrradianceMap, lookup).rgb;
 	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * irradiance;
 
-	return diffuseTerm;
+	float ssao = texelFetch(u_SSAOTexture, ivec2(gl_FragCoord.xy), 0).r;
+
+	return ssao * diffuseTerm;
 }
 
 vec3 calculateGlossyReflection()

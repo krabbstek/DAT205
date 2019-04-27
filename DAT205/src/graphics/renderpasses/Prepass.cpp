@@ -1,7 +1,14 @@
 #include "Prepass.h"
 
-Prepass::Prepass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shared_ptr<GLTexture2D> viewSpacePositionTexture, std::shared_ptr<GLTexture2D> viewSpaceNormalTexture)
-	: RenderPass(renderer, shader), m_ViewSpacePositionTexture(viewSpacePositionTexture), m_ViewSpaceNormalTexture(viewSpaceNormalTexture)
+Prepass::Prepass(
+	Renderer& renderer, std::shared_ptr<GLShader> shader,
+	std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
+	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
+	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture)
+	: RenderPass(renderer, shader),
+	m_ViewSpacePositionTexture(viewSpacePositionTexture),
+	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
+	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture)
 {
 	GLCall(glGenFramebuffers(1, &m_PrepassFramebuffer));
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_PrepassFramebuffer));
@@ -13,8 +20,9 @@ Prepass::Prepass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shar
 	
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ViewSpacePositionTexture->RendererID(), 0));
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_ViewSpaceNormalTexture->RendererID(), 0));
-	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	GLCall(glDrawBuffers(2, attachments));
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_ClipSpaceVelocityTexture->RendererID(), 0));
+	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	GLCall(glDrawBuffers((sizeof(attachments) / sizeof(GLenum)), attachments));
 }
 
 Prepass::~Prepass()

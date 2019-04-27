@@ -8,7 +8,7 @@
 class Prepass : public RenderPass
 {
 public:
-	Prepass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shared_ptr<GLTexture2D> viewSpacePositionTexture, std::shared_ptr<GLTexture2D> viewSpaceNormalTexture);
+	Prepass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shared_ptr<GLTexture2D> viewSpacePositionTexture, std::shared_ptr<GLTexture2D> viewSpaceNormalTexture, std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture);
 	~Prepass();
 
 	virtual void Render(std::vector<Renderable*>& renderables) override;
@@ -20,4 +20,5 @@ private:
 	GLuint m_SharedDepthbuffer;
 	std::shared_ptr<GLTexture2D> m_ViewSpacePositionTexture;
 	std::shared_ptr<GLTexture2D> m_ViewSpaceNormalTexture;
+	std::shared_ptr<GLTexture2D> m_ClipSpaceVelocityTexture;
 };

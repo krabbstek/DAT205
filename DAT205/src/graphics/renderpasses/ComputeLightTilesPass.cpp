@@ -20,6 +20,7 @@ ComputeLightTilesPass::ComputeLightTilesPass(
 {
 	TileGrid* tileGrid = new TileGrid();
 
+	m_LightSSBO->SetData(&g_GlobalLight, sizeof(g_GlobalLight));
 	m_LightIndexSSBO->SetData(nullptr, BIT(24));
 
 	m_LeftPlanesSSBO = std::make_shared<GLShaderStorageBuffer>(tileGrid->leftPlanes, sizeof(tileGrid->leftPlanes));
@@ -55,10 +56,5 @@ void ComputeLightTilesPass::Render(std::vector<Renderable*>& renderables)
 	m_BottomPlanesSSBO->Bind(12);
 	m_TopPlanesSSBO->Bind(13);
 
-	m_Shader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
 	m_Shader->DispatchComputeShader(g_NumTileCols, g_NumTileRows, 1);
-
-	m_LightIndexSSBO->Bind();
-	int numLights;
-	GLCall(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(numLights), &numLights));
 }

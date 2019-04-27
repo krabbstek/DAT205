@@ -44,6 +44,9 @@ public:
 	inline void SetUniform3f(const char* uniformName, const vec3& vec) { return SetUniform3f(std::string(uniformName), vec); }
 	void SetUniform3f(std::string& uniformName, const vec3& vec);
 
+	inline void SetUniform3fv(const char* uniformName, vec3* vectors, unsigned int count) { SetUniform3fv(std::string(uniformName), vectors, count); }
+	void SetUniform3fv(const std::string& uniformName, vec3* vectors, unsigned int count);
+
 	inline void SetUniform4f(const char* uniformName, float x, float y, float z, float w) { return SetUniform4f(std::string(uniformName), x, y, z, w); }
 	void SetUniform4f(std::string& uniformName, float x, float y, float z, float w);
 	inline void SetUniform4f(const char* uniformName, const vec4& vec) { return SetUniform4f(std::string(uniformName), vec); }
