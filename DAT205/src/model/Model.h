@@ -16,8 +16,11 @@ class Model : public Renderable
 {
 public:
 	mat4 modelMatrix;
+	mat4 prevModelMatrix;
 
 	static Model* LoadModelFromOBJ(const char* file);
+
+	inline void Update() { prevModelMatrix = modelMatrix; }
 
 	void PushMesh(const Mesh& mesh);
 
