@@ -8,6 +8,8 @@
 #define OUTPUT_GB  6
 #define OUTPUT_RGB 7
 
+in vec2 texCoords;
+
 out vec3 out_Color;
 
 uniform int u_TextureData = 7;
@@ -16,7 +18,7 @@ layout (binding = 0) uniform sampler2D u_Texture;
 
 void main()
 {
-	out_Color = texelFetch(u_Texture, ivec2(gl_FragCoord.xy), 0).rgb;
+	out_Color = texture(u_Texture, texCoords).rgb;
 
 	switch (u_TextureData)
 	{

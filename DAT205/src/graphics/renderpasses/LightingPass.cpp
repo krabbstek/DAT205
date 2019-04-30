@@ -9,6 +9,7 @@ LightingPass::LightingPass(
 	std::shared_ptr<GLTexture2D> irradianceMap,
 	std::shared_ptr<GLTexture2D> reflectionMap,
 	std::shared_ptr<GLTexture2D> ssaoTexture,
+	std::shared_ptr<GLTexture2D> bloomTexture,
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO)
@@ -26,9 +27,10 @@ LightingPass::LightingPass(
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, sharedDepthbuffer));
 
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture->RendererID(), 0));
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bloomTexture->RendererID(), 0));
 
-	GLenum attachment = GL_COLOR_ATTACHMENT0;
-	GLCall(glDrawBuffers(1, &attachment));
+	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	GLCall(glDrawBuffers(sizeof(attachments) / sizeof(GLenum), attachments));
 
 	m_Shader->SetUniform1i("u_TileSize", g_TileSize);
 }
@@ -58,6 +60,7 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	m_Shader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
 	m_Shader->SetUniform4f("u_Light.viewSpacePosition", g_GlobalLight.viewSpacePosition);
 	m_Shader->SetUniform4f("u_Light.color", g_GlobalLight.color);
+	m_Shader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
 
 	RenderPass::Render(renderables);
 }

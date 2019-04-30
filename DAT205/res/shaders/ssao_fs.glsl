@@ -91,7 +91,7 @@ void main()
 
 	float hemisphericalVisibility = 0.0;
 	if (numValidSamples > 0)
-		hemisphericalVisibility = float(numVisibleSamples) / float(numValidSamples);
+		hemisphericalVisibility = smoothstep(0.0, 1.0, float(numVisibleSamples) / float(numValidSamples));
 
 	out_Occlusion = vec3(hemisphericalVisibility);
 }

@@ -1,7 +1,12 @@
 #include "Blur2DPass.h"
 
-Blur2DPass::Blur2DPass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shared_ptr<GLTexture2D> inputTexture, std::shared_ptr<GLTexture2D> outputTexture)
-	: RenderPass(renderer, shader), m_InputTexture(inputTexture), m_OutputTexture(outputTexture), m_IntermediateTexture(std::make_shared<GLTexture2D>())
+Blur2DPass::Blur2DPass(Renderer& renderer, std::shared_ptr<GLShader> shader,
+	std::shared_ptr<GLTexture2D> inputTexture,
+	std::shared_ptr<GLTexture2D> outputTexture)
+	: RenderPass(renderer, shader),
+	m_InputTexture(inputTexture),
+	m_OutputTexture(outputTexture),
+	m_IntermediateTexture(std::make_shared<GLTexture2D>())
 {
 	m_IntermediateTexture->Load(GL_RGBA32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGBA, GL_UNSIGNED_BYTE);
 	m_IntermediateTexture->SetMinMagFilter(GL_NEAREST);
@@ -31,7 +36,7 @@ Blur2DPass::~Blur2DPass()
 
 void Blur2DPass::Render(std::vector<Renderable*>& renderables)
 {
-	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
+	GLCall(glViewport(0, 0, m_InputTexture->GetWidth(), m_InputTexture->GetHeight()));
 	GLCall(glDisable(GL_DEPTH_TEST));
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer1));

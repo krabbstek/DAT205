@@ -14,5 +14,8 @@ extern float g_EnvironmentMultiplier;
 
 extern float g_MotionBlurVelocityScale;
 
+extern float g_BloomAlpha;
+extern float g_BloomThreshold;
+
 extern float g_Time;
 extern float g_DeltaTime;

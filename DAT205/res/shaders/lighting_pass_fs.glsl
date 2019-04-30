@@ -7,6 +7,7 @@ in vec3 viewSpaceNormal;
 in vec2 texCoords;
 
 out vec3 out_Color;
+out vec3 out_BloomColor;
 
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
@@ -16,6 +17,7 @@ uniform int u_NumTileCols;
 uniform int u_TileSize;
 uniform int u_MaxNumLightsPerTile;
 uniform float u_EnvironmentMultiplier;
+uniform float u_BloomThreshold;
 uniform mat4 u_ViewInverse = mat4(1.0);
 
 uniform struct Material
@@ -240,35 +242,6 @@ void main()
 
 	out_Color = directIlluminationTerm + indirectIlluminationTerm + glossyReflectionTerm + emissionTerm;
 
-
-	/*
-	wi = u_Light.viewSpacePosition.xyz - viewSpacePosition.xyz;
-	d2 = dot(wi, wi);
-	inv_d2 = 1.0 / d2;
-	wi = normalize(wi);
-	wh = normalize(wi + wo);
-
-	Li = u_Light.color.rgb * inv_d2;
-
-	n_wi = dot(n, wi);
-	n_wo = dot(n, wo);
-	n_wh = dot(n, wh);
-	wi_wh = dot(wi, wh);
-	wo_wh = dot(wo, wh);
-
-	_F = F(wi_wh);
-	_D = D(n_wh);
-	_G = G(n_wi, n_wo, n_wh, wo_wh);
-
-	_brdf = brdf(_F, _D, _G, n_wo, n_wi);
-
-	n_wi_Li = n_wi * Li;
-
-	vec3 directIlluminationTerm = calculateDirectIlluminationTerm();
-	vec3 indirectIlluminationTerm = calculateIndirectIlluminationTerm();
-	vec3 glossyReflectionTerm = calculateGlossyReflection();
-	vec3 emissionTerm = u_Material.emission * u_Material.albedo.rgb;
-
-	out_Color = directIlluminationTerm + indirectIlluminationTerm + glossyReflectionTerm + emissionTerm;
-	*/
+	float brightness = out_Color.r + out_Color.g + out_Color.b;
+	out_BloomColor = brightness >= u_BloomThreshold ? out_Color : vec3(0.0);
 }

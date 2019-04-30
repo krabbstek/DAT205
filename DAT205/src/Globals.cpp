@@ -11,5 +11,8 @@ float g_EnvironmentMultiplier = 1.0f;
 
 float g_MotionBlurVelocityScale = 1.0f;
 
+float g_BloomAlpha = 1.0f;
+float g_BloomThreshold = 1.0f;
+
 float g_Time;
 float g_DeltaTime = 0.0f;
