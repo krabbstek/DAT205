@@ -10,7 +10,8 @@ SSAOPass::SSAOPass(
 	: RenderPass(renderer, shader),
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
-	m_RandomAnglesTexture(std::make_shared<GLTexture2D>())
+	m_RandomAnglesTexture(std::make_shared<GLTexture2D>()),
+	m_FullscreenMesh(shader)
 {
 	GLCall(glGenFramebuffers(1, &m_Framebuffer));
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
@@ -62,7 +63,7 @@ void SSAOPass::Render(std::vector<Renderable*>& renderables)
 	m_Shader->SetUniform1f("u_KernelSize", g_SSAOKernelSize);
 	m_Shader->SetUniform1f("u_Radius", g_SSAORadius);
 
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glEnable(GL_DEPTH_TEST));
 }

@@ -11,6 +11,7 @@ public:
 		: m_Renderer(renderer), m_Shader(shader) {}
 	virtual ~RenderPass() {}
 
+	virtual void PrepassRender(std::vector<Renderable*>& renderables);
 	virtual void Render(std::vector<Renderable*>& renderables);
 
 protected:

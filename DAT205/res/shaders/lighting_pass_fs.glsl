@@ -169,7 +169,7 @@ vec3 calculateGlossyReflection()
 	vec3 dir = normalize(mat3(u_ViewInverse) * wiGlossy);
 
 	// Calculate the spherical coordinates of the direction
-	float theta = acos(clamp(dir.y, -1.0f, 1.0f));
+	float theta = acos(max(-1.0f, min(1.0f, dir.y)));
 	float phi = atan(dir.z, dir.x);
 	if (phi < 0.0f)
 		phi = phi + 2.0f * PI;

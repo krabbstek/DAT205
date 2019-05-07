@@ -14,8 +14,8 @@ static unsigned int indices[] =
 	0, 2, 3,
 };
 
-PlaneMesh::PlaneMesh(const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/, const vec2& scale /*= { 0.0f, 0.0f }*/)
-	: m_Position(position), m_Scale(scale.x, 1.0, scale.y)
+PlaneMesh::PlaneMesh(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader, const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/, const vec2& scale /*= { 0.0f, 0.0f }*/)
+	: Renderable(prepassShader, mainShader), m_Position(position), m_Scale(scale.x, 1.0, scale.y)
 {
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 3);
@@ -42,17 +42,32 @@ PlaneMesh::~PlaneMesh()
 }
 
 
-void PlaneMesh::Render(const Renderer& renderer, GLShader& shader) const
+void PlaneMesh::PrepassRender(const Renderer& renderer) const
 {
-	shader.Bind();
+	m_PrepassShader->Bind();
 	mat4 M = mat4::Translate(m_Position) * mat4::Scale(m_Scale);
 	mat4 MV = renderer.camera.GetViewMatrix() * M;
 	const mat4& P = renderer.camera.projectionMatrix;
-	shader.SetUniformMat4("u_MV", MV);
-	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
-	shader.SetUniformMat4("u_MVP", P * MV);
+	m_PrepassShader->SetUniformMat4("u_MV", MV);
+	m_PrepassShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	m_PrepassShader->SetUniformMat4("u_MVP", P * MV);
 
-	m_Material.Bind(shader);
+	m_VAO->Bind();
+	m_IBO->Bind();
+	GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
+}
+
+void PlaneMesh::Render(const Renderer& renderer) const
+{
+	m_MainShader->Bind();
+	mat4 M = mat4::Translate(m_Position) * mat4::Scale(m_Scale);
+	mat4 MV = renderer.camera.GetViewMatrix() * M;
+	const mat4& P = renderer.camera.projectionMatrix;
+	m_MainShader->SetUniformMat4("u_MV", MV);
+	m_MainShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	m_MainShader->SetUniformMat4("u_MVP", P * MV);
+
+	m_Material.Bind(*m_MainShader);
 
 	m_VAO->Bind();
 	m_IBO->Bind();

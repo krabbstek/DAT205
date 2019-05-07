@@ -7,7 +7,8 @@ MotionBlurPass::MotionBlurPass(
 	std::shared_ptr<GLTexture2D> outputTexture)
 	: RenderPass(renderer, shader),
 	m_InputTexture(inputTexture),
-	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture)
+	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture),
+	m_FullscreenMesh(shader)
 {
 	GLCall(glGenFramebuffers(1, &m_Framebuffer));
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
@@ -43,7 +44,7 @@ void MotionBlurPass::Render(std::vector<Renderable*>& renderables)
 
 	m_Shader->SetUniform1f("u_VelocityScale", g_MotionBlurVelocityScale);
 
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glEnable(GL_DEPTH_TEST));
 }

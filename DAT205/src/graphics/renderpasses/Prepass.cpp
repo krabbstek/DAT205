@@ -38,5 +38,5 @@ void Prepass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-	RenderPass::Render(renderables);
+	RenderPass::PrepassRender(renderables);
 }

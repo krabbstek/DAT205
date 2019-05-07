@@ -11,7 +11,8 @@ BloomPass::BloomPass(Renderer& renderer, std::shared_ptr<GLShader> bloomShader,
 	m_BloomInputTexture(bloomInputTexture),
 	m_BloomIntermediateTexture1(std::make_shared<GLTexture2D>()),
 	m_BloomIntermediateTexture2(std::make_shared<GLTexture2D>()),
-	m_BloomOutputTexture(bloomOutputTexture)
+	m_BloomOutputTexture(bloomOutputTexture),
+	m_FullscreenMesh(blur1DShader)
 {
 	m_BloomIntermediateTexture1->Load(GL_RGB32F, nullptr, g_BloomTextureWidth, g_BloomTextureHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	m_BloomIntermediateTexture1->SetMinMagFilter(GL_LINEAR);
@@ -82,21 +83,25 @@ void BloomPass::Render(std::vector<Renderable*>& renderables)
 	m_Blur1DShader->SetUniform2f("u_ViewportSize", float(g_BloomTextureWidth), float(g_BloomTextureHeight));
 	m_Shader->SetUniform1f("u_BloomAlpha", g_BloomAlpha);
 
+	m_FullscreenMesh.SetMainShader(m_Blur1DShader);
+
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer1));
 	m_Blur1DShader->SetUniform1i("u_VerticalBlur", 0);
-	m_FullscreenMesh.Render(m_Renderer, *m_Blur1DShader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer2));
 	m_BloomIntermediateTexture1->Bind(0);
 	m_Blur1DShader->SetUniform1i("u_VerticalBlur", 1);
-	m_FullscreenMesh.Render(m_Renderer, *m_Blur1DShader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
+
+	m_FullscreenMesh.SetMainShader(m_Shader);
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer3));
 	m_LightingPassColorTexture->Bind(0);
 	m_BloomIntermediateTexture2->Bind(1);
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glEnable(GL_DEPTH_TEST));
 }

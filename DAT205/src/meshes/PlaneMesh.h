@@ -8,10 +8,11 @@
 class PlaneMesh : public Renderable
 {
 public:
-	PlaneMesh(const vec3& position = { 0.0f, 0.0f, 0.0f }, const vec2& scale = { 1.0f, 1.0f });
+	PlaneMesh(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader, const vec3& position = { 0.0f, 0.0f, 0.0f }, const vec2& scale = { 1.0f, 1.0f });
 	~PlaneMesh();
 
-	void Render(const Renderer& renderer, GLShader& shader) const override;
+	void PrepassRender(const Renderer& renderer) const override;
+	void Render(const Renderer& renderer) const override;
 
 private:
 	std::shared_ptr<GLVertexArray> m_VAO;

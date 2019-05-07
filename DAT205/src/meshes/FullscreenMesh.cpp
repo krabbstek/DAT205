@@ -12,7 +12,8 @@ static unsigned int indices[] =
 	0, 1, 2,
 };
 
-FullscreenMesh::FullscreenMesh()
+FullscreenMesh::FullscreenMesh(std::shared_ptr<GLShader> mainShader)
+	: Renderable(std::shared_ptr<GLShader>(), mainShader)
 {
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
@@ -22,11 +23,10 @@ FullscreenMesh::FullscreenMesh()
 
 	m_VAO = std::make_shared<GLVertexArray>();
 	m_VAO->AddVertexBuffer(*m_VBO);
-
-	m_IBO = std::make_shared<GLIndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
 }
 
-FullscreenMesh::FullscreenMesh(std::shared_ptr<GLTexture2D> texture)
+FullscreenMesh::FullscreenMesh(std::shared_ptr<GLShader> mainShader, std::shared_ptr<GLTexture2D> texture)
+	: Renderable(std::shared_ptr<GLShader>(), mainShader)
 {
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
@@ -36,14 +36,12 @@ FullscreenMesh::FullscreenMesh(std::shared_ptr<GLTexture2D> texture)
 
 	m_VAO = std::make_shared<GLVertexArray>();
 	m_VAO->AddVertexBuffer(*m_VBO);
-
-	m_IBO = std::make_shared<GLIndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
 
 	m_Textures.push_back(texture);
 }
 
-FullscreenMesh::FullscreenMesh(std::vector<std::shared_ptr<GLTexture2D>> textures)
-	: m_Textures(textures)
+FullscreenMesh::FullscreenMesh(std::shared_ptr<GLShader> mainShader, std::vector<std::shared_ptr<GLTexture2D>> textures)
+	: Renderable(std::shared_ptr<GLShader>(), mainShader), m_Textures(textures)
 {
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
@@ -53,8 +51,6 @@ FullscreenMesh::FullscreenMesh(std::vector<std::shared_ptr<GLTexture2D>> texture
 
 	m_VAO = std::make_shared<GLVertexArray>();
 	m_VAO->AddVertexBuffer(*m_VBO);
-
-	m_IBO = std::make_shared<GLIndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
 }
 
 FullscreenMesh::~FullscreenMesh()
@@ -68,13 +64,12 @@ void FullscreenMesh::AddTexture(std::shared_ptr<GLTexture2D> texture)
 }
 
 
-void FullscreenMesh::Render(const Renderer& renderer, GLShader& shader) const
+void FullscreenMesh::Render(const Renderer& renderer) const
 {
-	shader.Bind();
+	m_MainShader->Bind();
 	m_VAO->Bind();
-	m_IBO->Bind();
 	size_t size = m_Textures.size();
 	for (unsigned int i = 0; i < size; i++)
 		m_Textures[i]->Bind(i);
-	GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
+	GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 }
