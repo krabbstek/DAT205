@@ -7,7 +7,7 @@ mat4 Camera::GetViewMatrix() const
 
 mat4 Camera::GetInverseViewMatrix() const
 {
-	return mat4::Translate(position) * mat4::RotateX(rotation.x) * mat4::RotateY(rotation.y) * mat4::RotateZ(rotation.z);
+	return mat4::Translate(position) * mat4::RotateY(rotation.y) * mat4::RotateX(rotation.x) * mat4::RotateZ(rotation.z);
 }
 
 mat4 Camera::GetPreviousViewMatrix() const
