@@ -19,6 +19,7 @@ public:
 	}
 
 	mat4 GetViewMatrix() const;
+	mat4 GetInverseViewMatrix() const;
 	mat4 GetPreviousViewMatrix() const;
 	vec3 GetWorldSpaceForward() const;
 };
