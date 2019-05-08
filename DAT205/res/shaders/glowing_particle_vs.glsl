@@ -6,10 +6,12 @@ layout (location = 3) in vec3 in_Emission;
 layout (location = 4) in float in_Lifetime;
 layout (location = 5) in float in_Lifelength;
 
+out vec2 centerPosition;
 out vec2 clipSpaceVelocity;
 out vec3 emission;
 out float lifetime;
 out float lifelength;
+out float radius;
 
 uniform mat4 u_P = mat4(1.0);
 uniform mat4 u_PrevVVP = mat4(1.0);
@@ -23,6 +25,7 @@ void main()
 
 	gl_Position = currentClipSpacePosition;
 
+	centerPosition = currentClipSpacePosition.xy;
 	emission = in_Emission;
 	lifetime = in_Lifetime;
 	lifelength = in_Lifelength;
@@ -35,5 +38,6 @@ void main()
     float scaleFactor = (projPixel.x + projPixel.y);
     // Scale the point with regard to the previosly defined scale_factor
     // and the life (it will get larger the older it is)
-    gl_PointSize = scaleFactor * in_Scale;
+	radius = scaleFactor * in_Scale;
+    gl_PointSize = radius;
 }
