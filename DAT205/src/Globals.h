@@ -9,6 +9,9 @@ extern Light g_GlobalLight;
 
 extern float g_SSAORadius;
 extern float g_SSAOKernelSize;
+extern int g_SSAOBlurSampleSize;
+extern float g_SSAOBilateralBlurSigma;
+extern float g_SSAODepthSigma;
 
 extern float g_EnvironmentMultiplier;
 

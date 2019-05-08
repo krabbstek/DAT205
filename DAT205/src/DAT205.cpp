@@ -49,6 +49,7 @@ std::shared_ptr<Model> fighterModel;
 
 std::shared_ptr<GLShader> prepassShader;
 std::shared_ptr<GLShader> ssaoShader;
+std::shared_ptr<GLShader> ssaoBilateralBlurShader;
 std::shared_ptr<GLShader> backgroundShader;
 std::shared_ptr<GLShader> computeLightTilesShader;
 std::shared_ptr<GLShader> lightingPassShader;
@@ -198,6 +199,7 @@ glfwSwapBuffers(window);
 
 	prepassShader.reset();
 	ssaoShader.reset();
+	ssaoBilateralBlurShader.reset();
 	backgroundShader.reset();
 	computeLightTilesShader.reset();
 	lightingPassShader.reset();
@@ -363,6 +365,9 @@ void ImGuiRender()
 	ImGui::Text("SSAO");
 	ImGui::SliderFloat("SSAO kernel size", &g_SSAOKernelSize, 0.1f, 10.0f, "%.2f", 2.0f);
 	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
+	ImGui::SliderInt("Bilateral blur sample size", &g_SSAOBlurSampleSize, 0, 20);
+	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 0.1f, 10.0f);
+	ImGui::SliderFloat("SSAO depth sigma", &g_SSAODepthSigma, 0.1f, 10.0f);
 
 	ImGui::Separator();
 
@@ -431,7 +436,7 @@ void ImGuiRender()
 
 	ImGui::Separator();
 
-	if (ImGui::Button("Reload shaders", ImVec2(100.0f, 20.0f)))
+	if (ImGui::Button("Reload shaders", ImVec2(120.0f, 20.0f)))
 		LoadShaders();
 
 	ImGui::End();
@@ -456,6 +461,11 @@ void LoadShaders()
 	ssaoShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
 	ssaoShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
 	ssaoShader->SetUniformMat4("u_InverseProjMatrix", mat4::Inverse(renderer.camera.projectionMatrix));
+
+	ssaoBilateralBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/ssao_bilateral_blur_vs.glsl");
+	ssaoBilateralBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/ssao_bilateral_blur_fs.glsl");
+	ssaoBilateralBlurShader->CompileShaders();
+	ssaoBilateralBlurShader->SetUniform2f("u_InvViewportSize", 1.0f / float(g_WindowWidth), 1.0f / float(g_WindowHeight));
 
 	backgroundShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_vs.glsl");
 	backgroundShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/background_fs.glsl");
@@ -560,6 +570,7 @@ void InitTiledForwardRendering()
 	// Shaders
 	prepassShader = std::make_shared<GLShader>();
 	ssaoShader = std::make_shared<GLShader>();
+	ssaoBilateralBlurShader = std::make_shared<GLShader>();
 	backgroundShader = std::make_shared<GLShader>();
 	computeLightTilesShader = std::make_shared<GLShader>();
 	lightingPassShader = std::make_shared<GLShader>();
@@ -582,7 +593,9 @@ void InitTiledForwardRendering()
 		viewSpaceNormalTexture,
 		clipSpaceVelocityTexture);
 	std::shared_ptr<SSAOPass> ssaoPass = std::make_shared<SSAOPass>(
-		renderer, ssaoShader,
+		renderer,
+		ssaoShader,
+		ssaoBilateralBlurShader,
 		viewSpacePositionTexture,
 		viewSpaceNormalTexture,
 		ssaoTexture);
