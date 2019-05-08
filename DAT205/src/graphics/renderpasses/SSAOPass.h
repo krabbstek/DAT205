@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -16,6 +16,7 @@ public:
 
 private:
 	GLuint m_Framebuffer;
+	std::shared_ptr<GLShader> m_Shader;
 	std::shared_ptr<GLTexture2D> m_ViewSpacePositionTexture;
 	std::shared_ptr<GLTexture2D> m_ViewSpaceNormalTexture;
 	std::shared_ptr<GLTexture2D> m_RandomAnglesTexture;

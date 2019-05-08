@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -27,7 +27,7 @@ enum OUTPUT_SELECTION
 class OutputSelectionPass : public RenderPass
 {
 public:
-	OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLShader> dummyShader,
+	OutputSelectionPass(Renderer& renderer,
 		const OUTPUT_SELECTION& outputSelection,
 		std::shared_ptr<GLShader> depthShader,
 		std::shared_ptr<GLShader> fullscreenShader,

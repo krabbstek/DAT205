@@ -2,7 +2,7 @@
 
 #include "Globals.h"
 #include "CPUTimer.h"
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 #include "graphics/opengl/GLTimer.h"
 
 class PlotTimersPass : public RenderPass

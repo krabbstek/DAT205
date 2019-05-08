@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -13,6 +13,7 @@ public:
 	virtual void Render(std::vector<Renderable*>& renderables) override;
 
 private:
+	std::shared_ptr<GLShader> m_ComputeShader;
 	std::shared_ptr<GLTexture2D> m_ViewSpacePositionTexture;
 	std::shared_ptr<GLShaderStorageBuffer> m_LightSSBO;
 	std::shared_ptr<GLShaderStorageBuffer> m_LightIndexSSBO;

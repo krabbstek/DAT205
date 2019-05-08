@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Renderable.h"
+#include "../Renderable.h"
 
 #include <vector>
 
 class RenderPass
 {
 public:
-	RenderPass(Renderer& renderer, std::shared_ptr<GLShader> shader)
-		: m_Renderer(renderer), m_Shader(shader) {}
+	RenderPass(Renderer& renderer)
+		: m_Renderer(renderer) {}
 	virtual ~RenderPass() {}
 
 	virtual void PrepassRender(std::vector<Renderable*>& renderables);
@@ -16,5 +16,4 @@ public:
 
 protected:
 	Renderer& m_Renderer;
-	std::shared_ptr<GLShader> m_Shader;
 };

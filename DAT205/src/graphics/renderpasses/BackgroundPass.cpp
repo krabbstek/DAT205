@@ -1,7 +1,8 @@
 #include "BackgroundPass.h"
 
 BackgroundPass::BackgroundPass(Renderer& renderer, std::shared_ptr<GLShader> shader, GLuint targetFramebuffer, std::shared_ptr<GLTexture2D> environmentMap)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
+	m_Shader(shader),
 	m_TargetFramebuffer(targetFramebuffer),
 	m_EnvironmentMap(environmentMap),
 	m_FullscreenMesh(shader)

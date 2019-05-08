@@ -3,7 +3,8 @@
 #include "graphics/opengl/OpenGL.h"
 
 LightingPass::LightingPass(
-	Renderer& renderer, std::shared_ptr<GLShader> shader,
+	Renderer& renderer,
+	std::shared_ptr<GLShader> lightingPassShader,
 	GLuint sharedDepthbuffer,
 	std::shared_ptr<GLTexture2D> colorTexture,
 	std::shared_ptr<GLTexture2D> irradianceMap,
@@ -13,7 +14,8 @@ LightingPass::LightingPass(
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
+	m_LightingPassShader(lightingPassShader),
 	m_LightSSBO(lightSSBO),
 	m_LightIndexSSBO(lightIndexSSBO),
 	m_TileIndexSSBO(tileIndexSSBO),
@@ -31,8 +33,6 @@ LightingPass::LightingPass(
 
 	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	GLCall(glDrawBuffers(sizeof(attachments) / sizeof(GLenum), attachments));
-
-	m_Shader->SetUniform1i("u_TileSize", g_TileSize);
 }
 
 LightingPass::~LightingPass()
@@ -48,6 +48,12 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 	GLCall(glClear(GL_DEPTH_BUFFER_BIT));
 
+	m_LightingPassShader->SetUniformMat4("u_ViewInverse", m_Renderer.camera.GetInverseViewMatrix());
+	m_LightingPassShader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
+	m_LightingPassShader->SetUniform4f("u_Light.viewSpacePosition", g_GlobalLight.viewSpacePosition);
+	m_LightingPassShader->SetUniform4f("u_Light.color", g_GlobalLight.color);
+	m_LightingPassShader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
+
 	m_LightSSBO->Bind(3);
 	m_LightIndexSSBO->Bind(4);
 	m_TileIndexSSBO->Bind(5);
@@ -55,12 +61,6 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	m_IrradianceMap->Bind(7);
 	m_ReflectionMap->Bind(8);
 	m_SSAOTexture->Bind(9);
-
-	m_Shader->SetUniformMat4("u_ViewInverse", m_Renderer.camera.GetInverseViewMatrix());
-	m_Shader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
-	m_Shader->SetUniform4f("u_Light.viewSpacePosition", g_GlobalLight.viewSpacePosition);
-	m_Shader->SetUniform4f("u_Light.color", g_GlobalLight.color);
-	m_Shader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
 
 	RenderPass::Render(renderables);
 }

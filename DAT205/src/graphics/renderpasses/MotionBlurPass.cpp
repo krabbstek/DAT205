@@ -5,7 +5,8 @@ MotionBlurPass::MotionBlurPass(
 	std::shared_ptr<GLTexture2D> inputTexture,
 	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture,
 	std::shared_ptr<GLTexture2D> outputTexture)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
+	m_Shader(shader),
 	m_InputTexture(inputTexture),
 	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture),
 	m_FullscreenMesh(shader)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -8,8 +8,8 @@
 class LightingPass : public RenderPass
 {
 public:
-	LightingPass(
-		Renderer& renderer, std::shared_ptr<GLShader> shader,
+	LightingPass(Renderer& renderer,
+		std::shared_ptr<GLShader> lightingPassShader,
 		GLuint sharedDepthbuffer,
 		std::shared_ptr<GLTexture2D> colorTexture,
 		std::shared_ptr<GLTexture2D> irradianceMap,
@@ -26,6 +26,7 @@ public:
 	inline GLuint GetFramebuffer() const { return m_Framebuffer; }
 
 private:
+	std::shared_ptr<GLShader> m_LightingPassShader;
 	std::shared_ptr<GLShaderStorageBuffer> m_LightSSBO;
 	std::shared_ptr<GLShaderStorageBuffer> m_LightIndexSSBO;
 	std::shared_ptr<GLShaderStorageBuffer> m_TileIndexSSBO;

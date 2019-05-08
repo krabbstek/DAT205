@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CPUTimer.h"
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 #include "graphics/opengl/GLTimer.h"
 
 class StopTimerPass : public RenderPass

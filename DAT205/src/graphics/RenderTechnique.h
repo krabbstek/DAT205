@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderPass.h"
+#include "renderpasses/RenderPass.h"
 
 class RenderTechnique
 {

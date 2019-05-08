@@ -4,7 +4,7 @@
 #include <sstream>
 
 PlotTimersPass::PlotTimersPass(Renderer& renderer)
-	: RenderPass(renderer, std::shared_ptr<GLShader>())
+	: RenderPass(renderer)
 {
 }
 

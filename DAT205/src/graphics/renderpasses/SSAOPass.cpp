@@ -7,7 +7,8 @@ SSAOPass::SSAOPass(
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 	std::shared_ptr<GLTexture2D> ssaoTexture)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
+	m_Shader(shader),
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
 	m_RandomAnglesTexture(std::make_shared<GLTexture2D>()),
