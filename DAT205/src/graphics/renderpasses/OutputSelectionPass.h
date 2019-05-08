@@ -31,6 +31,8 @@ public:
 		const OUTPUT_SELECTION& outputSelection,
 		std::shared_ptr<GLShader> depthShader,
 		std::shared_ptr<GLShader> fullscreenShader,
+		std::shared_ptr<GLShader> lightTilesOverlayShader,
+		std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO,
 		std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
 		std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 		std::shared_ptr<GLTexture2D> ssaoTexture,
@@ -44,6 +46,8 @@ private:
 	const OUTPUT_SELECTION& m_OutputSelection;
 	std::shared_ptr<GLShader> m_DepthShader;
 	std::shared_ptr<GLShader> m_FullscreenShader;
+	std::shared_ptr<GLShader> m_LightTilesOverlayShader;
+	std::shared_ptr<GLShaderStorageBuffer> m_TileIndexSSBO;
 	std::shared_ptr<GLTexture2D> m_ViewSpacePositionTexture;
 	std::shared_ptr<GLTexture2D> m_ViewSpaceNormalTexture;
 	std::shared_ptr<GLTexture2D> m_SSAOTexture;
