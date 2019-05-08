@@ -33,6 +33,8 @@ LightingPass::LightingPass(
 
 	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	GLCall(glDrawBuffers(sizeof(attachments) / sizeof(GLenum), attachments));
+
+	m_LightingPassShader->SetUniform1i("u_TileSize", g_TileSize);
 }
 
 LightingPass::~LightingPass()
@@ -48,11 +50,13 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 	GLCall(glClear(GL_DEPTH_BUFFER_BIT));
 
-	m_LightingPassShader->SetUniformMat4("u_ViewInverse", m_Renderer.camera.GetInverseViewMatrix());
+	m_LightingPassShader->SetUniform1i("u_NumTileCols", g_NumTileCols);
+	m_LightingPassShader->SetUniform1i("u_TileSize", g_TileSize);
+	m_LightingPassShader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
 	m_LightingPassShader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
-	m_LightingPassShader->SetUniform4f("u_Light.viewSpacePosition", g_GlobalLight.viewSpacePosition);
-	m_LightingPassShader->SetUniform4f("u_Light.color", g_GlobalLight.color);
 	m_LightingPassShader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
+	m_LightingPassShader->SetUniform1f("u_BloomAlpha", g_BloomAlpha);
+	m_LightingPassShader->SetUniformMat4("u_ViewInverse", m_Renderer.camera.GetInverseViewMatrix());
 
 	m_LightSSBO->Bind(3);
 	m_LightIndexSSBO->Bind(4);

@@ -39,6 +39,7 @@ struct Plane
 	float d;
 };
 
+
 /// Lights, containing view space position and color
 layout (std430, binding = 3) readonly buffer LightBuffer
 {

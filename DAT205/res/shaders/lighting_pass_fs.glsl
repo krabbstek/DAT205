@@ -31,12 +31,11 @@ uniform struct Material
 	float transparency;
 } u_Material;
 
-uniform struct Light
+struct Light
 {
 	vec4 viewSpacePosition;
 	vec4 color;
-} u_Light;
-
+};
 
 struct TileLights
 {
