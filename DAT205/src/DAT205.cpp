@@ -20,6 +20,7 @@
 #include "meshes/Cube.h"
 #include "meshes/PlaneMesh.h"
 #include "model/Model.h"
+#include "particle/GlowingParticleSystem.h"
 
 #include <chrono>
 #include <iostream>
@@ -47,12 +48,15 @@ std::shared_ptr<RenderTechnique> renderTechnique;
 
 std::shared_ptr<Model> fighterModel;
 
+std::shared_ptr<GlowingParticleSystem> glowingParticleSystem;
+
 std::shared_ptr<GLShader> prepassShader;
 std::shared_ptr<GLShader> ssaoShader;
 std::shared_ptr<GLShader> ssaoBilateralBlurShader;
 std::shared_ptr<GLShader> backgroundShader;
 std::shared_ptr<GLShader> computeLightTilesShader;
 std::shared_ptr<GLShader> lightingPassShader;
+std::shared_ptr<GLShader> glowingParticleShader;
 std::shared_ptr<GLShader> depthShader;
 std::shared_ptr<GLShader> fullscreenShader;
 std::shared_ptr<GLShader> blur1DShader;
@@ -150,6 +154,18 @@ int main()
 		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader));
 		fighterModel->modelMatrix = mat4(1.0f);
 
+		glowingParticleSystem = std::make_shared<GlowingParticleSystem>(10000, glowingParticleShader);
+
+		for (int i = 0; i < 1000; i++)
+		{
+			Particle particle;
+			particle.position = 40.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);
+			particle.emission = vec3(1.0);
+			particle.lifelength = 4.0f;
+			particle.scale = 0.1f;
+			glowingParticleSystem->SpawnParticle(particle);
+		}
+
 		while (!glfwWindowShouldClose(window))
 		{
 			currentTime = std::chrono::high_resolution_clock::now();
@@ -168,10 +184,11 @@ int main()
 #endif
 
 			// Render
+			UpdateLights();
 			renderTechnique->Render(*fighterModel);
+			renderTechnique->Render(*glowingParticleSystem);
 			renderTechnique->Render();
 
-			UpdateLights();
 			renderer.camera.Update();
 			fighterModel->Update();
 			
@@ -186,6 +203,7 @@ glfwSwapBuffers(window);
 	}
 
 	fighterModel.reset();
+	glowingParticleSystem.reset();
 
 	renderTechnique.reset();
 
@@ -203,6 +221,7 @@ glfwSwapBuffers(window);
 	backgroundShader.reset();
 	computeLightTilesShader.reset();
 	lightingPassShader.reset();
+	glowingParticleShader.reset();
 	depthShader.reset();
 	fullscreenShader.reset();
 	blur1DShader.reset();
@@ -321,10 +340,25 @@ void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 
 void UpdateLights()
 {
-	if (lightSSBO->Size() < sizeof(Light))
-		lightSSBO->SetData(&g_GlobalLight, sizeof(g_GlobalLight));
+	int numParticles = glowingParticleSystem->NumParticles();
+	int size = numParticles + 1;
+	Light* lights = new Light[size];
+
+	for (int i = 0; i < numParticles; i++)
+	{
+		Particle& particle = glowingParticleSystem->GetParticle(i);
+		lights[i].viewSpacePosition.xyz = particle.position;
+		lights[i].viewSpacePosition.w = 1.0f;
+		lights[i].color.rgb = g_GlowingParticleLightIntensityMultiplier * particle.emission;
+		lights[i].color.a = g_LightFalloffThreshold / g_GlowingParticleLightIntensityMultiplier;
+	}
+
+	lights[numParticles] = g_GlobalLight;
+
+	if (lightSSBO->Size() < size * sizeof(Light))
+		lightSSBO->SetData(lights, size * sizeof(Light));
 	else
-		lightSSBO->SetSubData(&g_GlobalLight, 0, sizeof(g_GlobalLight));
+		lightSSBO->SetSubData(lights, 0, size * sizeof(Light));
 }
 
 
@@ -358,6 +392,7 @@ void ImGuiRender()
 	ImGui::SliderFloat("Global light intensity multiplier", &globalLightIntensity, 0.0f, 10000.0f, "%.2f", 3.0f);
 	ImGui::SliderFloat3("Global light position ", &globalLightPosition.x, -25.0f, 25.0f, "%.1f", 1.0f);
 	g_GlobalLight.color.rgb = vec3(globalLightIntensity);
+	g_GlobalLight.color.a = g_LightFalloffThreshold / globalLightIntensity;
 	g_GlobalLight.viewSpacePosition = renderer.camera.GetViewMatrix() * globalLightPosition;
 
 	ImGui::Separator();
@@ -480,6 +515,10 @@ void LoadShaders()
 	lightingPassShader->SetUniform4f("u_Light.viewSpacePosition", renderer.camera.GetViewMatrix() * vec4(10.0f));
 	lightingPassShader->SetUniform4f("u_Light.color", vec4(1000.0f));
 
+	glowingParticleShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/glowing_particle_vs.glsl");
+	glowingParticleShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/glowing_particle_fs.glsl");
+	glowingParticleShader->CompileShaders();
+
 	depthShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/depth_vs.glsl");
 	depthShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/depth_fs.glsl");
 	depthShader->CompileShaders();
@@ -574,6 +613,7 @@ void InitTiledForwardRendering()
 	backgroundShader = std::make_shared<GLShader>();
 	computeLightTilesShader = std::make_shared<GLShader>();
 	lightingPassShader = std::make_shared<GLShader>();
+	glowingParticleShader = std::make_shared<GLShader>();
 	depthShader = std::make_shared<GLShader>();
 	fullscreenShader = std::make_shared<GLShader>();
 	blur1DShader = std::make_shared<GLShader>();

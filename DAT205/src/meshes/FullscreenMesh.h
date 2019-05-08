@@ -14,8 +14,8 @@ public:
 
 	void AddTexture(std::shared_ptr<GLTexture2D> texture);
 
-	void PrepassRender(const Renderer& renderer) const override {}
-	void Render(const Renderer& renderer) const override;
+	void PrepassRender(const Renderer& renderer) override {}
+	void Render(const Renderer& renderer) override;
 
 private:
 	std::vector<std::shared_ptr<GLTexture2D>> m_Textures;

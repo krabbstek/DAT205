@@ -64,7 +64,7 @@ void FullscreenMesh::AddTexture(std::shared_ptr<GLTexture2D> texture)
 }
 
 
-void FullscreenMesh::Render(const Renderer& renderer) const
+void FullscreenMesh::Render(const Renderer& renderer)
 {
 	m_MainShader->Bind();
 	m_VAO->Bind();

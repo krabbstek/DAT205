@@ -13,7 +13,11 @@ extern int g_SSAOBlurSampleSize;
 extern float g_SSAOBilateralBlurSigma;
 extern float g_SSAODepthSigma;
 
+extern float g_LightFalloffThreshold;
+
 extern float g_EnvironmentMultiplier;
+
+extern float g_GlowingParticleLightIntensityMultiplier;
 
 extern float g_MotionBlurVelocityScale;
 

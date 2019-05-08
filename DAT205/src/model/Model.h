@@ -24,8 +24,8 @@ public:
 
 	void PushMesh(const Mesh& mesh);
 
-	void PrepassRender(const Renderer& renderer) const override;
-	void Render(const Renderer& renderer) const override;
+	void PrepassRender(const Renderer& renderer) override;
+	void Render(const Renderer& renderer) override;
 
 	inline std::vector<Material>& GetMaterials() { return m_Materials; }
 	inline std::vector<Mesh>& GetMeshes() { return m_Meshes; }
