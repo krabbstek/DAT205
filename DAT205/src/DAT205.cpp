@@ -71,6 +71,7 @@ std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO;
 std::shared_ptr<GLTexture2D> environmentMap;
 std::shared_ptr<GLTexture2D> irradianceMap;
 std::shared_ptr<GLTexture2D> reflectionMap;
+std::shared_ptr<GLTexture2D> fireSphereTexture;
 
 OUTPUT_SELECTION outputSelection = OUTPUT_SELECTION_LIGHTING;
 
@@ -83,11 +84,14 @@ void MouseButtonCallback(GLFWwindow* window, int key, int action, int mods);
 void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 void ImGuiRender();
 void AddGLTimedRenderPass(std::shared_ptr<RenderTechnique> renderTechnique, std::shared_ptr<RenderPass> renderPass, std::shared_ptr<PlotTimersPass> plotTimersPass, const char* renderPassName);
+void Update();
+void Render();
 
 int main()
 {
 	std::chrono::time_point<std::chrono::high_resolution_clock> prevTime, currentTime;
 	prevTime = std::chrono::high_resolution_clock::now();
+	float accumulator = 0.0f;
 
 	int initResult = Init();
 	if (initResult)
@@ -155,52 +159,38 @@ int main()
 		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader));
 		fighterModel->modelMatrix = mat4(1.0f);
 
-		glowingParticleSystem = std::make_shared<GlowingParticleSystem>(10000, glowingParticleShader);
+		fireSphereTexture = std::make_shared<GLTexture2D>();
+		fireSphereTexture->LoadFromFile("res/textures/FireSphere.png");
+		fireSphereTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+		fireSphereTexture->SetMinMagFilter(GL_LINEAR);
+		fireSphereTexture->Bind();
+		GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
-		for (int i = 0; i < 1000; i++)
-		{
-			Particle particle;
-			particle.position = 40.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);
-			//particle.emission = vec3(RandF(), RandF(), RandF());
-			particle.emission = vec3(1.0f, 0.1f, 0.1f);
-			particle.lifelength = 4.0f;
-			particle.scale = 0.1f * RandF();
-			glowingParticleSystem->SpawnParticle(particle);
-		}
+		glowingParticleSystem = std::make_shared<GlowingParticleSystem>(10000, glowingParticleShader);
+		glowingParticleSystem->AddTexture(fireSphereTexture);
 
 		while (!glfwWindowShouldClose(window))
 		{
 			currentTime = std::chrono::high_resolution_clock::now();
-			g_DeltaTime = float((currentTime - prevTime).count()) * 1e-9f;
-			g_Time += g_DeltaTime;
+			accumulator += float((currentTime - prevTime).count()) * 1e-9f;
+			g_Time += float((currentTime - prevTime).count()) * 1e-9f;
 			prevTime = currentTime;
 
-			glfwPollEvents();
+			if (accumulator >= 0.1f)
+				accumulator = 0.1f;
 
-			HandleKeyInput(g_DeltaTime);
+			while (accumulator >= g_DeltaTime)
+			{
+				accumulator -= g_DeltaTime;
 
-#ifdef USE_IMGUI
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-#endif
+				glfwPollEvents();
 
-			// Render
-			UpdateLights();
-			renderTechnique->Render(*fighterModel);
-			renderTechnique->Render(*glowingParticleSystem);
-			renderTechnique->Render();
+				Update();
+			}
 
-			renderer.camera.Update();
-			fighterModel->Update();
-			
-#ifdef USE_IMGUI
-			ImGuiRender();
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
+			Render();
 
-glfwSwapBuffers(window);
+			glfwSwapBuffers(window);
 		}
 	}
 
@@ -212,6 +202,7 @@ glfwSwapBuffers(window);
 	environmentMap.reset();
 	irradianceMap.reset();
 	reflectionMap.reset();
+	fireSphereTexture.reset();
 
 	lightSSBO.reset();
 	lightIndexSSBO.reset();
@@ -354,8 +345,9 @@ void UpdateLights()
 		Particle& particle = glowingParticleSystem->GetParticle(i);
 		lights[i].viewSpacePosition.xyz = V * particle.position;
 		lights[i].viewSpacePosition.w = 1.0f;
-		lights[i].color.rgb = g_GlowingParticleLightIntensityMultiplier * particle.emission;
-		lights[i].color.a = g_LightFalloffThreshold / g_GlowingParticleLightIntensityMultiplier;
+		lights[i].color.rgb = g_GlowingParticleLightIntensityMultiplier * particle.emission * std::min(1.0f, 2.0f * (0.5f - abs(particle.lifetime / particle.lifelength - 0.5f)));
+		float colorIntensityMultiplier = std::max(particle.emission.r, std::max(particle.emission.g, particle.emission.b));
+		lights[i].color.a = g_LightFalloffThreshold / (g_GlowingParticleLightIntensityMultiplier * colorIntensityMultiplier);
 	}
 
 	lights[numParticles] = g_GlobalLight;
@@ -732,4 +724,46 @@ void AddGLTimedRenderPass(std::shared_ptr<RenderTechnique> renderTechnique, std:
 	renderTechnique->AddRenderPass(stopTimerPass);
 
 	plotTimersPass->AddSmallTimer(renderPassName, timer);
+}
+
+
+void Update()
+{
+	HandleKeyInput(g_DeltaTime);
+
+	glowingParticleSystem->UpdateParticles(g_DeltaTime);
+
+	for (int i = 0; i < 3; i++)
+	{
+		Particle particle;
+		particle.position = 40.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);
+		particle.velocity = 4.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);
+		particle.emission = vec3(RandF(), RandF(), RandF());
+		particle.lifelength = 2.0f;
+		particle.scale = 0.1f * RandF();
+		glowingParticleSystem->SpawnParticle(particle);
+	}
+}
+
+void Render()
+{
+#ifdef USE_IMGUI
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+#endif
+
+	UpdateLights();
+	renderTechnique->Render(*fighterModel);
+	renderTechnique->Render(*glowingParticleSystem);
+	renderTechnique->Render();
+
+	renderer.camera.Update();
+	fighterModel->Update();
+
+#ifdef USE_IMGUI
+	ImGuiRender();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 }

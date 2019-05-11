@@ -1,5 +1,7 @@
 #include "ParticleSystem.h"
 
+#include "Globals.h"
+
 #include <algorithm>
 
 ParticleSystem::ParticleSystem(int maxNumParticles, std::shared_ptr<GLShader> particleShader)
@@ -52,7 +54,7 @@ void ParticleSystem::Render(const Renderer& renderer)
 		m_VertexData[i].scale = m_Particles[i].scale;
 		m_VertexData[i].emission = m_Particles[i].emission;
 		m_VertexData[i].lifetime = m_Particles[i].lifetime;
-		m_VertexData[i].lifetime = m_Particles[i].lifelength;
+		m_VertexData[i].lifelength = m_Particles[i].lifelength;
 	}
 
 	std::sort(m_VertexData, m_VertexData + m_NumParticles, [](const VertexData& a, const VertexData& b) { return a.currentPosition.z < b.currentPosition.z; });
@@ -66,11 +68,12 @@ void ParticleSystem::Render(const Renderer& renderer)
 		m_Textures[i]->Bind(i);
 
 	m_ParticleShader->Bind();
+	m_ParticleShader->SetUniform1f("u_LightIntensityMultiplier", g_GlowingParticleLightIntensityMultiplier);
 	m_ParticleShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
 	m_ParticleShader->SetUniformMat4("u_P", renderer.camera.projectionMatrix);
 
 	GLCall(glEnable(GL_BLEND));
-	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
 	GLCall(glEnable(GL_PROGRAM_POINT_SIZE));
 
 	GLCall(glDrawArrays(GL_POINTS, 0, m_NumParticles));

@@ -27,4 +27,3 @@ extern float g_BloomAlpha;
 extern float g_BloomThreshold;
 
 extern float g_Time;
-extern float g_DeltaTime;
