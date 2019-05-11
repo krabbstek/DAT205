@@ -16,6 +16,7 @@ void BackgroundPass::Render(std::vector<Renderable*>&)
 	m_Shader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
 	m_Shader->SetUniformMat4("u_InvVP", mat4::Inverse(m_Renderer.camera.projectionMatrix * m_Renderer.camera.GetViewMatrix()));
 	m_Shader->SetUniform3f("u_CameraPos", m_Renderer.camera.position);
+	m_Shader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
 
 	m_EnvironmentMap->Bind(6);
 

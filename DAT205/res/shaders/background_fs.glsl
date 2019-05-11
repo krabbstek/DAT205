@@ -12,6 +12,7 @@ layout (binding = 6) uniform sampler2D u_EnvironmentMap;
 uniform mat4 u_InvVP;
 uniform vec3 u_CameraPos;
 uniform float u_EnvironmentMultiplier;
+uniform float u_BloomThreshold;
 
 #define PI 3.141592653589793
 
@@ -34,6 +35,6 @@ void main()
 	vec2 lookup = vec2(phi / (2.0 * PI), theta / PI);
 	out_Color = u_EnvironmentMultiplier * texture(u_EnvironmentMap, lookup);
 
-	float brightness = out_Color.r + out_Color.g + out_Color.b;
-	out_BloomColor = brightness >= 1.0 ? out_Color.rgb : vec3(0.0);
+	float brightness = dot(out_Color.rgb, vec3(0.2126, 0.7152, 0.0722));
+	out_BloomColor = brightness >= u_BloomThreshold ? out_Color.rgb : vec3(0.0);
 }
