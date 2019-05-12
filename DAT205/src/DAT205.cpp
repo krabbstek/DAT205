@@ -608,8 +608,7 @@ void InitTiledForwardRendering()
 	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 	bloomInputTexture->SetMagFilter(GL_LINEAR);
 	bloomInputTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-	bloomInputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
-	bloomInputTexture->Bind();
+	bloomInputTexture->SetWrapST(GL_CLAMP_TO_BORDER);
 
 	std::shared_ptr<GLTexture2D> bloomOutputTexture = std::make_shared<GLTexture2D>();
 	bloomOutputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
