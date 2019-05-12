@@ -35,7 +35,7 @@ SSAOPass::SSAOPass(
 	GLCall(glDrawBuffers(1, &attachment));
 
 	// Init SSAO
-	constexpr int numSamples = 16;
+	constexpr int numSamples = 32;
 	vec3 s[numSamples];
 	for (int i = 0; i < sizeof(s) / sizeof(vec3); i++)
 		s[i] = CosineSampleHemisphere() * RandF();
@@ -53,6 +53,7 @@ SSAOPass::SSAOPass(
 	m_SSAOShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
 	m_SSAOShader->SetUniformMat4("u_ProjMatrix", m_Renderer.camera.projectionMatrix);
 	m_SSAOShader->SetUniformMat4("u_InverseProjMatrix", mat4::Inverse(m_Renderer.camera.projectionMatrix));
+	m_SSAOShader->SetUniform1i("u_RandomAnglesTextureSize", 64);
 
 	m_BilateralBlurShader->SetUniform2f("u_InvViewportSize", 1.0f / float(g_WindowWidth), 1.0f / float(g_WindowHeight));
 }
@@ -76,7 +77,7 @@ void SSAOPass::Render(std::vector<Renderable*>& renderables)
 	m_ViewSpaceNormalTexture->Bind(11);
 	m_RandomAnglesTexture->Bind(12);
 
-	m_SSAOShader->SetUniform1f("u_KernelSize", g_SSAOKernelSize);
+	m_SSAOShader->SetUniform1f("u_Bias", g_SSAOBias);
 	m_SSAOShader->SetUniform1f("u_Radius", g_SSAORadius);
 
 	m_FullscreenMesh.SetMainShader(m_SSAOShader);

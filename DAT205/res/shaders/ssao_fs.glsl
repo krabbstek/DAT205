@@ -8,10 +8,11 @@ layout (binding = 12) uniform sampler2D u_RandomAnglesTexture;
 
 uniform vec3 u_Samples[64];
 uniform int u_NumSamples;
-uniform float u_KernelSize = 1.0;
 uniform float u_Radius = 1.0;
+uniform float u_Bias = 0.025;
 
 uniform vec2 u_ViewportSize;
+uniform float u_RandomAnglesTextureSize;
 
 uniform mat4 u_ProjMatrix;
 uniform mat4 u_InverseProjMatrix;
@@ -46,52 +47,31 @@ mat3 randomRotation(float randomAngle)
 
 void main()
 {
-	vec3 viewSpacePosition = texelFetch(u_ViewSpacePositionTexture, ivec2(gl_FragCoord.xy), 0).xyz;
-	vec3 viewSpaceNormal = normalize(texelFetch(u_ViewSpaceNormalTexture, ivec2(gl_FragCoord.xy), 0).xyz);
+	ivec2 texCoord = ivec2(gl_FragCoord.xy);
+	vec3 viewSpacePosition = texelFetch(u_ViewSpacePositionTexture, texCoord, 0).xyz;
+	vec3 viewSpaceNormal = texelFetch(u_ViewSpaceNormalTexture, texCoord, 0).xyz;
 
 	vec3 viewSpaceTangent = perpendicular(viewSpaceNormal);
 	vec3 viewSpaceBitangent = normalize(cross(viewSpaceNormal, viewSpaceTangent));
+	viewSpaceTangent = normalize(cross(viewSpaceBitangent, viewSpaceNormal));
 
 	float randomAngle = texture(u_RandomAnglesTexture, gl_FragCoord.xy / textureSize(u_RandomAnglesTexture, 0)).r;
-	mat3 tbn = mat3(viewSpaceTangent, viewSpaceBitangent, viewSpaceNormal) * randomRotation(randomAngle);
+	mat3 TBN = mat3(viewSpaceTangent, viewSpaceBitangent, viewSpaceNormal) * randomRotation(randomAngle);
 
-	int numVisibleSamples = 0;
-	int numValidSamples = 0;
-
-	vec4 viewSpaceSamplePosition;
-
+	float occlusion = 0.0;
 	for (int i = 0; i < u_NumSamples; i++)
 	{
-		// Project hemishere sample onto the local base
-		vec3 s = tbn * u_Samples[i];
+		vec3 sampleVec = TBN * u_Samples[i];
+		sampleVec = viewSpacePosition + sampleVec * u_Radius;
 
-		// compute view-space position of sample
-		vec3 viewSpaceSamplePosition = viewSpacePosition + s * u_KernelSize;
+		vec4 offset = u_ProjMatrix * vec4(sampleVec, 1.0);
+		offset.xyz /= offset.w;
+		offset.xyz = offset.xyz * 0.5 + 0.5;
 
-		// compute the ndc-coords of the sample
-		vec3 sampleCoordsNDC = homogenize(u_ProjMatrix * vec4(viewSpaceSamplePosition, 1.0));
-
-		// Sample the depth-buffer at a texture coord based on the ndc-coord of the sample
-		// Find the view-space coord of the blocker
-		vec3 viewSpaceBlockerPosition = texture(u_ViewSpacePositionTexture, 0.5 * sampleCoordsNDC.xy + 0.5).xyz;
-
-		// Check that the blocker is closer than kernel_size to vs_pos
-		// (otherwise skip this sample)
-		vec3 dp = viewSpaceBlockerPosition - viewSpacePosition.xyz;
-		if (dot(dp, dp) > u_Radius * u_Radius)
-			continue;
-
-		// Check if the blocker pos is closer to the camera than our
-		// fragment, otherwise, increase num_visible_samples
-		if (dot(viewSpaceBlockerPosition, viewSpaceBlockerPosition) > dot(viewSpacePosition.xyz, viewSpacePosition.xyz))
-			numVisibleSamples++;
-
-		numValidSamples++;
+		float sampleDepth = texture(u_ViewSpacePositionTexture, offset.xy).z;
+		float rangeCheck = smoothstep(0.0, 1.0, u_Radius / abs(viewSpacePosition.z - sampleDepth));
+		occlusion += (sampleDepth >= sampleVec.z + u_Bias ? 1.0 : 0.0) * rangeCheck;
 	}
 
-	float hemisphericalVisibility = 0.0;
-	if (numValidSamples > 0)
-		hemisphericalVisibility = smoothstep(0.0, 1.0, float(numVisibleSamples) / float(numValidSamples));
-
-	out_Occlusion = vec3(hemisphericalVisibility);
+	out_Occlusion = vec3(smoothstep(0.0, 1.0, 1.0 - (occlusion / u_NumSamples)));
 }
