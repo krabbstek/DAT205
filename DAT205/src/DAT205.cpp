@@ -115,7 +115,7 @@ int main()
 
 			environmentMap = std::make_shared<GLTexture2D>();
 			data = stbi_loadf("res/textures/envmaps/001.hdr", &width, &height, &numChannels, 3);
-			environmentMap->Load(GL_RGB32F, data, width, height, GL_RGB, GL_FLOAT, 0);
+			environmentMap->Load(GL_RGB16F, data, width, height, GL_RGB, GL_FLOAT, 0);
 			environmentMap->SetWrapST(GL_REPEAT);
 			environmentMap->SetMagFilter(GL_LINEAR);
 			environmentMap->SetMinFilter(GL_LINEAR);
@@ -126,7 +126,7 @@ int main()
 			irradianceMap->SetMagFilter(GL_LINEAR);
 			irradianceMap->SetMinFilter(GL_LINEAR);
 			data = stbi_loadf("res/textures/envmaps/001_irradiance.hdr", &width, &height, &numChannels, 0);
-			irradianceMap->Load(GL_RGB32F, data, width, height, GL_RGB, GL_FLOAT, 0);
+			irradianceMap->Load(GL_RGB16F, data, width, height, GL_RGB, GL_FLOAT, 0);
 			stbi_image_free(data);
 		
 			reflectionMap = std::make_shared<GLTexture2D>();
@@ -135,7 +135,7 @@ int main()
 			reflectionMap->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 			reflectionMap->Bind();
 			data = stbi_loadf("res/textures/envmaps/001_dl_0.hdr", &width, &height, &numChannels, 0);
-			reflectionMap->Load(GL_RGB32F, data, width, height, GL_RGB, GL_FLOAT, 0);
+			reflectionMap->Load(GL_RGB16F, data, width, height, GL_RGB, GL_FLOAT, 0);
 			stbi_image_free(data);
 
 			GLCall(glGenerateMipmap(GL_TEXTURE_2D));
@@ -145,7 +145,7 @@ int main()
 				{
 					sprintf(filename, "res/textures/envmaps/001_dl_%d.hdr", i);
 					float* data = stbi_loadf(filename, &width, &height, &numChannels, 0);
-					reflectionMap->Load(GL_RGB32F, data, width, height, GL_RGB, GL_FLOAT, i);
+					reflectionMap->Load(GL_RGB16F, data, width, height, GL_RGB, GL_FLOAT, i);
 					stbi_image_free(data);
 				}
 			}
@@ -238,7 +238,7 @@ int Init()
 		return -1;
 	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	window = glfwCreateWindow(g_WindowWidth, g_WindowHeight, "DAT205", NULL, NULL);
@@ -260,7 +260,6 @@ int Init()
 		return -1;
 	}
 
-
 #ifdef USE_IMGUI
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
@@ -271,6 +270,8 @@ int Init()
 	glfwSetCursorPosCallback(window, CursorPositionCallback);
 
 	stbi_set_flip_vertically_on_load(1);
+
+	GLCall(std::printf("%s\n", glGetString(GL_VERSION)));
 
 	return 0;
 }
@@ -572,43 +573,46 @@ void InitTiledForwardRendering()
 {
 	// Textures
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture = std::make_shared<GLTexture2D>();
-	viewSpacePositionTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	viewSpacePositionTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	viewSpacePositionTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpacePositionTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture = std::make_shared<GLTexture2D>();
-	viewSpaceNormalTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	viewSpaceNormalTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	viewSpaceNormalTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpaceNormalTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture = std::make_shared<GLTexture2D>();
-	clipSpaceVelocityTexture->Load(GL_RG32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RG, GL_UNSIGNED_BYTE);
+	clipSpaceVelocityTexture->Load(GL_RG16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RG, GL_UNSIGNED_BYTE);
 	clipSpaceVelocityTexture->SetMinMagFilter(GL_NEAREST);
 	clipSpaceVelocityTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> lightingPassColorTexture = std::make_shared<GLTexture2D>();
-	lightingPassColorTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	lightingPassColorTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	lightingPassColorTexture->SetMinMagFilter(GL_LINEAR);
 	lightingPassColorTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> ssaoTexture = std::make_shared<GLTexture2D>();
-	ssaoTexture->Load(GL_R32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RED, GL_UNSIGNED_BYTE);
+	ssaoTexture->Load(GL_R16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RED, GL_UNSIGNED_BYTE);
 	ssaoTexture->SetMinMagFilter(GL_NEAREST);
 	ssaoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> motionBlurredTexture = std::make_shared<GLTexture2D>();
-	motionBlurredTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	motionBlurredTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	motionBlurredTexture->SetMinMagFilter(GL_NEAREST);
 	motionBlurredTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> bloomInputTexture = std::make_shared<GLTexture2D>();
 	bloomInputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
-	bloomInputTexture->SetMinMagFilter(GL_LINEAR);
+	bloomInputTexture->Bind();
+	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+	bloomInputTexture->SetMagFilter(GL_LINEAR);
+	bloomInputTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 	bloomInputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 	bloomInputTexture->Bind();
 
 	std::shared_ptr<GLTexture2D> bloomOutputTexture = std::make_shared<GLTexture2D>();
-	bloomOutputTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	bloomOutputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	bloomOutputTexture->SetMinMagFilter(GL_LINEAR);
 	bloomOutputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
