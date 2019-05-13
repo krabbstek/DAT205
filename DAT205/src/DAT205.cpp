@@ -17,7 +17,7 @@
 #include "graphics/renderpasses/StopTimerPass.h"
 #include "graphics/renderpasses/PlotTimersPass.h"
 #include "math/math.h"
-#include "meshes/Cube.h"
+#include "meshes/TessellationCube.h"
 #include "meshes/PlaneMesh.h"
 #include "model/Model.h"
 #include "particle/GlowingParticleSystem.h"
@@ -47,6 +47,7 @@ vec2 mousePrevPos(-1.0f);
 std::shared_ptr<RenderTechnique> renderTechnique;
 
 std::shared_ptr<Model> fighterModel;
+std::shared_ptr<TessellationCube> tessellationCube;
 
 std::shared_ptr<GlowingParticleSystem> glowingParticleSystem;
 
@@ -63,6 +64,7 @@ std::shared_ptr<GLShader> blur1DShader;
 std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomShader;
 std::shared_ptr<GLShader> lightTilesOverlayShader;
+std::shared_ptr<GLShader> cubeTessellationShader;
 
 std::shared_ptr<GLShaderStorageBuffer> lightSSBO;
 std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO;
@@ -159,6 +161,8 @@ int main()
 		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader));
 		fighterModel->modelMatrix = mat4(1.0f);
 
+		tessellationCube = std::make_shared<TessellationCube>(cubeTessellationShader, cubeTessellationShader);
+
 		fireSphereTexture = std::make_shared<GLTexture2D>();
 		fireSphereTexture->LoadFromFile("res/textures/FireSphere.png");
 		fireSphereTexture->SetWrapST(GL_CLAMP_TO_EDGE);
@@ -195,6 +199,7 @@ int main()
 	}
 
 	fighterModel.reset();
+	tessellationCube.reset();
 	glowingParticleSystem.reset();
 
 	renderTechnique.reset();
@@ -221,6 +226,7 @@ int main()
 	motionBlurShader.reset();
 	bloomShader.reset();
 	lightTilesOverlayShader.reset();
+	cubeTessellationShader.reset();
 
 	ImGui_ImplGlfw_Shutdown();
 	glfwTerminate();
@@ -407,8 +413,8 @@ void ImGuiRender()
 	ImGui::SliderFloat("SSAO bias", &g_SSAOBias, 0.01f, 1.0f, "%.3f", 2.0f);
 	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
 	ImGui::SliderInt("Bilateral blur sample size", &g_SSAOBlurSampleSize, 0, 20);
-	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 0.1f, 10.0f);
-	ImGui::SliderFloat("SSAO depth sigma", &g_SSAODepthSigma, 0.1f, 10.0f);
+	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 0.5f, 40.0f, "%.1f", 2.0f);
+	ImGui::SliderFloat("SSAO depth sigma", &g_SSAODepthSigma, 0.01f, 1.0f);
 
 	ImGui::Separator();
 
@@ -567,10 +573,22 @@ void LoadShaders()
 	lightTilesOverlayShader->SetUniform1i("u_TileSize", g_TileSize);
 	lightTilesOverlayShader->SetUniform1i("u_NumTileCols", g_NumTileCols);
 	lightTilesOverlayShader->SetUniform1f("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
+
+	cubeTessellationShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/cube_tessellation_vs.glsl");
+	cubeTessellationShader->AddShaderFromFile(GL_TESS_CONTROL_SHADER, "res/shaders/cube_tessellation_tcs.glsl");
+	cubeTessellationShader->AddShaderFromFile(GL_TESS_EVALUATION_SHADER, "res/shaders/cube_tessellation_tes.glsl");
+	cubeTessellationShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/cube_tessellation_fs.glsl");
+	cubeTessellationShader->CompileShaders();
+	cubeTessellationShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
+	cubeTessellationShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
+	cubeTessellationShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
+
 }
 
 void InitTiledForwardRendering()
 {
+	GLCall(glPatchParameteri(GL_PATCH_VERTICES, 3));
+
 	// Textures
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture = std::make_shared<GLTexture2D>();
 	viewSpacePositionTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
@@ -634,6 +652,7 @@ void InitTiledForwardRendering()
 	motionBlurShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
 	lightTilesOverlayShader = std::make_shared<GLShader>();
+	cubeTessellationShader = std::make_shared<GLShader>();
 	LoadShaders();
 
 	// Render passes
@@ -760,6 +779,7 @@ void Render()
 
 	UpdateLights();
 	renderTechnique->Render(*fighterModel);
+	renderTechnique->Render(*tessellationCube);
 	renderTechnique->Render(*glowingParticleSystem);
 	renderTechnique->Render();
 
