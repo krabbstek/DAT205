@@ -596,7 +596,7 @@ void InitTiledForwardRendering()
 	viewSpacePositionTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture = std::make_shared<GLTexture2D>();
-	viewSpaceNormalTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	viewSpaceNormalTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	viewSpaceNormalTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpaceNormalTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 

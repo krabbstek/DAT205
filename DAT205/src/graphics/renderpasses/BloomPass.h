@@ -15,15 +15,15 @@ public:
 	virtual void Render(std::vector<Renderable*>& renderables) override;
 
 private:
-	GLuint m_Framebuffer1;
-	GLuint m_Framebuffer2;
-	GLuint m_Framebuffer3;
+	GLuint m_BlurFramebuffer[3];
+	GLuint m_BlurIntermediateFramebuffer;
+	GLuint m_OutputFramebuffer;
 	std::shared_ptr<GLShader> m_BloomShader;
 	std::shared_ptr<GLShader> m_Blur1DShader;
 	std::shared_ptr<GLTexture2D> m_LightingPassColorTexture;
 	std::shared_ptr<GLTexture2D> m_BloomInputTexture;
-	std::shared_ptr<GLTexture2D> m_BloomIntermediateTexture1;
-	std::shared_ptr<GLTexture2D> m_BloomIntermediateTexture2;
+	std::shared_ptr<GLTexture2D> m_BloomIntermediateTexture;
+	std::shared_ptr<GLTexture2D> m_BloomBlurredTexture[3];
 	std::shared_ptr<GLTexture2D> m_BloomOutputTexture;
 	FullscreenMesh m_FullscreenMesh;
 };
