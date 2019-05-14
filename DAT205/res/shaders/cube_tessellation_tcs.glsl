@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (vertices = 3) out;
+layout (vertices = 4) out;
 
 in vec3 worldSpacePosition_TCS[];
 in vec3 worldSpaceNormal_TCS[];

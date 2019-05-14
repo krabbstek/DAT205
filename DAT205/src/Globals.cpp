@@ -9,7 +9,7 @@ Light g_GlobalLight = { vec4(0.0f, 0.0f, 0.0f, 1.0f), vec4(1000.0f, 1000.0f, 100
 float g_SSAOBias = 0.025f;
 float g_SSAORadius = 1.0f;
 int g_SSAOBlurSampleSize = 5;
-float g_SSAOBilateralBlurSigma = 1.0f;
+float g_SSAOBilateralBlurSigma = 100.0f;
 float g_SSAODepthSigma = 1.0f;
 
 float g_LightFalloffThreshold = 0.01f;

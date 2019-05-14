@@ -413,7 +413,7 @@ void ImGuiRender()
 	ImGui::SliderFloat("SSAO bias", &g_SSAOBias, 0.01f, 1.0f, "%.3f", 2.0f);
 	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
 	ImGui::SliderInt("Bilateral blur sample size", &g_SSAOBlurSampleSize, 0, 20);
-	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 0.5f, 40.0f, "%.1f", 2.0f);
+	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 1.0f, 100.0f, "%.1f", 2.0f);
 	ImGui::SliderFloat("SSAO depth sigma", &g_SSAODepthSigma, 0.01f, 1.0f);
 
 	ImGui::Separator();
@@ -587,7 +587,7 @@ void LoadShaders()
 
 void InitTiledForwardRendering()
 {
-	GLCall(glPatchParameteri(GL_PATCH_VERTICES, 3));
+	GLCall(glPatchParameteri(GL_PATCH_VERTICES, 4));
 
 	// Textures
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture = std::make_shared<GLTexture2D>();
