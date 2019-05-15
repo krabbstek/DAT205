@@ -74,22 +74,26 @@ layout (std430, binding = 5) readonly buffer TileIndexBuffer
 
 float F(float wi_wh)
 {
-	return u_Material.fresnel + (1.0 - u_Material.fresnel) * pow(1.0 - wi_wh, 5.0);
+	return u_Material.fresnel + (1.0 - u_Material.fresnel) * max(pow(1.0 - wi_wh, 5.0), 0.0);
 }
 
 float D(float n_wh)
 {
-	return (u_Material.shininess + 2.0) * (1.0 / (2.0 * PI)) * pow(n_wh, u_Material.shininess);
+	return (u_Material.shininess + 2.0) * (1.0 / (2.0 * PI)) * max(pow(n_wh, u_Material.shininess), 0.0);
 }
 
 float G(float n_wi, float n_wo, float n_wh, float wo_wh)
 {
+	if (wo_wh <= 0.0)
+		return 0.0;
 	float coeff = 2.0 * n_wh / wo_wh;
 	return min(1.0, min(coeff * n_wo, coeff * n_wi));
 }
 
 float brdf(float F, float D, float G, float n_wo, float n_wi)
 {
+	if (n_wi * n_wo == 0.0)
+		return 0.0;
 	return F * D * G / (4.0 * n_wi * n_wo);
 }
 
@@ -225,10 +229,10 @@ void main()
 		Li = light.color.rgb * inv_d2;
 		wh = normalize(wi + wo);
 
-		n_wo = dot(n, wo);
-		n_wh = dot(n, wh);
-		wi_wh = dot(wi, wh);
-		wo_wh = dot(wo, wh);
+		n_wo = max(dot(n, wo), 0.0);
+		n_wh = max(dot(n, wh), 0.0);
+		wi_wh = max(dot(wi, wh), 0.0);
+		wo_wh = max(dot(wo, wh), 0.0);
 
 		_F = F(wi_wh);
 		_D = D(n_wh);
