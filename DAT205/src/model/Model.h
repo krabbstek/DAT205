@@ -18,7 +18,9 @@ public:
 	mat4 modelMatrix;
 	mat4 prevModelMatrix;
 
-	static Model* LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
+	Model(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
+
+	static std::shared_ptr<Model> LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
 
 	inline void Update() { prevModelMatrix = modelMatrix; }
 
@@ -29,9 +31,6 @@ public:
 
 	inline std::vector<Material>& GetMaterials() { return m_Materials; }
 	inline std::vector<Mesh>& GetMeshes() { return m_Meshes; }
-
-private:
-	Model(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
 
 protected:
 	GLVertexArray m_VAO;

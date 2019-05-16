@@ -12,7 +12,7 @@ Model::Model(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> 
 }
 
 
-Model* Model::LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader)
+std::shared_ptr<Model> Model::LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader)
 {
 	std::filesystem::path filepath(file);
 	std::string directory = filepath.parent_path().string();
@@ -32,7 +32,7 @@ Model* Model::LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepa
 	if (!warn.empty())
 		std::cout << "Warning: " << warn << std::endl;
 
-	Model* model = new Model(prepassShader, mainShader);
+	std::shared_ptr<Model> model = std::make_shared<Model>(prepassShader, mainShader);
 
 	// Read materials
 	for (const tinyobj::material_t& m : materials) {

@@ -22,4 +22,34 @@ public:
 	std::shared_ptr<GLTexture2D> fresnelTexture;
 
 	void Bind(GLShader& shader) const;
+
+	inline void SetAlbedoTexture(std::shared_ptr<GLTexture2D>& albedoTexture)
+	{
+		this->albedoTexture = albedoTexture;
+	}
+
+	inline void SetEmissionTexture(std::shared_ptr<GLTexture2D>& emissionTexture)
+	{
+		this->emissionTexture = emissionTexture;
+	}
+
+	inline void SetReflectivityTexture(std::shared_ptr<GLTexture2D>& reflectivityTexture)
+	{
+		this->reflectivityTexture = reflectivityTexture;
+	}
+
+	inline void SetShininessTexture(std::shared_ptr<GLTexture2D>& shininessTexture)
+	{
+		this->shininessTexture = shininessTexture;
+	}
+
+	inline void SetMetalnessTexture(std::shared_ptr<GLTexture2D>& metalnessTexture)
+	{
+		this->metalnessTexture = metalnessTexture;
+	}
+
+	inline void SetFresnelTexture(std::shared_ptr<GLTexture2D>& fresnelTexture)
+	{
+		this->fresnelTexture = fresnelTexture;
+	}
 };
