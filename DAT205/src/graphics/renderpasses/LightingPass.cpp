@@ -10,7 +10,6 @@ LightingPass::LightingPass(
 	std::shared_ptr<GLTexture2D> irradianceMap,
 	std::shared_ptr<GLTexture2D> reflectionMap,
 	std::shared_ptr<GLTexture2D> ssaoTexture,
-	std::shared_ptr<GLTexture2D> bloomTexture,
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO)
@@ -29,10 +28,9 @@ LightingPass::LightingPass(
 	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, sharedDepthbuffer));
 
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture->RendererID(), 0));
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bloomTexture->RendererID(), 0));
 
-	GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	GLCall(glDrawBuffers(sizeof(attachments) / sizeof(GLenum), attachments));
+	GLenum attachment = GL_COLOR_ATTACHMENT0;
+	GLCall(glDrawBuffers(1, &attachment));
 
 	m_LightingPassShader->SetUniform1i("u_TileSize", g_TileSize);
 }
@@ -54,8 +52,6 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	m_LightingPassShader->SetUniform1i("u_TileSize", g_TileSize);
 	m_LightingPassShader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
 	m_LightingPassShader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
-	m_LightingPassShader->SetUniform1f("u_BloomThreshold", g_BloomThreshold);
-	m_LightingPassShader->SetUniform1f("u_BloomAlpha", g_BloomAlpha);
 	m_LightingPassShader->SetUniformMat4("u_ViewInverse", m_Renderer.camera.GetInverseViewMatrix());
 
 	m_LightSSBO->Bind(3);

@@ -65,6 +65,7 @@ std::shared_ptr<GLShader> depthShader;
 std::shared_ptr<GLShader> fullscreenShader;
 std::shared_ptr<GLShader> blur1DShader;
 std::shared_ptr<GLShader> motionBlurShader;
+std::shared_ptr<GLShader> bloomBrightnessShader;
 std::shared_ptr<GLShader> bloomShader;
 std::shared_ptr<GLShader> lightTilesOverlayShader;
 std::shared_ptr<GLShader> cubeTessellationShader;
@@ -251,6 +252,7 @@ int main()
 	fullscreenShader.reset();
 	blur1DShader.reset();
 	motionBlurShader.reset();
+	bloomBrightnessShader.reset();
 	bloomShader.reset();
 	lightTilesOverlayShader.reset();
 	cubeTessellationShader.reset();
@@ -594,6 +596,11 @@ void LoadShaders()
 	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
 	motionBlurShader->CompileShaders();
 
+	bloomBrightnessShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_brightness_vs.glsl");
+	bloomBrightnessShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_brightness_fs.glsl");
+	bloomBrightnessShader->CompileShaders();
+	bloomBrightnessShader->SetUniform1i("u_BloomResolutionLevel", g_BloomResolutionLevel);
+
 	bloomShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_vs.glsl");
 	bloomShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_fs.glsl");
 	bloomShader->CompileShaders();
@@ -648,16 +655,10 @@ void InitTiledForwardRendering()
 
 	std::shared_ptr<GLTexture2D> motionBlurredTexture = std::make_shared<GLTexture2D>();
 	motionBlurredTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
-	motionBlurredTexture->SetMinMagFilter(GL_NEAREST);
+	motionBlurredTexture->GenerateMipmap();
+	motionBlurredTexture->SetMagFilter(GL_NEAREST);
+	motionBlurredTexture->SetMinFilter(GL_NEAREST_MIPMAP_NEAREST);
 	motionBlurredTexture->SetWrapST(GL_CLAMP_TO_EDGE);
-
-	std::shared_ptr<GLTexture2D> bloomInputTexture = std::make_shared<GLTexture2D>();
-	bloomInputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
-	bloomInputTexture->Bind();
-	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
-	bloomInputTexture->SetMagFilter(GL_LINEAR);
-	bloomInputTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-	bloomInputTexture->SetWrapST(GL_CLAMP_TO_BORDER);
 
 	std::shared_ptr<GLTexture2D> bloomOutputTexture = std::make_shared<GLTexture2D>();
 	bloomOutputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
@@ -682,6 +683,7 @@ void InitTiledForwardRendering()
 	fullscreenShader = std::make_shared<GLShader>();
 	blur1DShader = std::make_shared<GLShader>();
 	motionBlurShader = std::make_shared<GLShader>();
+	bloomBrightnessShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
 	lightTilesOverlayShader = std::make_shared<GLShader>();
 	cubeTessellationShader = std::make_shared<GLShader>();
@@ -723,7 +725,6 @@ void InitTiledForwardRendering()
 		irradianceMap,
 		reflectionMap,
 		ssaoTexture,
-		bloomInputTexture,
 		lightSSBO,
 		lightIndexSSBO,
 		tileIndexSSBO);
@@ -737,10 +738,11 @@ void InitTiledForwardRendering()
 		clipSpaceVelocityTexture,
 		motionBlurredTexture);
 	std::shared_ptr<BloomPass> bloomPass = std::make_shared<BloomPass>(
-		renderer, bloomShader,
+		renderer,
+		bloomBrightnessShader,
+		bloomShader,
 		blur1DShader,
-		lightingPassColorTexture,
-		bloomInputTexture,
+		motionBlurredTexture,
 		bloomOutputTexture);
 	std::shared_ptr<OutputSelectionPass> outputSelectionPass = std::make_shared<OutputSelectionPass>(
 		renderer,
