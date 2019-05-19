@@ -69,6 +69,7 @@ std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomBrightnessShader;
 std::shared_ptr<GLShader> bloomShader;
 std::shared_ptr<GLShader> lightTilesOverlayShader;
+std::shared_ptr<GLShader> cubeTessellationPrepassShader;
 std::shared_ptr<GLShader> cubeTessellationShader;
 
 std::shared_ptr<GLShaderStorageBuffer> lightSSBO;
@@ -188,7 +189,7 @@ int main()
 		fighterModel = Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader);
 		fighterModel->modelMatrix = mat4(1.0f);
 
-		tessellationCube = std::make_shared<TessellationCube>(cubeTessellationShader, cubeTessellationShader);
+		tessellationCube = std::make_shared<TessellationCube>(cubeTessellationPrepassShader, cubeTessellationShader);
 
 		fireSphereTexture = std::make_shared<GLTexture2D>();
 		fireSphereTexture->LoadFromFile("res/textures/FireSphere.png");
@@ -257,6 +258,7 @@ int main()
 	bloomBrightnessShader.reset();
 	bloomShader.reset();
 	lightTilesOverlayShader.reset();
+	cubeTessellationPrepassShader.reset();
 	cubeTessellationShader.reset();
 
 	ImGui_ImplGlfw_Shutdown();
@@ -628,6 +630,14 @@ void LoadShaders()
 	cubeTessellationShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
 	cubeTessellationShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
 
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/cube_tessellation_vs.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_CONTROL_SHADER, "res/shaders/cube_tessellation_tcs.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_EVALUATION_SHADER, "res/shaders/cube_tessellation_tes.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/cube_tessellation_prepass_fs.glsl");
+	cubeTessellationPrepassShader->CompileShaders();
+	cubeTessellationPrepassShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
+	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
+	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
 }
 
 void InitTiledForwardRendering()
@@ -694,6 +704,7 @@ void InitTiledForwardRendering()
 	bloomBrightnessShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
 	lightTilesOverlayShader = std::make_shared<GLShader>();
+	cubeTessellationPrepassShader = std::make_shared<GLShader>();
 	cubeTessellationShader = std::make_shared<GLShader>();
 	LoadShaders();
 

@@ -42,14 +42,6 @@ struct TileLights
 	int lightCount;
 };
 
-struct Plane
-{
-	float a;
-	float b;
-	float c;
-	float d;
-};
-
 
 /// Lights, containing view space position and color
 layout (std430, binding = 3) readonly buffer LightBuffer
