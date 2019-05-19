@@ -16,5 +16,5 @@ void main()
 
 	vec2 currentPositionXY = currentPosition.xy / currentPosition.w;
 	vec2 previousPositionXY = previousPosition.xy / previousPosition.w;
-	out_ClipSpaceVelocity = currentPositionXY - previousPositionXY;
+	out_ClipSpaceVelocity = 0.5 * (currentPositionXY - previousPositionXY);
 }

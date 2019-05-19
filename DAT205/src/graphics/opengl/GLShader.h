@@ -38,6 +38,8 @@ public:
 	void SetUniform2f(std::string& uniformName, float x, float y);
 	inline void SetUniform2f(const char* uniformName, const vec2& vec) { return SetUniform2f(std::string(uniformName), vec); }
 	void SetUniform2f(std::string& uniformName, const vec2& vec);
+	inline void SetUniform2i(const char* uniformName, int x, int y) { return SetUniform2i(std::string(uniformName), x, y); }
+	void SetUniform2i(std::string& uniformName, int x, int y);
 
 	inline void SetUniform3f(const char* uniformName, float x, float y, float z) { return SetUniform3f(std::string(uniformName), x, y, z); }
 	void SetUniform3f(std::string& uniformName, float x, float y, float z);

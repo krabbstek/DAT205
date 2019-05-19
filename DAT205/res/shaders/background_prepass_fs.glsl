@@ -16,5 +16,5 @@ void main()
 	vec4 prevPos = u_PrevVP * pixelWorldPos;
 	prevPos.xy /= prevPos.w;
 
-	out_ClipSpaceVelocity = currentPos.xy - prevPos.xy;
+	out_ClipSpaceVelocity = 0.5 * (currentPos.xy - prevPos.xy);
 }

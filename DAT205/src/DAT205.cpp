@@ -64,6 +64,7 @@ std::shared_ptr<GLShader> glowingParticleShader;
 std::shared_ptr<GLShader> depthShader;
 std::shared_ptr<GLShader> fullscreenShader;
 std::shared_ptr<GLShader> blur1DShader;
+std::shared_ptr<GLShader> maxTileVelocityShader;
 std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomBrightnessShader;
 std::shared_ptr<GLShader> bloomShader;
@@ -251,6 +252,7 @@ int main()
 	depthShader.reset();
 	fullscreenShader.reset();
 	blur1DShader.reset();
+	maxTileVelocityShader.reset();
 	motionBlurShader.reset();
 	bloomBrightnessShader.reset();
 	bloomShader.reset();
@@ -592,6 +594,11 @@ void LoadShaders()
 	blur1DShader->SetUniform1fv("u_Weights", weights, numWeights);
 	blur1DShader->SetUniform1i("u_NumSamples", numWeights);
 
+	maxTileVelocityShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/max_tile_velocity_vs.glsl");
+	maxTileVelocityShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/max_tile_velocity_fs.glsl");
+	maxTileVelocityShader->CompileShaders();
+	maxTileVelocityShader->SetUniform1i("u_TileSize", g_VelocityTileSize);
+
 	motionBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/motion_blur_vs.glsl");
 	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
 	motionBlurShader->CompileShaders();
@@ -682,6 +689,7 @@ void InitTiledForwardRendering()
 	depthShader = std::make_shared<GLShader>();
 	fullscreenShader = std::make_shared<GLShader>();
 	blur1DShader = std::make_shared<GLShader>();
+	maxTileVelocityShader = std::make_shared<GLShader>();
 	motionBlurShader = std::make_shared<GLShader>();
 	bloomBrightnessShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
@@ -733,7 +741,9 @@ void InitTiledForwardRendering()
 		lightingPass->GetFramebuffer(),
 		environmentMap);
 	std::shared_ptr<MotionBlurPass> motionBlurPass = std::make_shared<MotionBlurPass>(
-		renderer, motionBlurShader,
+		renderer, 
+		maxTileVelocityShader,
+		motionBlurShader,
 		lightingPassColorTexture,
 		clipSpaceVelocityTexture,
 		motionBlurredTexture);

@@ -23,6 +23,8 @@ constexpr float g_FarPlaneDepth = 100.0f;
 
 constexpr float g_MaxPitchAngle = DegToRad(85.0f);
 
+constexpr int g_VelocityTileSize = 8;
+
 constexpr int g_NumGraphSamples = 240;
 constexpr float g_LargeGraphSizeX = 320.0f;
 constexpr float g_LargeGraphSizeY = 80.0f;
