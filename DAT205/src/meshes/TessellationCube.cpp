@@ -161,7 +161,7 @@ void TessellationCube::Render(const Renderer& renderer)
 	material.fresnel = 0.5f;
 	material.metalness = 0.5f;
 	material.reflectivity = 0.5f;
-	material.shininess = 5000.0f;
+	material.shininess = 10000.0f;
 	material.Bind(*m_MainShader);
 
 	m_DisplacementTexture.Bind(4);

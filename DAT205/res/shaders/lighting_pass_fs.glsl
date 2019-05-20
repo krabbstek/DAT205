@@ -8,9 +8,23 @@ in vec2 texCoords;
 
 out vec3 out_Color;
 
+layout (binding = 0) uniform sampler2D u_AlbedoTexture;
+layout (binding = 1) uniform sampler2D u_ReflectivityTexture;
+layout (binding = 2) uniform sampler2D u_MetalnessTexture;
+layout (binding = 3) uniform sampler2D u_FresnelTexture;
+layout (binding = 4) uniform sampler2D u_ShininessTexture;
+layout (binding = 5) uniform sampler2D u_EmissionTexture;
+
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
 layout (binding = 9) uniform sampler2D u_SSAOTexture;
+
+uniform int u_HasAlbedoTexture;
+uniform int u_HasReflectivityTexture;
+uniform int u_HasMetalnessTexture;
+uniform int u_HasFresnelTexture;
+uniform int u_HasShininessTexture;
+uniform int u_HasEmissionTexture;
 
 uniform int u_NumTileCols;
 uniform int u_TileSize;
@@ -29,6 +43,15 @@ uniform struct Material
 	float fresnel;
 	float transparency;
 } u_Material;
+
+
+vec4 materialAlbedo;
+float materialEmission;
+float materialReflectivity;
+float materialShininess;
+float materialMetalness;
+float materialFresnel;
+float materialTransparency;
 
 struct Light
 {
@@ -116,17 +139,52 @@ float _G;
 float _brdf;
 
 
+void SetMaterialParameters()
+{
+	if (u_HasAlbedoTexture != 0)
+		materialAlbedo = texture(u_AlbedoTexture, texCoords);
+	else
+		materialAlbedo = u_Material.albedo;
+
+	if (u_HasEmissionTexture != 0)
+		materialEmission = texture(u_EmissionTexture, texCoords).r;
+	else
+		materialEmission = u_Material.emission;
+
+	if (u_HasReflectivityTexture != 0)
+		materialReflectivity = texture(u_ReflectivityTexture, texCoords).r;
+	else
+		materialReflectivity = u_Material.reflectivity;
+
+	if (u_HasShininessTexture != 0)
+		materialShininess = texture(u_ShininessTexture, texCoords).r;
+	else
+		materialShininess = u_Material.shininess;
+
+	if (u_HasMetalnessTexture != 0)
+		materialMetalness = texture(u_MetalnessTexture, texCoords).r;
+	else
+		materialMetalness = u_Material.metalness;
+
+	if (u_HasFresnelTexture != 0)
+		materialFresnel = texture(u_FresnelTexture, texCoords).r;
+	else
+		materialFresnel = u_Material.fresnel;
+
+	materialTransparency = u_Material.transparency;
+}
+
 vec3 calculateDirectIlluminationTerm()
 {
 	if (n_wi <= 0)
 		return vec3(0.0);
 
-	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * n_wi_Li;
+	vec3 diffuseTerm = materialAlbedo.rgb * (1.0 / PI) * n_wi_Li;
 	vec3 dielectricTerm = _brdf * n_wi_Li + (1.0 - _F) * diffuseTerm;
 	vec3 metalTerm = _brdf * n_wi_Li;
-	vec3 microfacetTerm = u_Material.metalness * metalTerm + (1.0 - u_Material.metalness) * dielectricTerm;
+	vec3 microfacetTerm = materialMetalness * metalTerm + (1.0 - materialMetalness) * dielectricTerm;
 
-	vec3 directIlluminationTerm = u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * diffuseTerm;
+	vec3 directIlluminationTerm = materialReflectivity * microfacetTerm + (1.0 - materialReflectivity) * diffuseTerm;
 
 	return directIlluminationTerm;
 }
@@ -149,7 +207,7 @@ vec3 calculateIndirectIlluminationTerm()
 	vec2 lookup = vec2(phi / (2.0 * PI), theta / PI);
 
 	vec3 irradiance = u_EnvironmentMultiplier * texture(u_IrradianceMap, lookup).rgb;
-	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * irradiance;
+	vec3 diffuseTerm = materialAlbedo.rgb * (1.0 / PI) * irradiance;
 
 	float ssao = texelFetch(u_SSAOTexture, ivec2(gl_FragCoord.xy), 0).r;
 
@@ -159,7 +217,7 @@ vec3 calculateIndirectIlluminationTerm()
 vec3 calculateGlossyReflection()
 {
 	vec3 wiGlossy = reflect(-wo, n);
-	float roughness = sqrt(sqrt(2.0 / (u_Material.shininess + 2.0)));
+	float roughness = sqrt(sqrt(2.0 / (materialShininess + 2.0)));
 	vec3 dir = normalize(mat3(u_ViewInverse) * wiGlossy);
 
 	// Calculate the spherical coordinates of the direction
@@ -177,23 +235,23 @@ vec3 calculateGlossyReflection()
 
 	float f = F(dot(wiGlossy, whGlossy));
 
-	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * dot(n, wiGlossy) * Li;
+	vec3 diffuseTerm = materialAlbedo.rgb * (1.0 / PI) * dot(n, wiGlossy) * Li;
 	vec3 dielectricTerm = f * Li + (1.0 - f) * diffuseTerm;
-	vec3 metalTerm = f * u_Material.albedo.rgb * Li;
-	vec3 microfacetTerm = u_Material.metalness * metalTerm + (1.0 - u_Material.metalness) * dielectricTerm;
+	vec3 metalTerm = f * materialAlbedo.rgb * Li;
+	vec3 microfacetTerm = materialMetalness * metalTerm + (1.0 - materialMetalness) * dielectricTerm;
 
-	return u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * diffuseTerm;
+	return materialReflectivity * microfacetTerm + (1.0 - materialReflectivity) * diffuseTerm;
 }
 
 
 void main()
 {
+	SetMaterialParameters();
+
 	n = normalize(viewSpaceNormal);
 	wo = -normalize(viewSpacePosition.xyz);
 
 	vec3 directIlluminationTerm = vec3(0.0);
-
-	vec3 diffuseTermPreComp = u_Material.albedo.rgb * (1.0 / PI);
 
 	ivec2 tileCoords = ivec2(gl_FragCoord.xy) / u_TileSize;
 	int tileIndex = TileIndex(tileCoords.x, tileCoords.y);
@@ -238,7 +296,7 @@ void main()
 
 	vec3 indirectIlluminationTerm = calculateIndirectIlluminationTerm();
 	vec3 glossyReflectionTerm = calculateGlossyReflection();
-	vec3 emissionTerm = u_Material.emission * u_Material.albedo.rgb;
+	vec3 emissionTerm = materialEmission * materialAlbedo.rgb;
 
 	out_Color = directIlluminationTerm
 			  + indirectIlluminationTerm

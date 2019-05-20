@@ -11,6 +11,7 @@ class MotionBlurPass : public RenderPass
 public:
 	MotionBlurPass(Renderer& renderer,
 		std::shared_ptr<GLShader> maxTileVelocityShader,
+		std::shared_ptr<GLShader> velocityVarianceShader,
 		std::shared_ptr<GLShader> motionBlurShader,
 		std::shared_ptr<GLTexture2D> inputTexture,
 		std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture,
@@ -21,11 +22,14 @@ public:
 
 private:
 	GLuint m_MaxTileVelocityFramebuffer[2];
-	GLuint m_Framebuffer;
+	GLuint m_VelocityVarianceFramebuffer;
+	GLuint m_OutputFramebuffer;
 	std::shared_ptr<GLShader> m_MaxTileVelocityShader;
+	std::shared_ptr<GLShader> m_VelocityVarianceShader;
 	std::shared_ptr<GLShader> m_MotionBlurShader;
 	std::shared_ptr<GLTexture2D> m_InputTexture;
 	std::shared_ptr<GLTexture2D> m_MaxTileVelocityTexture[2];
+	std::shared_ptr<GLTexture2D> m_VelocityVarianceTexture;
 	std::shared_ptr<GLTexture2D> m_ClipSpaceVelocityTexture;
 	FullscreenMesh m_FullscreenMesh;
 };
