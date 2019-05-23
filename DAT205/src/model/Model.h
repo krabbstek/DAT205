@@ -10,6 +10,7 @@ struct Mesh
 	int startIndex;	// Start index of index buffer
 	int vertexCount;	// Number of vertices to 
 	int materialIndex; // Index of material inside Model
+	std::shared_ptr<GLTexture2D> normalMap;
 };
 
 class Model : public Renderable

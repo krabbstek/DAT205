@@ -48,6 +48,7 @@ vec2 mousePrevPos(-1.0f);
 std::shared_ptr<RenderTechnique> renderTechnique;
 
 std::shared_ptr<Model> bb8;
+std::shared_ptr<Model> statue;
 std::shared_ptr<Model> fighterModel;
 std::shared_ptr<TessellationCube> tessellationCube;
 
@@ -165,6 +166,7 @@ int main()
 		/// Render technique
 		InitTiledForwardRendering();
 
+#if 0
 		bb8 = Model::LoadModelFromOBJ("res/models/bb8/bb8.obj", prepassShader, lightingPassShader);
 		bb8->modelMatrix = mat4::Scale(0.05f);
 		{
@@ -181,10 +183,23 @@ int main()
 				headAlbedoTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 				headAlbedoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 				headMaterial.SetAlbedoTexture(headAlbedoTexture);
-
-				
 			}
 		}
+#endif
+
+#if 0
+		statue = Model::LoadModelFromOBJ("res/models/statue/statue.obj", prepassShader, lightingPassShader);
+		statue->modelMatrix = mat4(1.0f);
+		{
+			Mesh& mesh = statue->GetMeshes()[0];
+
+			std::shared_ptr<GLTexture2D> normalMap = std::make_shared<GLTexture2D>();
+			normalMap->LoadFromFile("res/models/statue/NormalMap.jpg");
+			normalMap->SetMinMagFilter(GL_NEAREST);
+			normalMap->SetWrapST(GL_CLAMP_TO_EDGE);
+			mesh.normalMap = normalMap;
+		}
+#endif
 
 		fighterModel = Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader);
 		fighterModel->modelMatrix = mat4(1.0f);
@@ -215,9 +230,9 @@ int main()
 			{
 				accumulator -= g_DeltaTime;
 
-				glfwPollEvents();
-
 				Update();
+
+				glfwPollEvents();
 			}
 
 			Render();
@@ -227,6 +242,7 @@ int main()
 	}
 
 	bb8.reset();
+	statue.reset();
 	fighterModel.reset();
 	tessellationCube.reset();
 	glowingParticleSystem.reset();
@@ -418,6 +434,10 @@ void ImGuiRender()
 	ImGui::RadioButton("Motion blur", (int*)&outputSelection, OUTPUT_SELECTION_MOTION_BLUR);
 	ImGui::RadioButton("Bloom", (int*)&outputSelection, OUTPUT_SELECTION_BLOOM);
 	ImGui::Checkbox("Light tiles overlay", &g_DisplayLightTilesOverlay);
+
+	ImGui::Separator();
+
+	ImGui::Checkbox("Use normal maps", &g_UseNormalMap);
 
 	ImGui::Separator();
 
@@ -823,6 +843,10 @@ void Update()
 {
 	HandleKeyInput(g_DeltaTime);
 
+	renderer.camera.Update();
+	//bb8->Update();
+	fighterModel->Update();
+
 	glowingParticleSystem->UpdateParticles(g_DeltaTime);
 	
 	for (int i = 0; i < 2; i++)
@@ -846,15 +870,12 @@ void Render()
 #endif
 
 	UpdateLights();
-	//renderTechnique->Render(*fighterModel);
-	renderTechnique->Render(*bb8);
+	renderTechnique->Render(*fighterModel);
+	//renderTechnique->Render(*bb8);
+	//renderTechnique->Render(*statue);
 	renderTechnique->Render(*tessellationCube);
 	renderTechnique->Render(*glowingParticleSystem);
 	renderTechnique->Render();
-
-	renderer.camera.Update();
-	bb8->Update();
-	fighterModel->Update();
 
 #ifdef USE_IMGUI
 	ImGuiRender();
