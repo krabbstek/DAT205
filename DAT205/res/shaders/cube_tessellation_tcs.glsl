@@ -17,7 +17,7 @@ float GetTessLevel(float centerPositionCameraDistance)
 	if (centerPositionCameraDistance <= 4.0)
 		return 10.0;
 	else if (centerPositionCameraDistance <= 10.0)
-		return 6.0;
+		return 2.0;
 	else
 		return 4.0;
 }
@@ -32,10 +32,10 @@ void main()
 
 	if (gl_InvocationID == 0)
 	{
-		gl_TessLevelOuter[0] = tessLevel + 1;
-		gl_TessLevelOuter[1] = tessLevel + 1;
-		gl_TessLevelOuter[2] = tessLevel + 1;
-		gl_TessLevelOuter[3] = tessLevel + 1;
+		gl_TessLevelOuter[0] = tessLevel;
+		gl_TessLevelOuter[1] = tessLevel;
+		gl_TessLevelOuter[2] = tessLevel;
+		gl_TessLevelOuter[3] = tessLevel;
 		gl_TessLevelInner[0] = tessLevel;
 		gl_TessLevelInner[1] = tessLevel;
 	}

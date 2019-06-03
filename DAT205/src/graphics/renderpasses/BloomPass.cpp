@@ -140,7 +140,10 @@ void BloomPass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 	m_InputColorTexture->Bind(0);
 	for (int i = 0; i < 3; i++)
-		m_BloomBlurredTexture[i]->Bind(i + 1);
+		if (g_UseBloomLevelTexture[i])
+			m_BloomBlurredTexture[i]->Bind(i + 1);
+		else
+			GLTexture2D::Unbind(i + 1);
 	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glEnable(GL_DEPTH_TEST));
