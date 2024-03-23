@@ -20,6 +20,8 @@ void core::OnStart()
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
 	vao = new GLVertexArray(*vbo, layout);
+	vbo->Bind();
+	vao->Bind();
 
 	shader = new GLShader();
 	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
@@ -35,7 +37,5 @@ void core::OnUpdate()
 
 void core::OnRender()
 {
-	vbo->Bind();
-	vao->Bind();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }

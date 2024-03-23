@@ -107,8 +107,11 @@ namespace core {
 		{
 			GLCall(glDetachShader(m_RendererID, shader));
 		}
-		for (char* c : m_TempSource)
-			delete c;
+		while (m_TempSource.size())
+		{
+			delete m_TempSource.back();
+			m_TempSource.pop_back();
+		}
 
 		return true;
 	}
