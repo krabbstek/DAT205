@@ -1,5 +1,9 @@
 #include "TessellationCube.h"
 
+#include "Globals.h"
+
+#include "graphics/Material.h"
+
 float cubeVertices[] =
 {
 	// Position | Tex coords
@@ -107,6 +111,14 @@ TessellationCube::TessellationCube(std::shared_ptr<GLShader> prepassShader, std:
 	m_DisplacementTexture.Load(GL_R16F, displacement, 64, 64, GL_RED, GL_FLOAT);
 	m_DisplacementTexture.SetMinMagFilter(GL_LINEAR);
 	m_DisplacementTexture.SetWrapST(GL_CLAMP_TO_EDGE);
+
+	Material material;
+	material.albedo = vec4(1.0f);
+	material.fresnel = 0.5f;
+	material.metalness = 0.5f;
+	material.reflectivity = 0.5f;
+	material.shininess = 10.0f;
+	material.Bind(*m_MainShader);
 }
 
 TessellationCube::~TessellationCube()
@@ -129,11 +141,13 @@ void TessellationCube::PrepassRender(const Renderer& renderer)
 	m_PrepassShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
 	m_PrepassShader->SetUniform3f("u_CameraPosition", renderer.camera.position);
 	m_PrepassShader->SetUniformMat4("u_ViewMatrix", renderer.camera.GetViewMatrix());
+	m_PrepassShader->SetUniformMat4("u_ViewInverse", renderer.camera.GetInverseViewMatrix());
 
 	m_DisplacementTexture.Bind(4);
 
 	m_VAO->Bind();
 	m_IBO->Bind();
+	GLCall(glPatchParameteri(GL_PATCH_VERTICES, 4));
 	GLCall(glDrawElements(GL_PATCHES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
 }
 
@@ -147,12 +161,17 @@ void TessellationCube::Render(const Renderer& renderer)
 	m_MainShader->SetUniformMat4("u_MV", MV);
 	m_MainShader->SetUniformMat4("u_MVP", P * MV);
 	m_MainShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
-	m_PrepassShader->SetUniform3f("u_CameraPosition", renderer.camera.position);
-	m_PrepassShader->SetUniformMat4("u_ViewMatrix", renderer.camera.GetViewMatrix());
+	m_MainShader->SetUniform3f("u_CameraPosition", renderer.camera.position);
+	m_MainShader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
+	m_MainShader->SetUniform1i("u_NumTileCols", g_NumTileCols);
+	m_MainShader->SetUniform1i("u_TileSize", g_TileSize);
+	m_MainShader->SetUniformMat4("u_ViewMatrix", renderer.camera.GetViewMatrix());
+	m_MainShader->SetUniformMat4("u_ViewInverse", renderer.camera.GetInverseViewMatrix());
 
 	m_DisplacementTexture.Bind(4);
 
 	m_VAO->Bind();
 	m_IBO->Bind();
+	GLCall(glPatchParameteri(GL_PATCH_VERTICES, 4));
 	GLCall(glDrawElements(GL_PATCHES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
 }
