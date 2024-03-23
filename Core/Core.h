@@ -5,6 +5,7 @@
 #include <Log.h>
 
 #include <app/Application.h>
+#include <app/Window.h>
 
 #include <math/math_util.h>
 #include <math/vec2.h>

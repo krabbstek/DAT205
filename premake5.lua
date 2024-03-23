@@ -26,7 +26,10 @@ workspace "DAT205"
 
         includedirs {
             "%{prj.name}/src",
-            "%{prj.name}/vendor/spdlog/include"
+            "%{prj.name}/vendor/spdlog/include",
+            "GLEW/include",
+            "GLFW/include",
+            "ImGui"
         }
 
         filter "system:windows"
