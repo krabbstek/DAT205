@@ -15,7 +15,8 @@ namespace core {
 		vbo.Bind();
 		for (std::pair<GLuint, unsigned int> location : layout.m_Layout)
 		{
-			GLCall(glVertexAttribPointer(i++, GLVertexBufferLayout::GetElementSize(location.first), location.first, /*normalized =*/ GL_FALSE, stride, /*pointer =*/ 0));
+			GLCall(glVertexAttribPointer(i, location.second, location.first, /*normalized =*/ GL_FALSE, stride, /*pointer =*/ 0));
+			GLCall(glEnableVertexAttribArray(i++));
 			stride += GLVertexBufferLayout::GetElementSize(location.first) * location.second;
 		}
 	}
