@@ -21,6 +21,14 @@ namespace core {
 
 	constexpr float CORE_API Clamp(float val, float min, float max);
 
+
+	inline constexpr float CORE_API LinearInterpolate(float t, float t0, float t1)
+	{
+		return t * t0 + (1.0f - t) * t1;
+	}
+
+	float CORE_API CubicInterpolate(float t);
+
 }
 
 #pragma warning(default: 4244)
