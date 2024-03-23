@@ -20,6 +20,7 @@ workspace "DAT205"
 
         files {
             "%{prj.name}/Core.h",
+            "%{prj.name}/res/**",
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp"
         }
