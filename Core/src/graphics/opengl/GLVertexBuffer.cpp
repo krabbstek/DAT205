@@ -49,6 +49,19 @@ namespace core {
 	GLuint GLVertexBuffer::s_CurrentRendererID = 0;
 
 
+	GLVertexBufferLayout::GLVertexBufferLayout()
+		: m_Stride(0)
+	{
+	}
+
+
+	void GLVertexBufferLayout::Push(GLuint type, unsigned int count)
+	{
+		m_Layout.push_back(LayoutElement(type, count));
+		m_Stride += count * GetElementSize(type);
+	}
+
+
 	unsigned int GLVertexBufferLayout::GetElementSize(GLuint type)
 	{
 		switch (type)
