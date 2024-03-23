@@ -47,6 +47,24 @@ namespace core {
 		return Quaternion(axis.x * s, axis.y * s, axis.z * s, c);
 	}
 
+	Quaternion Quaternion::RotateX(float radians)
+	{
+		radians *= 0.5f;
+		return Quaternion(sin(radians), 0.0f, 0.0f, cos(radians));
+	}
+
+	Quaternion Quaternion::RotateY(float radians)
+	{
+		radians *= 0.5f;
+		return Quaternion(0.0f, sin(radians), 0.0f, cos(radians));
+	}
+
+	Quaternion Quaternion::RotateZ(float radians)
+	{
+		radians *= 0.5f;
+		return Quaternion(0.0f, 0.0f, sin(radians), cos(radians));
+	}
+
 
 	Quaternion& Quaternion::Multiply(const Quaternion& quat)
 	{

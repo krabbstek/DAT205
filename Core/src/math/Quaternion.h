@@ -22,6 +22,9 @@ namespace core {
 		Quaternion(const vec4& xyzw);
 
 		static Quaternion Rotation(const vec3& axis, float radians);
+		static Quaternion RotateX(float radians);
+		static Quaternion RotateY(float radians);
+		static Quaternion RotateZ(float radians);
 
 		Quaternion& Multiply(const Quaternion& quat);
 		static Quaternion Multiply(const Quaternion& left, const Quaternion& right);
