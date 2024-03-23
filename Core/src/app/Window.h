@@ -24,6 +24,9 @@ namespace core {
 		void SetClearColor(const vec3& clearColor) const;
 		void SetClearColor(const vec4& clearColor) const;
 
+		inline unsigned int GetWidth() const { return m_Width; }
+		inline unsigned int GetHeight() const { return m_Height; }
+
 	private:
 		std::string m_WindowTitle;
 		unsigned int m_Width, m_Height;
