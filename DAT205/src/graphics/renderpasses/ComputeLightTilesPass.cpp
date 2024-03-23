@@ -41,6 +41,10 @@ ComputeLightTilesPass::ComputeLightTilesPass(
 
 void ComputeLightTilesPass::Render(std::vector<Renderable*>& renderables)
 {
+	m_ComputeShader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
+	m_ComputeShader->SetUniform1f("u_FarPlaneDepth", g_FarPlaneDepth);
+	m_ComputeShader->SetUniform2f("u_ViewportSize", float(g_WindowWidth), float(g_WindowHeight));
+
 	m_ViewSpacePositionTexture->Bind(0);
 
 	int zero = 0;
