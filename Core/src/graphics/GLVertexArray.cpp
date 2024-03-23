@@ -23,7 +23,15 @@ namespace core {
 
 	GLVertexArray::~GLVertexArray()
 	{
-		GLCall(glDeleteVertexArrays(1, &m_RendererID));
+		if (m_RendererID)
+		{
+			if (s_CurrentRendererID == m_RendererID)
+			{
+				GLCall(glBindVertexArray(0));
+				s_CurrentRendererID = 0;
+			}
+			GLCall(glDeleteVertexArrays(1, &m_RendererID));
+		}
 	}
 
 
