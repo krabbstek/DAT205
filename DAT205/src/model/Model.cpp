@@ -7,15 +7,8 @@
 #include <filesystem>
 
 Model::Model()
-	: m_VBO(nullptr, 0)
+	: modelMatrix(1.0f)
 {
-}
-
-Model::Model(const float* data, const unsigned int dataSize, const GLVertexBufferLayout vboLayout)
-	: m_VBO(data, dataSize)
-{
-	m_VBO.SetVertexBufferLayout(vboLayout);
-	m_VAO.AddVertexBuffer(m_VBO);
 }
 
 
@@ -30,7 +23,6 @@ Model* Model::LoadModelFromOBJ(const char* file)
 	std::string warn;
 	std::string err;
 
-	//bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, file, filepath.relative_path.c_str(), true);
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, file, directory.c_str(), true);
 	if (!err.empty())
 	{
@@ -198,32 +190,26 @@ Model* Model::LoadModelFromOBJ(const char* file)
 			model->m_Meshes.back().name = shape.name;
 	}
 
-	// Allocate memory to fit all vertices
-	float* vertices = new float[positions.size() * 3 + normals.size() * 3 + texCoords.size() * 2];
+	// Fill VBOs with data
+	model->m_VBOs.reserve(3);
+	model->m_VBOs.emplace_back(positions.data(), positions.size() * sizeof(vec3));
+	model->m_VBOs.emplace_back(normals.data(), normals.size() * sizeof(vec3));
+	model->m_VBOs.emplace_back(texCoords.data(), texCoords.size() * sizeof(vec2));
 
-	// Fill vertices with vertex data
-	int offset = 0;
-	memcpy(&vertices[offset], positions.data(), positions.size() * sizeof(positions[0]));
-	offset += positions.size() * 3;
-	memcpy(&vertices[offset], normals.data(), normals.size() * sizeof(normals[0]));
-	offset += normals.size() * 3;
-	memcpy(&vertices[offset], texCoords.data(), texCoords.size() * sizeof(texCoords[0]));
+	GLVertexBufferLayout positionLayout;
+	GLVertexBufferLayout normalLayout;
+	GLVertexBufferLayout texCoordsLayout;
+	positionLayout.Push(GL_FLOAT, 3);
+	normalLayout.Push(GL_FLOAT, 3);
+	texCoordsLayout.Push(GL_FLOAT, 2);
+	model->m_VBOs[0].SetVertexBufferLayout(positionLayout);
+	model->m_VBOs[1].SetVertexBufferLayout(normalLayout);
+	model->m_VBOs[2].SetVertexBufferLayout(texCoordsLayout);
 
-	// Set VBO data
-	model->m_VBO.SetData(vertices, positions.size() * sizeof(vec3) + normals.size() * sizeof(vec3) + texCoords.size() * sizeof(vec2));
-
-	// Get rid of CPU-side memory
-	delete[] vertices;
-
-	// Set VBO layout
-	GLVertexBufferLayout layout;
-	layout.Push(GL_FLOAT, 3);
-	layout.Push(GL_FLOAT, 3);
-	layout.Push(GL_FLOAT, 2);
-	model->m_VBO.SetVertexBufferLayout(layout);
-
-	// Add VBO to VAO
-	model->m_VAO.AddVertexBuffer(model->m_VBO);
+	// Add VBOs to VAO
+	model->m_VAO.AddVertexBuffer(model->m_VBOs[0]);
+	model->m_VAO.AddVertexBuffer(model->m_VBOs[1]);
+	model->m_VAO.AddVertexBuffer(model->m_VBOs[2]);
 
 	return model;
 }
@@ -237,11 +223,20 @@ void Model::PushMesh(const Mesh& mesh)
 
 void Model::Render(const Renderer& renderer, GLShader& shader) const
 {
+	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
+
+	shader.Bind();
+	shader.SetUniformMat4("u_MV", MV);
+	shader.SetUniformMat4("u_NV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	shader.SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
+
 	m_VAO.Bind();
 
 	for (const Mesh& mesh : m_Meshes)
 	{
-		m_Materials[mesh.materialIndex].Bind(shader);
+		if (mesh.materialIndex >= 0)
+			m_Materials[mesh.materialIndex].Bind(shader);
+
 		GLCall(glDrawArrays(GL_TRIANGLES, mesh.startIndex, (GLsizei)mesh.vertexCount));
 	}
 }

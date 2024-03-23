@@ -7,15 +7,15 @@
 struct Mesh
 {
 	std::string name;
-	unsigned int startIndex;	// Start index of index buffer
-	unsigned int vertexCount;	// Number of vertices to 
-	unsigned int materialIndex; // Index of material inside Model
+	int startIndex;	// Start index of index buffer
+	int vertexCount;	// Number of vertices to 
+	int materialIndex; // Index of material inside Model
 };
 
 class Model : public Renderable
 {
 public:
-	Model(const float* data, const unsigned int dataSize, const GLVertexBufferLayout vboLayout);
+	mat4 modelMatrix;
 
 	static Model* LoadModelFromOBJ(const char* file);
 
@@ -23,12 +23,15 @@ public:
 
 	void Render(const Renderer& renderer, GLShader& shader) const override;
 
+	inline std::vector<Material>& GetMaterials() { return m_Materials; }
+	inline std::vector<Mesh>& GetMeshes() { return m_Meshes; }
+
 private:
 	Model();
 
 protected:
 	GLVertexArray m_VAO;
-	GLVertexBuffer m_VBO;
+	std::vector<GLVertexBuffer> m_VBOs;
 	std::vector<Material> m_Materials;
 	std::vector<Mesh> m_Meshes;
 };

@@ -25,7 +25,7 @@ public:
 
 	inline static mat4 Identity() { return mat4(1.0f); }
 
-	inline static mat4 Scale(float s) { return mat4(s); }
+	inline static mat4 Scale(float s) { return mat4(s, s, s, 1.0f); }
 	inline static mat4 Scale(float sx, float sy, float sz) { return mat4(sx, sy, sz); }
 	inline static mat4 Scale(float sx, float sy, float sz, float sw) { return mat4(sx, sy, sz, sw); }
 	inline static mat4 Scale(const vec3& scale) { return mat4(scale); }
