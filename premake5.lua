@@ -24,11 +24,17 @@ workspace "DAT205"
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp",
             "%{prj.name}/vendor/**.h",
-            "%{prj.name}/vendor/**.cpp"
+            "%{prj.name}/vendor/**.cpp",
+            "%{prj.name}/vendor/rapidxml/*.hpp"
+        }
+
+        excludes {
+            "%{prj.name}/vendor/rapidxml/test/simple.cpp"
         }
 
         includedirs {
             "%{prj.name}/src",
+            "%{prj.name}/vendor/rapidxml",
             "%{prj.name}/vendor/spdlog/include",
             "%{prj.name}/vendor/stb",
             "GLEW/include",
@@ -59,14 +65,17 @@ workspace "DAT205"
 
         filter "configurations:Debug"
             defines { "DEBUG" }
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "Full"
 
 
@@ -101,14 +110,17 @@ workspace "DAT205"
 
         filter "configurations:Debug"
             defines { "DEBUG" }
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "Full"
 
 
@@ -153,14 +165,17 @@ workspace "DAT205"
 
         filter "configurations:Debug"
             defines { "DEBUG" }
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "Full"
 
 
@@ -204,14 +219,17 @@ workspace "DAT205"
 
         filter "configurations:Debug"
             defines { "DEBUG" }
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "Full"
 
 
@@ -265,12 +283,15 @@ workspace "DAT205"
 
         filter "configurations:Debug"
             defines { "DEBUG" }
+            buildoptions "/MDd"
             symbols "On"
 
         filter "configurations:Release"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "On"
 
         filter "configurations:Dist"
             defines { "NDEBUG" }
+            buildoptions "/MD"
             optimize "Full"

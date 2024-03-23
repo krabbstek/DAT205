@@ -35,26 +35,15 @@ namespace core {
 
 	void GLShader::AddShaderFromFile(GLuint shaderType, const char* filePath)
 	{
-		std::FILE* file = std::fopen(filePath, "rb");
-		if (file)
+		if (filePath)
 		{
-			std::string source;
-			std::fseek(file, 0, SEEK_END);
-			unsigned int size = std::ftell(file);
-			source.resize(size);
-			std::rewind(file);
-			std::fread(&source[0], 1, size, file);
-			std::fclose(file);
-
-			char* c = new char[source.size() + 1];
-			memcpy(c, &source[0], source.size());
-			c[source.size()] = 0;
+			char* c = ReadFullFile(filePath);
 			m_TempSource.push_back(c);
 
 			AddShader(shaderType, c);
 		}
 		else
-			CORE_ERROR("AddShaderFromFile - failed to open file \"{}\"", filePath);
+			CORE_ERROR("Failed to read file - nullptr filePath.");
 	}
 
 	bool GLShader::CompileShaders()
