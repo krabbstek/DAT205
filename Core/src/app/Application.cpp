@@ -30,13 +30,14 @@ namespace core {
 	void(*Application::s_OnStart)() = 0;
 	void(*Application::s_OnUpdate)(float) = 0;
 	void(*Application::s_OnRender)() = 0;
+	void(*Application::s_OnQuit)() = 0;
 
 	unsigned int _Application_Frames = 0;
 	unsigned int _Application_ImGui_Frames = 0;
 	unsigned int _Application_Updates = 0;
 	unsigned int _Application_ImGui_Updates = 0;
 
-	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(float), void(*OnRender)(void))
+	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(float), void(*OnRender)(void), void(*OnQuit)(void))
 	{
 		s_WindowTitle = windowTitle;
 		s_Width = width;
@@ -45,6 +46,7 @@ namespace core {
 		s_OnStart = OnStart;
 		s_OnUpdate = OnUpdate;
 		s_OnRender = OnRender;
+		s_OnQuit = OnQuit;
 
 		Log::Init();
 		CORE_TRACE("Initialized Log.");
@@ -97,6 +99,8 @@ namespace core {
 	{
 		CORE_TRACE("Terminating application...");
 
+		s_OnQuit();
+
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 
@@ -147,7 +151,7 @@ namespace core {
 			if (glfwWindowShouldClose(s_Window->m_Window))
 			{
 				s_Running = false;
-				continue;
+				break;
 			}
 
 			std::this_thread::sleep_for(std::chrono::microseconds(SLEEP_FOR_MICROSECONDS));
