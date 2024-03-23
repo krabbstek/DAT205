@@ -28,6 +28,7 @@ void core::OnStart()
 	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
 	shader->CompileShaders();
 	shader->Bind();
+	CORE_INFO("{}", shader->GetUniformLocation(std::string("color")));
 }
 
 void core::OnUpdate()

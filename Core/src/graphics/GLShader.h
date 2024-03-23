@@ -23,10 +23,13 @@ namespace core {
 		void Bind() const;
 		void Unbind() const;
 
+		unsigned int GetUniformLocation(std::string& uniformName);
+
 	private:
 		GLuint m_RendererID;
 		std::unordered_map<GLuint, const char*> m_Shaders;
 		std::vector<char*> m_TempSource;
+		std::unordered_map<std::string, unsigned int> m_UniformLocations;
 
 		static GLuint s_CurrentRendererID;
 	};
