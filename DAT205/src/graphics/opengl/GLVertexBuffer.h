@@ -10,6 +10,8 @@ public:
 	GLVertexBuffer(const void* data, unsigned int size);
 	~GLVertexBuffer();
 
+	void SetData(const void* data, unsigned int size) const;
+
 	inline void SetVertexBufferLayout(const GLVertexBufferLayout& layout) { m_Layout = layout; }
 	inline const GLVertexBufferLayout& GetVertexBufferLayout() const { return m_Layout; }
 

@@ -3,11 +3,9 @@
 #include "GLCommon.h"
 
 GLIndexBuffer::GLIndexBuffer(const unsigned int* data, unsigned int count)
-	: m_Count(count)
 {
 	GLCall(glGenBuffers(1, &m_RendererID));
-	Bind();
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+	SetData(data, count);
 }
 
 GLIndexBuffer::~GLIndexBuffer()
@@ -16,6 +14,14 @@ GLIndexBuffer::~GLIndexBuffer()
 	{
 		GLCall(glDeleteBuffers(1, &m_RendererID));
 	}
+}
+
+
+void GLIndexBuffer::SetData(const unsigned int* data, unsigned int count)
+{
+	Bind();
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));
+	m_Count = count;
 }
 
 

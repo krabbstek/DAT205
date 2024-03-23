@@ -8,9 +8,11 @@
 #include "graphics/renderpasses/StartTimerPass.h"
 #include "graphics/renderpasses/StopTimerPass.h"
 #include "graphics/renderpasses/PlotTimersPass.h"
+#include "graphics/renderpasses/forward/ForwardLightingPass.h"
 #include "math/math.h"
 #include "meshes/Cube.h"
 #include "meshes/PlaneMesh.h"
+#include "model/Model.h"
 
 #include <chrono>
 #include <iostream>
@@ -38,7 +40,7 @@ enum RENDER_MODE
 	NUM_RENDER_MODES,
 };
 
-RENDER_MODE currentRenderMode;
+RENDER_MODE currentRenderMode = DEFAULT;
 std::pair<std::shared_ptr<RenderTechnique>, std::string> renderModes[NUM_RENDER_MODES];
 
 int Init();
@@ -64,10 +66,13 @@ int main()
 		PlaneMesh planeMesh({ 0.0f, -0.5f, 0.0f }, { 24.0f, 24.0f });
 
 		material.albedo = vec4(0.2f, 0.3f, 0.8f);
-		material.reflectivity = 1.0;
-		material.shininess = 1.0;
-		material.metalness = 0.5;
-		material.fresnel = 0.5;
+		material.emission = 0.0f;
+		material.reflectivity = 1.0f;
+		material.shininess = 1.0f;
+		material.metalness = 0.5f;
+		material.fresnel = 0.5f;
+
+		std::shared_ptr<Model> model = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj"));
 
 		GLCall(glEnable(GL_DEPTH_TEST));
 		GLCall(glCullFace(GL_BACK));
@@ -97,7 +102,8 @@ int main()
 
 			// Render
 			std::shared_ptr<RenderTechnique> currentRenderTechnique = renderModes[currentRenderMode].first;
-			currentRenderTechnique->Render(planeMesh);
+			//currentRenderTechnique->Render(planeMesh);
+			currentRenderTechnique->Render(*model);
 			currentRenderTechnique->Render();
 			
 #ifdef USE_IMGUI
@@ -133,7 +139,7 @@ int Init()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(g_WindowWidth, g_WindowHeight, "TiledShading", NULL, NULL);
+	window = glfwCreateWindow(g_WindowWidth, g_WindowHeight, "DAT205", NULL, NULL);
 	if (!window)
 	{
 		std::printf("Failed to create glfwWindow!\n");
@@ -209,5 +215,22 @@ void InitNoRendering()
 
 void InitDefaultRendering()
 {
+	// Shaders
+	std::shared_ptr<GLShader> forwardShader = std::make_shared<GLShader>();
+	forwardShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/forward/forward_vs.glsl");
+	forwardShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/forward/forward_fs.glsl");
+	forwardShader->CompileShaders();
 
+	// Render passes
+	std::shared_ptr<ClearDefaultFramebufferPass> clearDefaultFramebufferPass = std::make_shared<ClearDefaultFramebufferPass>(renderer, std::shared_ptr<GLShader>());
+	std::shared_ptr<ForwardLightingPass> forwardLightingPass = std::make_shared<ForwardLightingPass>(renderer, forwardShader);
+
+	// Render technique
+	std::shared_ptr<RenderTechnique> defaultRendering = std::make_shared<RenderTechnique>();
+	defaultRendering->AddRenderPass(clearDefaultFramebufferPass);
+	defaultRendering->AddRenderPass(forwardLightingPass);
+
+	// Add render technique to array of render techniques
+	renderModes[DEFAULT].first = defaultRendering;
+	renderModes[DEFAULT].second = "Default rendering";
 }

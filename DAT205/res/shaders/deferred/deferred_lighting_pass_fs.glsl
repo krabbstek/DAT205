@@ -10,6 +10,7 @@ layout (binding = 1) uniform sampler2D u_ViewSpaceNormal;
 uniform struct Material
 {
 	vec4 albedo;
+	float emission;
 	float reflectivity;
 	float shininess;
 	float metalness;

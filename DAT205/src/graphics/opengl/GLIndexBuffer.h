@@ -8,6 +8,8 @@ public:
 	GLIndexBuffer(const unsigned int* data, unsigned int count);
 	~GLIndexBuffer();
 
+	void SetData(const unsigned int* data, unsigned int count);
+
 	void Bind() const;
 	void Unbind() const;
 

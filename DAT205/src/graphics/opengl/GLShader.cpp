@@ -130,66 +130,96 @@ void GLShader::DispatchComputeShader(unsigned int numWorkGroupsX, unsigned int n
 void GLShader::SetUniform1f(const std::string& uniformName, float value)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform1f(m_RendererID, location, value));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform1f(m_RendererID, location, value));
+	}
 }
 
 void GLShader::SetUniform1i(const std::string& uniformName, int value)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform1i(m_RendererID, location, value));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform1i(m_RendererID, location, value));
+	}
 }
 
 
 void GLShader::SetUniform1fv(const std::string& uniformName, float* values, unsigned int count)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform1fv(m_RendererID, location, count, values));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform1fv(m_RendererID, location, count, values));
+	}
 }
 
 
 void GLShader::SetUniform2f(std::string& uniformName, float x, float y)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform2f(m_RendererID, location, x, y));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform2f(m_RendererID, location, x, y));
+	}
 }
 
 void GLShader::SetUniform2f(std::string& uniformName, const vec2& vec)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform2fv(m_RendererID, location, 1, &vec.x));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform2fv(m_RendererID, location, 1, &vec.x));
+	}
 }
 
 
 void GLShader::SetUniform3f(std::string& uniformName, float x, float y, float z)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform3f(m_RendererID, location, x, y, z));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform3f(m_RendererID, location, x, y, z));
+	}
 }
 
 void GLShader::SetUniform3f(std::string& uniformName, const vec3& vec)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform3fv(m_RendererID, location, 1, &vec.x));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform3fv(m_RendererID, location, 1, &vec.x));
+	}
 }
 
 
 void GLShader::SetUniform4f(std::string& uniformName, float x, float y, float z, float w)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform4f(m_RendererID, location, x, y, z, w));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform4f(m_RendererID, location, x, y, z, w));
+	}
 }
 
 void GLShader::SetUniform4f(std::string& uniformName, const vec4& vec)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniform4fv(m_RendererID, location, 1, &vec.x));
+	if (location != -1)
+	{
+		GLCall(glProgramUniform4fv(m_RendererID, location, 1, &vec.x));
+	}
 }
 
 
 void GLShader::SetUniformMat4(const std::string& uniformName, const mat4& matrix)
 {
 	int location = GetUniformLocation(uniformName);
-	GLCall(glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, &matrix.elements[0]));
+	if (location != -1)
+	{
+		GLCall(glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, &matrix.elements[0]));
+	}
 }
 
 
