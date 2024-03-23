@@ -161,9 +161,10 @@ int main()
 		{
 			Particle particle;
 			particle.position = 40.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);
-			particle.emission = vec3(1.0);
+			//particle.emission = vec3(RandF(), RandF(), RandF());
+			particle.emission = vec3(1.0f, 0.1f, 0.1f);
 			particle.lifelength = 4.0f;
-			particle.scale = 0.1f;
+			particle.scale = 0.1f * RandF();
 			glowingParticleSystem->SpawnParticle(particle);
 		}
 
