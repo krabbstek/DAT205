@@ -3,7 +3,8 @@
 Blur2DPass::Blur2DPass(Renderer& renderer, std::shared_ptr<GLShader> shader,
 	std::shared_ptr<GLTexture2D> inputTexture,
 	std::shared_ptr<GLTexture2D> outputTexture)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
+	m_Shader(shader),
 	m_InputTexture(inputTexture),
 	m_OutputTexture(outputTexture),
 	m_IntermediateTexture(std::make_shared<GLTexture2D>()),

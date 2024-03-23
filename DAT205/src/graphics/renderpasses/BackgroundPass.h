@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -16,5 +16,6 @@ public:
 private:
 	GLuint m_TargetFramebuffer;
 	FullscreenMesh m_FullscreenMesh;
+	std::shared_ptr<GLShader> m_Shader;
 	std::shared_ptr<GLTexture2D> m_EnvironmentMap;
 };

@@ -1,6 +1,6 @@
 #include "OutputSelectionPass.h"
 
-OutputSelectionPass::OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLShader> shader,
+OutputSelectionPass::OutputSelectionPass(Renderer& renderer,
 	const OUTPUT_SELECTION& outputSelection,
 	std::shared_ptr<GLShader> depthShader,
 	std::shared_ptr<GLShader> fullscreenShader,
@@ -10,7 +10,7 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLS
 	std::shared_ptr<GLTexture2D> lightingColorTexture,
 	std::shared_ptr<GLTexture2D> motionBlurredTexture,
 	std::shared_ptr<GLTexture2D> bloomTexture)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
 	m_OutputSelection(outputSelection),
 	m_DepthShader(depthShader),
 	m_FullscreenShader(fullscreenShader),

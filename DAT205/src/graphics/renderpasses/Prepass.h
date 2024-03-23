@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 #include "Globals.h"
 #include "graphics/opengl/OpenGL.h"
@@ -8,7 +8,7 @@
 class Prepass : public RenderPass
 {
 public:
-	Prepass(Renderer& renderer, std::shared_ptr<GLShader> shader, std::shared_ptr<GLTexture2D> viewSpacePositionTexture, std::shared_ptr<GLTexture2D> viewSpaceNormalTexture, std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture);
+	Prepass(Renderer& renderer, std::shared_ptr<GLTexture2D> viewSpacePositionTexture, std::shared_ptr<GLTexture2D> viewSpaceNormalTexture, std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture);
 	~Prepass();
 
 	virtual void Render(std::vector<Renderable*>& renderables) override;

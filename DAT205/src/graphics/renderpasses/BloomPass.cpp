@@ -5,7 +5,8 @@ BloomPass::BloomPass(Renderer& renderer, std::shared_ptr<GLShader> bloomShader,
 	std::shared_ptr<GLTexture2D> lightingPassColorTexture,
 	std::shared_ptr<GLTexture2D> bloomInputTexture,
 	std::shared_ptr<GLTexture2D> bloomOutputTexture)
-	: RenderPass(renderer, bloomShader),
+	: RenderPass(renderer),
+	m_BloomShader(bloomShader),
 	m_Blur1DShader(blur1DShader),
 	m_LightingPassColorTexture(lightingPassColorTexture),
 	m_BloomInputTexture(bloomInputTexture),
@@ -81,7 +82,7 @@ void BloomPass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
 	m_Blur1DShader->SetUniform2f("u_ViewportSize", float(g_BloomTextureWidth), float(g_BloomTextureHeight));
-	m_Shader->SetUniform1f("u_BloomAlpha", g_BloomAlpha);
+	m_BloomShader->SetUniform1f("u_BloomAlpha", g_BloomAlpha);
 
 	m_FullscreenMesh.SetMainShader(m_Blur1DShader);
 
@@ -96,7 +97,7 @@ void BloomPass::Render(std::vector<Renderable*>& renderables)
 
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 
-	m_FullscreenMesh.SetMainShader(m_Shader);
+	m_FullscreenMesh.SetMainShader(m_BloomShader);
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer3));
 	m_LightingPassColorTexture->Bind(0);

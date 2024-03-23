@@ -12,7 +12,8 @@ ComputeLightTilesPass::ComputeLightTilesPass(
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO,
 	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO)
-	: RenderPass(renderer, computeShader),
+	: RenderPass(renderer),
+	m_ComputeShader(computeShader),
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_LightSSBO(lightSSBO),
 	m_LightIndexSSBO(lightIndexSSBO),
@@ -30,11 +31,11 @@ ComputeLightTilesPass::ComputeLightTilesPass(
 
 	delete tileGrid;
 
-	m_Shader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
-	m_Shader->SetUniform1f("u_NearPlaneDepth", g_NearPlaneDepth);
-	m_Shader->SetUniform1f("u_FarPlaneDepth", g_FarPlaneDepth);
-	m_Shader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
-	m_Shader->SetUniform1i("u_TileSize", g_TileSize);
+	m_ComputeShader->SetUniform1i("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
+	m_ComputeShader->SetUniform1f("u_NearPlaneDepth", g_NearPlaneDepth);
+	m_ComputeShader->SetUniform1f("u_FarPlaneDepth", g_FarPlaneDepth);
+	m_ComputeShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
+	m_ComputeShader->SetUniform1i("u_TileSize", g_TileSize);
 }
 
 
@@ -56,5 +57,5 @@ void ComputeLightTilesPass::Render(std::vector<Renderable*>& renderables)
 	m_BottomPlanesSSBO->Bind(12);
 	m_TopPlanesSSBO->Bind(13);
 
-	m_Shader->DispatchComputeShader(g_NumTileCols, g_NumTileRows, 1);
+	m_ComputeShader->DispatchComputeShader(g_NumTileCols, g_NumTileRows, 1);
 }

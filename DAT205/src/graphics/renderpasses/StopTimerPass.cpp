@@ -1,17 +1,17 @@
 #include "StopTimerPass.h"
 
 StopTimerPass::StopTimerPass(Renderer& renderer, std::shared_ptr<Timer> timer)
-	: RenderPass(renderer, std::shared_ptr<GLShader>()), m_Timer(timer)
+	: RenderPass(renderer), m_Timer(timer)
 {
 }
 
 StopTimerPass::StopTimerPass(Renderer& renderer, std::shared_ptr<CPUTimer> timer)
-	: RenderPass(renderer, std::shared_ptr<GLShader>()), m_Timer(timer)
+	: RenderPass(renderer), m_Timer(timer)
 {
 }
 
 StopTimerPass::StopTimerPass(Renderer& renderer, std::shared_ptr<GLTimer> timer)
-	: RenderPass(renderer, std::shared_ptr<GLShader>()), m_Timer(timer)
+	: RenderPass(renderer), m_Timer(timer)
 {
 }
 

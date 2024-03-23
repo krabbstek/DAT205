@@ -1,12 +1,12 @@
 #pragma once
 
-#include "graphics/RenderPass.h"
+#include "RenderPass.h"
 
 class ClearDefaultFramebufferPass : public RenderPass
 {
 public:
-	ClearDefaultFramebufferPass(Renderer& renderer, std::shared_ptr<GLShader> shader)
-		: RenderPass(renderer, shader) {}
+	ClearDefaultFramebufferPass(Renderer& renderer)
+		: RenderPass(renderer) {}
 
 	virtual void Render(std::vector<Renderable*>& renderables) override;
 };

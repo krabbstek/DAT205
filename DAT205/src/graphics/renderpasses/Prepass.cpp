@@ -1,11 +1,11 @@
 #include "Prepass.h"
 
 Prepass::Prepass(
-	Renderer& renderer, std::shared_ptr<GLShader> shader,
+	Renderer& renderer,
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture)
-	: RenderPass(renderer, shader),
+	: RenderPass(renderer),
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
 	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture)

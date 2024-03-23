@@ -58,6 +58,10 @@ std::shared_ptr<GLShader> blur1DShader;
 std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomShader;
 
+std::shared_ptr<GLShaderStorageBuffer> lightSSBO;
+std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO;
+std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO;
+
 std::shared_ptr<GLTexture2D> environmentMap;
 std::shared_ptr<GLTexture2D> irradianceMap;
 std::shared_ptr<GLTexture2D> reflectionMap;
@@ -65,11 +69,12 @@ std::shared_ptr<GLTexture2D> reflectionMap;
 OUTPUT_SELECTION outputSelection = OUTPUT_SELECTION_LIGHTING;
 
 int Init();
+void InitTiledForwardRendering();
 void LoadShaders();
+void UpdateLights();
 void HandleKeyInput(float deltaTime);
 void MouseButtonCallback(GLFWwindow* window, int key, int action, int mods);
 void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
-void InitTiledForwardRendering();
 void ImGuiRender();
 void AddGLTimedRenderPass(std::shared_ptr<RenderTechnique> renderTechnique, std::shared_ptr<RenderPass> renderPass, std::shared_ptr<PlotTimersPass> plotTimersPass, const char* renderPassName);
 
@@ -165,6 +170,7 @@ int main()
 			renderTechnique->Render(*fighterModel);
 			renderTechnique->Render();
 
+			UpdateLights();
 			renderer.camera.Update();
 			fighterModel->Update();
 			
@@ -185,6 +191,10 @@ glfwSwapBuffers(window);
 	environmentMap.reset();
 	irradianceMap.reset();
 	reflectionMap.reset();
+
+	lightSSBO.reset();
+	lightIndexSSBO.reset();
+	tileIndexSSBO.reset();
 
 	prepassShader.reset();
 	ssaoShader.reset();
@@ -304,6 +314,15 @@ void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 		renderer.camera.rotation.x = Clamp(renderer.camera.rotation.x, -g_MaxPitchAngle, g_MaxPitchAngle);
 		mousePrevPos = mousePos;
 	}
+}
+
+
+void UpdateLights()
+{
+	if (lightSSBO->Size() < sizeof(Light))
+		lightSSBO->SetData(&g_GlobalLight, sizeof(g_GlobalLight));
+	else
+		lightSSBO->SetSubData(&g_GlobalLight, 0, sizeof(g_GlobalLight));
 }
 
 
@@ -534,9 +553,9 @@ void InitTiledForwardRendering()
 	bloomOutputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	// SSBOs
-	std::shared_ptr<GLShaderStorageBuffer> lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
-	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, BIT(24));
-	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, g_NumTileCols * g_NumTileRows * 2 * sizeof(int));
+	lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
+	lightIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, BIT(24));
+	tileIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, g_NumTileCols * g_NumTileRows * 2 * sizeof(int));
 
 	// Shaders
 	prepassShader = std::make_shared<GLShader>();
@@ -558,7 +577,7 @@ void InitTiledForwardRendering()
 	std::shared_ptr<StartTimerPass> startTotalRenderTimePass = std::make_shared<StartTimerPass>(renderer, totalRenderTimer);
 	std::shared_ptr<StopTimerPass> stopTotalRenderTimePass = std::make_shared<StopTimerPass>(renderer, totalRenderTimer);
 	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(
-		renderer, prepassShader,
+		renderer,
 		viewSpacePositionTexture,
 		viewSpaceNormalTexture,
 		clipSpaceVelocityTexture);
@@ -574,7 +593,8 @@ void InitTiledForwardRendering()
 		lightIndexSSBO,
 		tileIndexSSBO);
 	std::shared_ptr<LightingPass> lightingPass = std::make_shared<LightingPass>(
-		renderer, lightingPassShader,
+		renderer,
+		lightingPassShader,
 		prepass->GetDepthbuffer(),
 		lightingPassColorTexture,
 		irradianceMap,
@@ -600,7 +620,7 @@ void InitTiledForwardRendering()
 		bloomInputTexture,
 		bloomOutputTexture);
 	std::shared_ptr<OutputSelectionPass> outputSelectionPass = std::make_shared<OutputSelectionPass>(
-		renderer, std::make_shared<GLShader>(),
+		renderer,
 		outputSelection,
 		depthShader,
 		fullscreenShader,
