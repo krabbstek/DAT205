@@ -26,11 +26,6 @@ namespace core {
 	{
 		if (m_RendererID)
 		{
-			if (s_CurrentRendererID == m_RendererID)
-			{
-				GLCall(glBindVertexArray(0));
-				s_CurrentRendererID = 0;
-			}
 			GLCall(glDeleteVertexArrays(1, &m_RendererID));
 		}
 	}
@@ -38,23 +33,12 @@ namespace core {
 
 	void GLVertexArray::Bind() const
 	{
-		if (s_CurrentRendererID != m_RendererID)
-		{
-			GLCall(glBindVertexArray(m_RendererID));
-			s_CurrentRendererID = m_RendererID;
-		}
+		GLCall(glBindVertexArray(m_RendererID));
 	}
 
-	void GLVertexArray::Unbind() const
+	void GLVertexArray::Unbind()
 	{
-		if (s_CurrentRendererID)
-		{
-			GLCall(glBindVertexArray(0));
-			s_CurrentRendererID = m_RendererID;
-		}
+		GLCall(glBindVertexArray(0));
 	}
-
-
-	GLuint GLVertexArray::s_CurrentRendererID = 0;
 
 }
