@@ -154,8 +154,6 @@ workspace "DAT205"
         objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
         files {
-            --"%{prj.name}/deps/**.h",
-            --"%{prj.name}/deps/**.c",
             "%{prj.name}/include/**.h",
             "%{prj.name}/src/context.c",
             "%{prj.name}/src/egl_*",
@@ -173,6 +171,50 @@ workspace "DAT205"
         defines {
             "_GLFW_WIN32",
             "_GLFW_BUILD_DLL"
+        }
+
+        filter "system:windows"
+            cppdialect "C++17"
+            staticruntime "On"
+            systemversion "latest"
+
+            postbuildcommands
+            {
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+            }
+
+        filter "configurations:Debug"
+            defines { "DEBUG" }
+            symbols "On"
+
+        filter "configurations:Release"
+            defines { "NDEBUG" }
+            optimize "On"
+
+        filter "configurations:Dist"
+            defines { "NDEBUG" }
+            optimize "Full"
+
+
+    project "ImGui"
+        location "ImGui"
+        kind "SharedLib"
+        language "C++"
+
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+        files {
+            "%{prj.name}/imconfig.h",
+            "%{prj.name}/imgui.h",
+            "%{prj.name}/imgui.cpp",
+            "%{prj.name}/imgui_draw.cpp",
+            "%{prj.name}/imgui_internal.h",
+            "%{prj.name}/imgui_widgets.cpp"
+        }
+
+        defines {
+            "_IMGUI_BUILD_DLL"
         }
 
         filter "system:windows"
