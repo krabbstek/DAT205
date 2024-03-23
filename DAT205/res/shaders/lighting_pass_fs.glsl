@@ -11,8 +11,10 @@ out vec3 out_Color;
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
 
+uniform int u_NumTileCols;
+uniform int u_TileSize;
+uniform int u_MaxNumLightsPerTile;
 uniform float u_EnvironmentMultiplier;
-
 uniform mat4 u_ViewInverse = mat4(1.0);
 
 uniform struct Material
@@ -31,6 +33,41 @@ uniform struct Light
 	vec4 viewSpacePosition;
 	vec4 color;
 } u_Light;
+
+
+struct TileLights
+{
+	int offset;
+	int lightCount;
+};
+
+struct Plane
+{
+	float a;
+	float b;
+	float c;
+	float d;
+};
+
+
+/// Lights, containing view space position and color
+layout (std430, binding = 3) readonly buffer LightBuffer
+{
+	Light lights[];
+};
+
+/// Integer array containing pure indices to above lights
+layout (std430, binding = 4) readonly buffer LightIndexBuffer
+{
+	int totalNumberOfIndices;
+	int lightIndices[];
+};
+
+/// Integer array of tile indices in lightIndices
+layout (std430, binding = 5) readonly buffer TileIndexBuffer
+{
+	TileLights tileLights[];
+};
 
 
 float F(float wi_wh)
@@ -52,6 +89,11 @@ float G(float n_wi, float n_wo, float n_wh, float wo_wh)
 float brdf(float F, float D, float G, float n_wo, float n_wi)
 {
 	return F * D * G / (4.0 * n_wi * n_wo);
+}
+
+int TileIndex(int tileCol, int tileRow)
+{
+	return tileCol + tileRow * u_NumTileCols;
 }
 
 
@@ -146,6 +188,57 @@ void main()
 	n = normalize(viewSpaceNormal);
 	wo = -normalize(viewSpacePosition.xyz);
 
+	vec3 directIlluminationTerm = vec3(0.0);
+
+	vec3 diffuseTermPreComp = u_Material.albedo.rgb * (1.0 / PI);
+
+	ivec2 tileCoords = ivec2(gl_FragCoord.xy) / u_TileSize;
+	int tileIndex = TileIndex(tileCoords.x, tileCoords.y);
+	int index;
+	int lightIndicesOffset = tileLights[tileIndex].offset;
+	Light light;
+	int numLights = tileLights[tileIndex].lightCount;
+	
+	for (int i = 0; i < numLights; i++)
+	{
+		index = lightIndices[lightIndicesOffset + i];
+		light = lights[index];
+
+		wi = light.viewSpacePosition.xyz - viewSpacePosition.xyz;
+		d2 = dot(wi, wi);
+		inv_d2 = 1.0 / d2;
+		wi = normalize(wi);
+		n_wi = dot(n, wi);
+		if (n_wi <= 0.0)
+			continue;
+
+		Li = light.color.rgb * inv_d2;
+		wh = normalize(wi + wo);
+
+		n_wo = dot(n, wo);
+		n_wh = dot(n, wh);
+		wi_wh = dot(wi, wh);
+		wo_wh = dot(wo, wh);
+
+		_F = F(wi_wh);
+		_D = D(n_wh);
+		_G = G(n_wi, n_wo, n_wh, wo_wh);
+
+		_brdf = brdf(_F, _D, _G, n_wo, n_wi);
+
+		n_wi_Li = n_wi * Li;
+
+		directIlluminationTerm += calculateDirectIlluminationTerm();
+	}
+
+	vec3 indirectIlluminationTerm = calculateIndirectIlluminationTerm();
+	vec3 glossyReflectionTerm = calculateGlossyReflection();
+	vec3 emissionTerm = u_Material.emission * u_Material.albedo.rgb;
+
+	out_Color = directIlluminationTerm + indirectIlluminationTerm + glossyReflectionTerm + emissionTerm;
+
+
+	/*
 	wi = u_Light.viewSpacePosition.xyz - viewSpacePosition.xyz;
 	d2 = dot(wi, wi);
 	inv_d2 = 1.0 / d2;
@@ -174,4 +267,5 @@ void main()
 	vec3 emissionTerm = u_Material.emission * u_Material.albedo.rgb;
 
 	out_Color = directIlluminationTerm + indirectIlluminationTerm + glossyReflectionTerm + emissionTerm;
+	*/
 }

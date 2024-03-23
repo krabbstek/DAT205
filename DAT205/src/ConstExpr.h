@@ -5,6 +5,11 @@
 constexpr unsigned int g_WindowWidth = 1280;
 constexpr unsigned int g_WindowHeight = 720;
 
+constexpr unsigned int g_TileSize = 20;
+constexpr int g_NumTileCols = g_WindowWidth / g_TileSize;
+constexpr int g_NumTileRows = g_WindowHeight / g_TileSize;
+constexpr int g_MaxNumLightsPerTile = 1024;
+
 constexpr float g_FOV = DegToRad(60.0f);
 constexpr float g_AspectRatio = float(g_WindowWidth) / float(g_WindowHeight);
 constexpr float g_NearPlaneDepth = 1.0f;

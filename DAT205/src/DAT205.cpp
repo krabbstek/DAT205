@@ -4,10 +4,10 @@
 #include "graphics/Renderer.h"
 #include "graphics/RenderTechnique.h"
 #include "graphics/opengl/OpenGL.h"
-#include "graphics/renderpasses/ClearDefaultFramebufferPass.h"
-#include "graphics/renderpasses/Prepass.h"
 #include "graphics/renderpasses/BackgroundPass.h"
+#include "graphics/renderpasses/ComputeLightTilesPass.h"
 #include "graphics/renderpasses/LightingPass.h"
+#include "graphics/renderpasses/Prepass.h"
 #include "graphics/renderpasses/StartTimerPass.h"
 #include "graphics/renderpasses/StopTimerPass.h"
 #include "graphics/renderpasses/PlotTimersPass.h"
@@ -285,6 +285,8 @@ void ImGuiRender()
 
 	ImGui::Separator();
 
+	ImGui::SliderFloat("Environment multiplier", &g_EnvironmentMultiplier, 0.0f, 2.0f);
+
 	static float globalLightIntensity = g_GlobalLight.color.r;
 	static vec4 globalLightPosition = vec4(11.0f, 40.0f, 38.0f, 1.0f);
 	globalLightPosition.w = 1.0f;
@@ -365,6 +367,11 @@ void InitTiledForwardRendering()
 	viewSpaceNormalTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpaceNormalTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
+	// SSBOs
+	std::shared_ptr<GLShaderStorageBuffer> lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
+	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, BIT(24));
+	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, g_NumTileCols * g_NumTileRows * 2 * sizeof(int));
+
 	// Shaders
 	std::shared_ptr<GLShader> prepassShader = std::make_shared<GLShader>();
 	prepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/prepass_vs.glsl");
@@ -375,6 +382,10 @@ void InitTiledForwardRendering()
 	backgroundShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_vs.glsl");
 	backgroundShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/background_fs.glsl");
 	backgroundShader->CompileShaders();
+
+	std::shared_ptr<GLShader> computeLightTilesShader = std::make_shared<GLShader>();
+	computeLightTilesShader->AddShaderFromFile(GL_COMPUTE_SHADER, "res/shaders/compute_light_tiles_cs.glsl");
+	computeLightTilesShader->CompileShaders();
 
 	std::shared_ptr<GLShader> lightingPassShader = std::make_shared<GLShader>();
 	lightingPassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/lighting_pass_vs.glsl");
@@ -388,15 +399,15 @@ void InitTiledForwardRendering()
 	material.Bind(*lightingPassShader);
 
 	// Render passes
-	std::shared_ptr<ClearDefaultFramebufferPass> clearDefaultFramebufferPass = std::make_shared<ClearDefaultFramebufferPass>(renderer, std::shared_ptr<GLShader>());
 	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(renderer, prepassShader, viewSpacePositionTexture, viewSpaceNormalTexture);
+	std::shared_ptr<ComputeLightTilesPass> computeLightTilesPass = std::make_shared<ComputeLightTilesPass>(renderer, computeLightTilesShader, viewSpacePositionTexture, lightSSBO, lightIndexSSBO, tileIndexSSBO);
 	std::shared_ptr<BackgroundPass> backgroundPass = std::make_shared<BackgroundPass>(renderer, backgroundShader, 0, environmentMap);
-	std::shared_ptr<LightingPass> lightingPass = std::make_shared<LightingPass>(renderer, lightingPassShader, irradianceMap, reflectionMap);
+	std::shared_ptr<LightingPass> lightingPass = std::make_shared<LightingPass>(renderer, lightingPassShader, lightSSBO, lightIndexSSBO, tileIndexSSBO, irradianceMap, reflectionMap);
 
 	// Render technique
 	renderTechnique = std::make_shared<RenderTechnique>();
 	renderTechnique->AddRenderPass(prepass);
-	//renderTechnique->AddRenderPass(clearDefaultFramebufferPass);
+	renderTechnique->AddRenderPass(computeLightTilesPass);
 	renderTechnique->AddRenderPass(backgroundPass);
 	renderTechnique->AddRenderPass(lightingPass);
 }

@@ -17,7 +17,6 @@ void main()
 	gl_Position = u_MVP * in_Position;
 
 	viewSpacePosition = (u_MV * in_Position).xyz;
-	vec4 normal = vec4(in_Normal, 0.0);
-	viewSpaceNormal = (u_MV_normal * normal).xyz;
+	viewSpaceNormal = mat3(u_MV_normal) * in_Normal;
 	texCoords = in_TexCoords;
 }
