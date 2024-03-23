@@ -59,7 +59,11 @@ namespace core {
 	{
 		Component* component = RemoveComponentInternal(componentType);
 		if (component)
+		{
 			delete component;
+			return true;
+		}
+		return false;
 	}
 
 
