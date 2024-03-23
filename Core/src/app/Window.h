@@ -2,6 +2,9 @@
 
 #include "Common.h"
 
+#include "math/vec3.h"
+#include "math/vec4.h"
+
 #include <string>
 
 struct GLFWwindow;
@@ -17,6 +20,9 @@ namespace core {
 		void Update(float deltaTime);
 		void Render();
 		void Clear();
+
+		void SetClearColor(const vec3& clearColor) const;
+		void SetClearColor(const vec4& clearColor) const;
 
 	private:
 		std::string m_WindowTitle;

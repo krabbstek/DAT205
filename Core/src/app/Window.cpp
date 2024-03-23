@@ -51,4 +51,15 @@ namespace core {
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	}
 
+
+	void Window::SetClearColor(const vec3& clearColor) const
+	{
+		GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 0.0f));
+	}
+
+	void Window::SetClearColor(const vec4& clearColor) const
+	{
+		GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a));
+	}
+
 }

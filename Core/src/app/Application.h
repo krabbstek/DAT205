@@ -6,6 +6,7 @@
 #include "event/KeyEvent.h"
 
 #include <Windows.h>
+#include <unordered_map>
 
 struct GLFWwindow;
 
@@ -29,6 +30,8 @@ namespace core {
 		static void SetKeyEventCallback(void(*callback)(KeyEvent&), KeyEvent& event);
 		inline static void SetKeyPressedEventCallback(void(*callback)(KeyEvent&), int keycode) { s_KeyPressedCallbacks[keycode] = callback; }
 		inline static void SetKeyReleasedEventCallback(void(*callback)(KeyEvent&), int keycode) { s_KeyReleasedCallbacks[keycode] = callback; }
+
+		inline static const Window* GetWindow() { return s_Window; }
 
 	protected:
 		static HINSTANCE s_hInstance;

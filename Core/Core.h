@@ -3,7 +3,6 @@
 #include <Log.h>
 
 #include <app/Application.h>
-#include <app/EntryPoint.h>
 #include <app/Window.h>
 
 #include <entity/Component.h>
