@@ -81,11 +81,13 @@ workspace "DAT205"
 
         includedirs {
             "%{wks.location.relpath}/Core/src",
-            "%{wks.location.relpath}/Core/vendor/spdlog/include"
+            "%{wks.location.relpath}/Core/vendor/spdlog/include",
+            "%{wks.location.relpath}/GLEW/include"
         }
 
         links {
-            "Core"
+            "Core",
+            "Opengl32"
         }
 
         filter "system:windows"

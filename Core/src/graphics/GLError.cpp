@@ -19,7 +19,7 @@ namespace core {
 		GLenum error = GLGetError();
 		if (error != GL_NO_ERROR)
 		{
-			CORE_ERROR("OpenGL: function %s, file %s, line %d", call, file, line);
+			CORE_ERROR("OpenGL error {}: function {}, file {}, line {}", error, call, file, line);
 			return false;
 		}
 		return true;
