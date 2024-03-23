@@ -7,10 +7,10 @@
 #include <app/Application.h>
 #include <app/Window.h>
 
-#include <graphics/GLIndexBuffer.h>
-#include <graphics/GLShader.h>
-#include <graphics/GLVertexArray.h>
-#include <graphics/GLVertexBuffer.h>
+#include <graphics/opengl/GLIndexBuffer.h>
+#include <graphics/opengl/GLShader.h>
+#include <graphics/opengl/GLVertexArray.h>
+#include <graphics/opengl/GLVertexBuffer.h>
 
 #include <math/math_util.h>
 #include <math/vec2.h>

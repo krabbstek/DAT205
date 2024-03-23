@@ -4,7 +4,7 @@
 
 #include "Window.h"
 
-#include "graphics/GLCommon.h"
+#include "graphics/opengl/GLCommon.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
