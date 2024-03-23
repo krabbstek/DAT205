@@ -195,6 +195,16 @@ void GLShader::SetUniform3f(std::string& uniformName, const vec3& vec)
 }
 
 
+void GLShader::SetUniform3fv(const std::string& uniformName, vec3* vectors, unsigned int count)
+{
+	int location = GetUniformLocation(uniformName);
+	if (location != -1)
+	{
+		GLCall(glProgramUniform3fv(m_RendererID, location, count, (float*)vectors));
+	}
+}
+
+
 void GLShader::SetUniform4f(std::string& uniformName, float x, float y, float z, float w)
 {
 	int location = GetUniformLocation(uniformName);

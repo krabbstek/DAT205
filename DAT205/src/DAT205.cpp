@@ -7,7 +7,9 @@
 #include "graphics/renderpasses/BackgroundPass.h"
 #include "graphics/renderpasses/ComputeLightTilesPass.h"
 #include "graphics/renderpasses/LightingPass.h"
+#include "graphics/renderpasses/OutputSelectionPass.h"
 #include "graphics/renderpasses/Prepass.h"
+#include "graphics/renderpasses/SSAOPass.h"
 #include "graphics/renderpasses/StartTimerPass.h"
 #include "graphics/renderpasses/StopTimerPass.h"
 #include "graphics/renderpasses/PlotTimersPass.h"
@@ -45,6 +47,8 @@ std::shared_ptr<Model> fighterModel;
 std::shared_ptr<GLTexture2D> environmentMap;
 std::shared_ptr<GLTexture2D> irradianceMap;
 std::shared_ptr<GLTexture2D> reflectionMap;
+
+OUTPUT_SELECTION outputSelection = OUTPUT_SELECTION_LIGHTING;
 
 int Init();
 void HandleKeyInput(float deltaTime);
@@ -285,6 +289,15 @@ void ImGuiRender()
 
 	ImGui::Separator();
 
+	ImGui::Text("Output");
+	ImGui::RadioButton("Depth", (int*)&outputSelection, OUTPUT_SELECTION_DEPTH);
+	ImGui::RadioButton("Normals", (int*)&outputSelection, OUTPUT_SELECTION_NORMAL);
+	ImGui::RadioButton("SSAO", (int*)&outputSelection, OUTPUT_SELECTION_SSAO);
+	ImGui::RadioButton("Lighting", (int*)&outputSelection, OUTPUT_SELECTION_LIGHTING);
+
+	ImGui::Separator();
+
+	ImGui::Text("Environment");
 	ImGui::SliderFloat("Environment multiplier", &g_EnvironmentMultiplier, 0.0f, 2.0f);
 
 	static float globalLightIntensity = g_GlobalLight.color.r;
@@ -295,6 +308,12 @@ void ImGuiRender()
 	ImGui::SliderFloat3("Global light position ", &globalLightPosition.x, -25.0f, 25.0f, "%.1f", 1.0f);
 	g_GlobalLight.color.rgb = vec3(globalLightIntensity);
 	g_GlobalLight.viewSpacePosition = renderer.camera.GetViewMatrix() * globalLightPosition;
+
+	ImGui::Separator();
+
+	ImGui::Text("SSAO");
+	ImGui::SliderFloat("SSAO kernel size", &g_SSAOKernelSize, 0.1f, 10.0f, "%.2f", 2.0f);
+	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
 
 	ImGui::Separator();
 
@@ -367,6 +386,21 @@ void InitTiledForwardRendering()
 	viewSpaceNormalTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpaceNormalTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
+	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture = std::make_shared<GLTexture2D>();
+	clipSpaceVelocityTexture->Load(GL_RG32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RG, GL_UNSIGNED_BYTE);
+	clipSpaceVelocityTexture->SetMinMagFilter(GL_NEAREST);
+	clipSpaceVelocityTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+
+	std::shared_ptr<GLTexture2D> lightingPassColorTexture = std::make_shared<GLTexture2D>();
+	lightingPassColorTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	lightingPassColorTexture->SetMinMagFilter(GL_NEAREST);
+	lightingPassColorTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+
+	std::shared_ptr<GLTexture2D> ssaoTexture = std::make_shared<GLTexture2D>();
+	ssaoTexture->Load(GL_R32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RED, GL_UNSIGNED_BYTE);
+	ssaoTexture->SetMinMagFilter(GL_NEAREST);
+	ssaoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+
 	// SSBOs
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, BIT(24));
@@ -377,6 +411,11 @@ void InitTiledForwardRendering()
 	prepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/prepass_vs.glsl");
 	prepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/prepass_fs.glsl");
 	prepassShader->CompileShaders();
+
+	std::shared_ptr<GLShader> ssaoShader = std::make_shared<GLShader>();
+	ssaoShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/ssao_vs.glsl");
+	ssaoShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/ssao_fs.glsl");
+	ssaoShader->CompileShaders();
 
 	std::shared_ptr<GLShader> backgroundShader = std::make_shared<GLShader>();
 	backgroundShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_vs.glsl");
@@ -394,20 +433,68 @@ void InitTiledForwardRendering()
 	lightingPassShader->SetUniform4f("u_Light.viewSpacePosition", renderer.camera.GetViewMatrix() * vec4(10.0f));
 	lightingPassShader->SetUniform4f("u_Light.color", vec4(1000.0f));
 
+	std::shared_ptr<GLShader> depthShader = std::make_shared<GLShader>();
+	depthShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/depth_vs.glsl");
+	depthShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/depth_fs.glsl");
+	depthShader->CompileShaders();
+	depthShader->SetUniformMat4("u_ProjectionMatrix", renderer.camera.projectionMatrix);
+
+	std::shared_ptr<GLShader> fullscreenShader = std::make_shared<GLShader>();
+	fullscreenShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/fullscreen_vs.glsl");
+	fullscreenShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/fullscreen_fs.glsl");
+	fullscreenShader->CompileShaders();
+
 	Material material;
 	material.albedo = vec4(1.0f);
 	material.Bind(*lightingPassShader);
 
 	// Render passes
-	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(renderer, prepassShader, viewSpacePositionTexture, viewSpaceNormalTexture);
-	std::shared_ptr<ComputeLightTilesPass> computeLightTilesPass = std::make_shared<ComputeLightTilesPass>(renderer, computeLightTilesShader, viewSpacePositionTexture, lightSSBO, lightIndexSSBO, tileIndexSSBO);
-	std::shared_ptr<BackgroundPass> backgroundPass = std::make_shared<BackgroundPass>(renderer, backgroundShader, 0, environmentMap);
-	std::shared_ptr<LightingPass> lightingPass = std::make_shared<LightingPass>(renderer, lightingPassShader, lightSSBO, lightIndexSSBO, tileIndexSSBO, irradianceMap, reflectionMap);
+	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(
+		renderer, prepassShader,
+		viewSpacePositionTexture,
+		viewSpaceNormalTexture,
+		clipSpaceVelocityTexture);
+	std::shared_ptr<SSAOPass> ssaoPass = std::make_shared<SSAOPass>(
+		renderer, ssaoShader,
+		viewSpacePositionTexture,
+		viewSpaceNormalTexture,
+		ssaoTexture);
+	std::shared_ptr<ComputeLightTilesPass> computeLightTilesPass = std::make_shared<ComputeLightTilesPass>(
+		renderer, computeLightTilesShader,
+		viewSpacePositionTexture,
+		lightSSBO,
+		lightIndexSSBO,
+		tileIndexSSBO);
+	std::shared_ptr<LightingPass> lightingPass = std::make_shared<LightingPass>(
+		renderer, lightingPassShader,
+		prepass->GetDepthbuffer(),
+		lightingPassColorTexture,
+		irradianceMap,
+		reflectionMap,
+		ssaoTexture,
+		lightSSBO,
+		lightIndexSSBO,
+		tileIndexSSBO);
+	std::shared_ptr<BackgroundPass> backgroundPass = std::make_shared<BackgroundPass>(
+		renderer, backgroundShader,
+		lightingPass->GetFramebuffer(),
+		environmentMap);
+	std::shared_ptr<OutputSelectionPass> outputSelectionPass = std::make_shared<OutputSelectionPass>(
+		renderer, std::make_shared<GLShader>(),
+		outputSelection,
+		depthShader,
+		fullscreenShader,
+		viewSpacePositionTexture,
+		viewSpaceNormalTexture,
+		ssaoTexture,
+		lightingPassColorTexture);
 
 	// Render technique
 	renderTechnique = std::make_shared<RenderTechnique>();
 	renderTechnique->AddRenderPass(prepass);
+	renderTechnique->AddRenderPass(ssaoPass);
 	renderTechnique->AddRenderPass(computeLightTilesPass);
 	renderTechnique->AddRenderPass(backgroundPass);
 	renderTechnique->AddRenderPass(lightingPass);
+	renderTechnique->AddRenderPass(outputSelectionPass);
 }
