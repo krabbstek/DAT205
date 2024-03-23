@@ -621,6 +621,15 @@ void LoadShaders()
 	lightTilesOverlayShader->SetUniform1i("u_NumTileCols", g_NumTileCols);
 	lightTilesOverlayShader->SetUniform1f("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
 
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/cube_tessellation_vs.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_CONTROL_SHADER, "res/shaders/cube_tessellation_tcs.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_EVALUATION_SHADER, "res/shaders/cube_tessellation_prepass_tes.glsl");
+	cubeTessellationPrepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/cube_tessellation_prepass_fs.glsl");
+	cubeTessellationPrepassShader->CompileShaders();
+	cubeTessellationPrepassShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
+	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
+	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
+	
 	cubeTessellationShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/cube_tessellation_vs.glsl");
 	cubeTessellationShader->AddShaderFromFile(GL_TESS_CONTROL_SHADER, "res/shaders/cube_tessellation_tcs.glsl");
 	cubeTessellationShader->AddShaderFromFile(GL_TESS_EVALUATION_SHADER, "res/shaders/cube_tessellation_tes.glsl");
@@ -629,15 +638,6 @@ void LoadShaders()
 	cubeTessellationShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
 	cubeTessellationShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
 	cubeTessellationShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
-
-	cubeTessellationPrepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/cube_tessellation_vs.glsl");
-	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_CONTROL_SHADER, "res/shaders/cube_tessellation_tcs.glsl");
-	cubeTessellationPrepassShader->AddShaderFromFile(GL_TESS_EVALUATION_SHADER, "res/shaders/cube_tessellation_tes.glsl");
-	cubeTessellationPrepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/cube_tessellation_prepass_fs.glsl");
-	cubeTessellationPrepassShader->CompileShaders();
-	cubeTessellationPrepassShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
-	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix", mat4::Translate(0.0f, 10.0f, 0.0f));
-	cubeTessellationPrepassShader->SetUniformMat4("u_ModelMatrix_normal", mat4::Transpose(mat4::Inverse(mat4::Translate(0.0f, 10.0f, 0.0f))));
 }
 
 void InitTiledForwardRendering()

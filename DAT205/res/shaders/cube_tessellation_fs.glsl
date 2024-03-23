@@ -187,7 +187,7 @@ vec3 calculateGlossyReflection()
 void main()
 {
 	n = normalize(viewSpaceNormal_FS);
-	wo = -normalize(viewSpacePosition_FS.xyz);
+	wo = -normalize(viewSpacePosition_FS);
 
 	vec3 directIlluminationTerm = vec3(0.0);
 
@@ -242,6 +242,4 @@ void main()
 			  + indirectIlluminationTerm
 			  + glossyReflectionTerm
 			  + emissionTerm;
-
-	out_Color = u_Material.albedo.rgb;
 }
