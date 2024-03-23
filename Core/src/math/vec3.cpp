@@ -232,65 +232,65 @@ namespace core {
 	}
 
 
-	vec3 operator+(vec3 vec, float f)
+	vec3 CORE_API operator+(vec3 vec, float f)
 	{
 		return vec.Add(f);
 	}
 
-	vec3 operator+(float f, vec3 vec)
+	vec3 CORE_API operator+(float f, vec3 vec)
 	{
 		return vec.Add(f);
 	}
 
-	vec3 operator+(vec3 left, const vec3& right)
+	vec3 CORE_API operator+(vec3 left, const vec3& right)
 	{
 		return left.Add(right);
 	}
 
 
-	vec3 operator-(vec3 vec, float f)
+	vec3 CORE_API operator-(vec3 vec, float f)
 	{
 		return vec.Subtract(f);
 	}
 
-	vec3 operator-(float f, vec3 vec)
+	vec3 CORE_API operator-(float f, vec3 vec)
 	{
 		return vec.Subtract(f);
 	}
 
-	vec3 operator-(vec3 left, const vec3& right)
+	vec3 CORE_API operator-(vec3 left, const vec3& right)
 	{
 		return left.Subtract(right);
 	}
 
 
-	vec3 operator*(vec3 vec, float f)
+	vec3 CORE_API operator*(vec3 vec, float f)
 	{
 		return vec.Multiply(f);
 	}
 
-	vec3 operator*(float f, vec3 vec)
+	vec3 CORE_API operator*(float f, vec3 vec)
 	{
 		return vec.Multiply(f);
 	}
 
-	vec3 operator*(vec3 left, const vec3& right)
+	vec3 CORE_API operator*(vec3 left, const vec3& right)
 	{
 		return left.Multiply(right);
 	}
 
 
-	vec3 operator/(vec3 vec, float f)
+	vec3 CORE_API operator/(vec3 vec, float f)
 	{
 		return vec.Divide(f);
 	}
 
-	vec3 operator/(float f, vec3 vec)
+	vec3 CORE_API operator/(float f, vec3 vec)
 	{
 		return vec.Divide(f);
 	}
 
-	vec3 operator/(vec3 left, const vec3& right)
+	vec3 CORE_API operator/(vec3 left, const vec3& right)
 	{
 		return left.Divide(right);
 	}
@@ -366,7 +366,7 @@ namespace core {
 		return ss.str();
 	}
 
-	std::ostream& operator<<(std::ostream& os, const vec3& vec)
+	std::ostream& CORE_API operator<<(std::ostream& os, const vec3& vec)
 	{
 		return os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
 	}

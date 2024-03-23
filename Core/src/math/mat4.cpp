@@ -243,6 +243,8 @@ namespace core {
 
 	mat4 mat4::RotateZ(float radians)
 	{
+		mat4 result;
+
 		float elements[16];
 		memset(elements, 0, sizeof(elements));
 		float s = sin(radians);
@@ -553,7 +555,7 @@ namespace core {
 	}
 
 
-	mat4 operator*(mat4 left, const mat4& right)
+	mat4 CORE_API operator*(mat4 left, const mat4& right)
 	{
 		left.Multiply(right);
 		return mat4(left.elements);
