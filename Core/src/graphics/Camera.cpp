@@ -17,7 +17,24 @@ namespace core {
 	void Camera::GenerateViewMatrix()
 	{
 		Transform* transform = GetEntity()->GetComponent<Transform>();
-		m_ViewMatrix = transform->GetInverseTransformationMatrix();
+		if (transform)
+			m_ViewMatrix = transform->GetInverseTransformationMatrix();
+	}
+
+
+	vec3 Camera::GetForward() const
+	{
+		Transform* transform = GetEntity()->GetComponent<Transform>();
+		if (transform)
+		{
+			vec3 p(0.0f, 0.0f, -1.0f);
+			Quaternion qx = Quaternion::RotateX(transform->rotation.x);
+			Quaternion qy = Quaternion::RotateY(transform->rotation.y);
+			Quaternion qz = Quaternion::RotateZ(transform->rotation.z);
+			Quaternion q = qx * qy * qz;
+			return q.TransformPosition(p);
+		}
+		return vec3(0.0f, 0.0f, -1.0f);
 	}
 
 
