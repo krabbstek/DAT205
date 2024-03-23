@@ -18,7 +18,7 @@ SSAOPass::SSAOPass(
 	m_IntermediateTexture(std::make_shared<GLTexture2D>()),
 	m_FullscreenMesh(shader)
 {
-	m_IntermediateTexture->Load(GL_R32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RED, GL_FLOAT);
+	m_IntermediateTexture->Load(GL_R16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RED, GL_FLOAT);
 	m_IntermediateTexture->SetMinMagFilter(GL_NEAREST);
 	m_IntermediateTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
@@ -35,19 +35,20 @@ SSAOPass::SSAOPass(
 	GLCall(glDrawBuffers(1, &attachment));
 
 	// Init SSAO
-	constexpr int numSamples = 32;
+	constexpr int numSamples = 16;
 	vec3 s[numSamples];
 	for (int i = 0; i < sizeof(s) / sizeof(vec3); i++)
 		s[i] = CosineSampleHemisphere() * RandF();
 
 	float randomAngles[64 * 64];
-	for (int i = 0; i < 64 * 64; i++)
+	for (int i = 0; i < sizeof(randomAngles) / sizeof(float); i++)
 		randomAngles[i] = 2 * PI * RandF();
 
-	m_RandomAnglesTexture->Load(GL_R32F, randomAngles, 64, 64, GL_RED, GL_FLOAT);
-	m_RandomAnglesTexture->SetMinMagFilter(GL_NEAREST);
-	m_RandomAnglesTexture->SetWrapST(GL_REPEAT);
+	//m_RandomAnglesTexture->Load(GL_R16F, randomAngles, 64, 64, GL_RED, GL_FLOAT);
+	//m_RandomAnglesTexture->SetMinMagFilter(GL_NEAREST);
+	//m_RandomAnglesTexture->SetWrapST(GL_REPEAT);
 
+	m_SSAOShader->SetUniform1fv("u_RandomAngles", randomAngles, sizeof(randomAngles) / sizeof(float));
 	m_SSAOShader->SetUniform3fv("u_Samples", s, numSamples);
 	m_SSAOShader->SetUniform1i("u_NumSamples", numSamples);
 	m_SSAOShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
@@ -71,11 +72,12 @@ SSAOPass::~SSAOPass()
 void SSAOPass::Render(std::vector<Renderable*>& renderables)
 {
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer1));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer2));
 	GLCall(glDisable(GL_DEPTH_TEST));
 
 	m_ViewSpacePositionTexture->Bind(10);
 	m_ViewSpaceNormalTexture->Bind(11);
-	m_RandomAnglesTexture->Bind(12);
+	//m_RandomAnglesTexture->Bind(12);
 
 	m_SSAOShader->SetUniform1f("u_Bias", g_SSAOBias);
 	m_SSAOShader->SetUniform1f("u_Radius", g_SSAORadius);
@@ -83,7 +85,7 @@ void SSAOPass::Render(std::vector<Renderable*>& renderables)
 	m_FullscreenMesh.SetMainShader(m_SSAOShader);
 	m_FullscreenMesh.Render(m_Renderer);
 
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer2));
+	/*GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer2));
 
 	m_BilateralBlurShader->SetUniform1i("u_SampleSize", g_SSAOBlurSampleSize);
 	m_BilateralBlurShader->SetUniform1f("u_BlurSigma", g_SSAOBilateralBlurSigma);
@@ -92,7 +94,7 @@ void SSAOPass::Render(std::vector<Renderable*>& renderables)
 	m_ViewSpacePositionTexture->Bind(10);
 	m_IntermediateTexture->Bind(11);
 	m_FullscreenMesh.SetMainShader(m_BilateralBlurShader);
-	m_FullscreenMesh.Render(m_Renderer);
+	m_FullscreenMesh.Render(m_Renderer);*/
 
 	GLCall(glEnable(GL_DEPTH_TEST));
 }
