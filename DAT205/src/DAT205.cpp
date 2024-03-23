@@ -5,8 +5,10 @@
 #include "graphics/RenderTechnique.h"
 #include "graphics/opengl/OpenGL.h"
 #include "graphics/renderpasses/BackgroundPass.h"
+#include "graphics/renderpasses/Blur2DPass.h"
 #include "graphics/renderpasses/ComputeLightTilesPass.h"
 #include "graphics/renderpasses/LightingPass.h"
+#include "graphics/renderpasses/MotionBlurPass.h"
 #include "graphics/renderpasses/OutputSelectionPass.h"
 #include "graphics/renderpasses/Prepass.h"
 #include "graphics/renderpasses/SSAOPass.h"
@@ -150,6 +152,9 @@ int main()
 			// Render
 			renderTechnique->Render(*fighterModel);
 			renderTechnique->Render();
+
+			renderer.camera.Update();
+			fighterModel->Update();
 			
 #ifdef USE_IMGUI
 			ImGuiRender();
@@ -294,6 +299,7 @@ void ImGuiRender()
 	ImGui::RadioButton("Normals", (int*)&outputSelection, OUTPUT_SELECTION_NORMAL);
 	ImGui::RadioButton("SSAO", (int*)&outputSelection, OUTPUT_SELECTION_SSAO);
 	ImGui::RadioButton("Lighting", (int*)&outputSelection, OUTPUT_SELECTION_LIGHTING);
+	ImGui::RadioButton("Motion blur", (int*)&outputSelection, OUTPUT_SELECTION_MOTION_BLUR);
 
 	ImGui::Separator();
 
@@ -314,6 +320,11 @@ void ImGuiRender()
 	ImGui::Text("SSAO");
 	ImGui::SliderFloat("SSAO kernel size", &g_SSAOKernelSize, 0.1f, 10.0f, "%.2f", 2.0f);
 	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
+
+	ImGui::Separator();
+
+	ImGui::Text("Motion blur");
+	ImGui::SliderFloat("Velocity scale", &g_MotionBlurVelocityScale, 0.01f, 100.0f, "%.3f", 3.0f);
 
 	ImGui::Separator();
 
@@ -401,6 +412,11 @@ void InitTiledForwardRendering()
 	ssaoTexture->SetMinMagFilter(GL_NEAREST);
 	ssaoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
+	std::shared_ptr<GLTexture2D> motionBlurredTexture = std::make_shared<GLTexture2D>();
+	motionBlurredTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	motionBlurredTexture->SetMinMagFilter(GL_NEAREST);
+	motionBlurredTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+
 	// SSBOs
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
 	std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, BIT(24));
@@ -444,9 +460,30 @@ void InitTiledForwardRendering()
 	fullscreenShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/fullscreen_fs.glsl");
 	fullscreenShader->CompileShaders();
 
-	Material material;
-	material.albedo = vec4(1.0f);
-	material.Bind(*lightingPassShader);
+	std::shared_ptr<GLShader> blur1DShader = std::make_shared<GLShader>();
+	blur1DShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/blur1d_vs.glsl");
+	blur1DShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/blur1d_fs.glsl");
+	blur1DShader->CompileShaders();
+	blur1DShader->SetUniform2f("u_ViewportSize", float(g_WindowWidth), float(g_WindowHeight));
+	constexpr int numWeights = 7;
+	float weights[numWeights];
+	weights[0] = 1.0f;
+	float totalWeight = 1.0f;
+	float sigma = 3.0f;
+	for (int i = 1; i < numWeights; i++)
+	{
+		weights[i] = expf(-i * i / (2 * sigma * sigma));
+		totalWeight += 2.0f * weights[i];
+	}
+	for (int i = 0; i < numWeights; i++)
+		weights[i] /= totalWeight;
+	blur1DShader->SetUniform1fv("u_Weights", weights, numWeights);
+	blur1DShader->SetUniform1i("u_NumSamples", numWeights);
+
+	std::shared_ptr<GLShader> motionBlurShader = std::make_shared<GLShader>();
+	motionBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/motion_blur_vs.glsl");
+	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
+	motionBlurShader->CompileShaders();
 
 	// Render passes
 	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(
@@ -479,6 +516,11 @@ void InitTiledForwardRendering()
 		renderer, backgroundShader,
 		lightingPass->GetFramebuffer(),
 		environmentMap);
+	std::shared_ptr<MotionBlurPass> motionBlurPass = std::make_shared<MotionBlurPass>(
+		renderer, motionBlurShader,
+		lightingPassColorTexture,
+		clipSpaceVelocityTexture,
+		motionBlurredTexture);
 	std::shared_ptr<OutputSelectionPass> outputSelectionPass = std::make_shared<OutputSelectionPass>(
 		renderer, std::make_shared<GLShader>(),
 		outputSelection,
@@ -487,7 +529,8 @@ void InitTiledForwardRendering()
 		viewSpacePositionTexture,
 		viewSpaceNormalTexture,
 		ssaoTexture,
-		lightingPassColorTexture);
+		lightingPassColorTexture,
+		motionBlurredTexture);
 
 	// Render technique
 	renderTechnique = std::make_shared<RenderTechnique>();
@@ -496,5 +539,6 @@ void InitTiledForwardRendering()
 	renderTechnique->AddRenderPass(computeLightTilesPass);
 	renderTechnique->AddRenderPass(backgroundPass);
 	renderTechnique->AddRenderPass(lightingPass);
+	renderTechnique->AddRenderPass(motionBlurPass);
 	renderTechnique->AddRenderPass(outputSelectionPass);
 }

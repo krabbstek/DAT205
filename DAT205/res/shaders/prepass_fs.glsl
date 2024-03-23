@@ -9,8 +9,6 @@ out vec3 out_ViewSpacePosition;
 out vec3 out_ViewSpaceNormal;
 out vec2 out_ClipSpaceVelocity;
 
-uniform float u_VelocityScale = 1.0;
-
 void main()
 {
 	out_ViewSpacePosition = viewSpacePosition;
@@ -18,6 +16,5 @@ void main()
 
 	vec2 currentPositionXY = currentPosition.xy / currentPosition.w;
 	vec2 previousPositionXY = previousPosition.xy / previousPosition.w;
-
-	out_ClipSpaceVelocity = u_VelocityScale * (currentPositionXY - previousPositionXY);
+	out_ClipSpaceVelocity = currentPositionXY - previousPositionXY;
 }

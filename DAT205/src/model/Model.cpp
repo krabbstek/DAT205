@@ -224,11 +224,14 @@ void Model::PushMesh(const Mesh& mesh)
 void Model::Render(const Renderer& renderer, GLShader& shader) const
 {
 	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
+	mat4 prevMV = renderer.camera.GetPreviousViewMatrix() * prevModelMatrix;
 
 	shader.Bind();
 	shader.SetUniformMat4("u_MV", MV);
 	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
 	shader.SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
+	shader.SetUniformMat4("u_PrevMV", prevMV);
+	shader.SetUniformMat4("u_PrevMVP", renderer.camera.projectionMatrix * prevMV);
 
 	m_VAO.Bind();
 

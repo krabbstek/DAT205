@@ -7,7 +7,8 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLS
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 	std::shared_ptr<GLTexture2D> ssaoTexture,
-	std::shared_ptr<GLTexture2D> lightingColorTexture)
+	std::shared_ptr<GLTexture2D> lightingColorTexture,
+	std::shared_ptr<GLTexture2D> motionBlurredTexture)
 	: RenderPass(renderer, shader),
 	m_OutputSelection(outputSelection),
 	m_DepthShader(depthShader),
@@ -15,7 +16,8 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLS
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
 	m_SSAOTexture(ssaoTexture),
-	m_LightingColorTexture(lightingColorTexture)
+	m_LightingColorTexture(lightingColorTexture),
+	m_MotionBlurredTexture(motionBlurredTexture)
 {
 }
 
@@ -48,6 +50,12 @@ void OutputSelectionPass::Render(std::vector<Renderable*>& renderables)
 
 	case OUTPUT_SELECTION_LIGHTING:
 		m_LightingColorTexture->Bind(0);
+		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
+		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		break;
+
+	case OUTPUT_SELECTION_MOTION_BLUR:
+		m_MotionBlurredTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
 		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
 		break;
