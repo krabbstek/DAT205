@@ -20,8 +20,15 @@ GLShader* shader;
 GLTexture2D* texture;
 GLTexture2D* colorOverlayTexture;
 
+float t = 0.0f;
+mat4 translate(1.0f);
+mat4 MVP, prevMVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+
 void core::OnStart()
 {
+	MVP = projection;
+	prevMVP = projection;
+
 	// Create fullscreen texture objects
 	{
 		float fullscreenTextureVertices[] =
@@ -54,55 +61,65 @@ void core::OnStart()
 	// Create velocity framebuffer
 	{
 		velocityFramebuffer = new GLFramebuffer(1280, 720);
-		velocityTexture = velocityFramebuffer->AttachRGBColorTexture();
+		velocityTexture = velocityFramebuffer->AttachTexture(GL_RGB, 0);
 		velocityFramebuffer->GenerateDepthStencilRenderbuffer();
-		velocityFramebuffer->ClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+		velocityFramebuffer->ClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 
 		GLFramebuffer::Unbind();
 	}
 
-	float v[] = 
+	// Create moving square buffers
 	{
-		-0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.0f, 1.0f,
-	};
-	unsigned int i[] = 
-	{
-		0, 1, 2,
-		0, 2, 3,
-	};
-	vbo = new GLVertexBuffer(v, sizeof(v));
-	GLVertexBufferLayout layout;
-	layout.Push(GL_FLOAT, 2);
-	layout.Push(GL_FLOAT, 2);
-	vbo->SetVertexBufferLayout(layout);
-	vao = new GLVertexArray(*vbo);
-	vao->Bind();
-	ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
-	ibo->Bind();
+		float v[] =
+		{
+			-0.5f, -0.5f,  0.0f, 0.0f,
+			 0.5f, -0.5f,  1.0f, 0.0f,
+			 0.5f,  0.5f,  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.0f, 1.0f,
+		};
+		unsigned int i[] =
+		{
+			0, 1, 2,
+			0, 2, 3,
+		};
+		vbo = new GLVertexBuffer(v, sizeof(v));
+		GLVertexBufferLayout layout;
+		layout.Push(GL_FLOAT, 2);
+		layout.Push(GL_FLOAT, 2);
+		vbo->SetVertexBufferLayout(layout);
+		vao = new GLVertexArray(*vbo);
+		vao->Bind();
+		ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
+		ibo->Bind();
 
-	shader = new GLShader();
-	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
-	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
-	shader->CompileShaders();
-	shader->Bind();
-	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
+		shader = new GLShader();
+		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
+		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
+		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/velocity_vs.glsl");
+		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/velocity_fs.glsl");
+		shader->CompileShaders();
+		shader->Bind();
+		//shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 
-	texture = new GLTexture2D();
-	texture->LoadFromFile("../Core/res/textures/Test.png");
-	texture->SetWrapST(GL_CLAMP_TO_EDGE);
-	texture->SetMinMagFilter(GL_LINEAR);
-	texture->Bind(0);
-
-	vao->Bind();
-	ibo->Bind();
+		texture = new GLTexture2D();
+		texture->LoadFromFile("../Core/res/textures/Test.png");
+		texture->SetWrapST(GL_CLAMP_TO_EDGE);
+		texture->SetMinMagFilter(GL_LINEAR);
+		texture->Bind(0);
+	}
 }
 
 void core::OnUpdate(float deltaTime)
 {
-	
+	t += deltaTime;
+	float x = sin(t * PI);
+
+	prevMVP = MVP;
+	translate = mat4::Translate(x, 0.0f, 0.0f);
+	MVP = projection * translate;
+
+	shader->SetUniformMat4("MVP", MVP);
+	shader->SetUniformMat4("prevMVP", prevMVP);
 }
 
 void core::OnRender()

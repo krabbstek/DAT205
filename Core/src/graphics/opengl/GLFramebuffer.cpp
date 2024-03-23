@@ -31,17 +31,17 @@ namespace core {
 	}
 
 
-	GLTexture2D* GLFramebuffer::AttachRGBColorTexture() const
+	GLTexture2D* GLFramebuffer::AttachTexture(GLuint type, unsigned int attachment /*= 0*/) const
 	{
 		GLint fbDim[4];
 		GLCall(glGetIntegerv(GL_VIEWPORT, fbDim));
 
 		GLTexture2D* texture = new GLTexture2D();
-		texture->Load(GL_RGB, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], GL_RGB, GL_UNSIGNED_BYTE);
+		texture->Load(type, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], type, GL_UNSIGNED_BYTE);
 		texture->SetMinMagFilter(GL_LINEAR);
 
 		Bind();
-		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->m_RendererID, 0));
+		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texture->m_RendererID, 0));
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		{

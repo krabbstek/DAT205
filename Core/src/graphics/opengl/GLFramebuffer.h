@@ -14,7 +14,8 @@ namespace core {
 		GLFramebuffer(unsigned int width, unsigned int height);
 		~GLFramebuffer();
 
-		GLTexture2D* AttachRGBColorTexture() const;
+		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
+		GLTexture2D* AttachTexture(GLuint type, unsigned int attachment = 0) const;
 
 		void GenerateDepthStencilRenderbuffer();
 
@@ -26,6 +27,7 @@ namespace core {
 
 	private:
 		unsigned int m_Width, m_Height;
+		unsigned int m_NumAttachedTextures;
 		GLuint m_FramebufferRendererID;
 		GLuint m_DepthStencilRenderbufferID;
 	};
