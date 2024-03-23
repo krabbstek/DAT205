@@ -10,6 +10,7 @@ namespace core {
 
 	void OnStart();
 	void OnUpdate();
+	void OnRender();
 
 }
 
@@ -21,6 +22,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
 	core::Application::s_hInstance = hInstance;
 	core::Application::Init("DAT205", 1280, 720, true, core::OnStart, core::OnUpdate);
+
+	core::Application::Run();
 
 	core::Application::Terminate();
 

@@ -18,9 +18,11 @@ namespace core {
 	unsigned int Application::s_Height = 0;
 	bool Application::s_VSync = true;
 	Window* Application::s_Window = nullptr;
+	bool Application::s_Running = true;
 
 	void(*Application::s_OnStart)() = 0;
 	void(*Application::s_OnUpdate)() = 0;
+	void(*Application::s_OnRender)() = 0;
 
 	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void))
 	{
@@ -64,8 +66,6 @@ namespace core {
 
 		CORE_INFO("Finished initialization.");
 
-
-
 		return true;
 	}
 
@@ -79,6 +79,15 @@ namespace core {
 		glfwTerminate();
 
 		Log::Terminate();
+	}
+
+
+	void Application::Run()
+	{
+		while (s_Running)
+		{
+
+		}
 	}
 
 }

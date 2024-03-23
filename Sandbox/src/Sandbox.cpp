@@ -11,3 +11,8 @@ void core::OnUpdate()
 {
 
 }
+
+void core::OnRender()
+{
+
+}
