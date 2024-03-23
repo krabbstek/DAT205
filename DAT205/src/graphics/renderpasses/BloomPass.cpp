@@ -17,11 +17,11 @@ BloomPass::BloomPass(Renderer& renderer, std::shared_ptr<GLShader> bloomShader,
 {
 	m_BloomIntermediateTexture1->Load(GL_RGB16F, nullptr, g_BloomTextureWidth, g_BloomTextureHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	m_BloomIntermediateTexture1->SetMinMagFilter(GL_LINEAR);
-	m_BloomIntermediateTexture1->SetWrapST(GL_CLAMP_TO_EDGE);
+	m_BloomIntermediateTexture1->SetWrapST(GL_CLAMP_TO_BORDER);
 
 	m_BloomIntermediateTexture2->Load(GL_RGB16F, nullptr, g_BloomTextureWidth, g_BloomTextureHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	m_BloomIntermediateTexture2->SetMinMagFilter(GL_LINEAR);
-	m_BloomIntermediateTexture2->SetWrapST(GL_CLAMP_TO_EDGE);
+	m_BloomIntermediateTexture2->SetWrapST(GL_CLAMP_TO_BORDER);
 
 	GLenum attachment = GL_COLOR_ATTACHMENT0;
 
