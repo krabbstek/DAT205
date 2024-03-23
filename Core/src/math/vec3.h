@@ -99,6 +99,8 @@ namespace core {
 		friend CORE_API vec3 operator/(float f, vec3 vec);
 		friend CORE_API vec3 operator/(vec3 left, const vec3& right);
 
+		inline vec3 operator-() const { return vec3(-x, -y, -z); }
+
 		bool operator<(const vec3& vec) const;
 		bool operator<=(const vec3& vec) const;
 		bool operator>(const vec3& vec) const;
