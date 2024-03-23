@@ -10,8 +10,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
 	core::Log::Init();
 
-	CORE_WARN("HELLO\n");
-
 	core::Log::Terminate();
 
 	return 0;
