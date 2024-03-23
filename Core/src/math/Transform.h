@@ -23,6 +23,7 @@ namespace core {
 		Transform();
 
 		mat4 GetTransformationMatrix() const;
+		mat4 GetInverseTransformationMatrix() const;
 
 		inline virtual ComponentType* GetComponentType() const { return GetComponentTypeStatic(); }
 		static ComponentType* GetComponentTypeStatic();
