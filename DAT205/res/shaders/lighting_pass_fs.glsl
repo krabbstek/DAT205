@@ -7,7 +7,6 @@ in vec3 viewSpaceNormal;
 in vec2 texCoords;
 
 out vec3 out_Color;
-out vec3 out_BloomColor;
 
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
@@ -253,7 +252,4 @@ void main()
 			  + indirectIlluminationTerm
 			  + glossyReflectionTerm
 			  + emissionTerm;
-
-	float brightness = dot(out_Color, vec3(0.2126, 0.7152, 0.0722));
-	out_BloomColor = brightness >= u_BloomThreshold ? out_Color : vec3(0.0);
 }
