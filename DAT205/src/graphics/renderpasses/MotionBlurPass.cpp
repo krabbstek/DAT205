@@ -3,12 +3,14 @@
 MotionBlurPass::MotionBlurPass(
 	Renderer& renderer,
 	std::shared_ptr<GLShader> maxTileVelocityShader,
+	std::shared_ptr<GLShader> velocityVarianceShader,
 	std::shared_ptr<GLShader> motionBlurShader,
 	std::shared_ptr<GLTexture2D> inputTexture,
 	std::shared_ptr<GLTexture2D> clipSpaceVelocityTexture,
 	std::shared_ptr<GLTexture2D> outputTexture)
 	: RenderPass(renderer),
 	m_MaxTileVelocityShader(maxTileVelocityShader),
+	m_VelocityVarianceShader(velocityVarianceShader),
 	m_MotionBlurShader(motionBlurShader),
 	m_InputTexture(inputTexture),
 	m_ClipSpaceVelocityTexture(clipSpaceVelocityTexture),
@@ -40,9 +42,21 @@ MotionBlurPass::MotionBlurPass(
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_MaxTileVelocityTexture[1]->RendererID(), 0));
 	GLCall(glDrawBuffers(1, &attachment));
 
+	// Velocity variance
+	GLCall(glGenFramebuffers(1, &m_VelocityVarianceFramebuffer));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_VelocityVarianceFramebuffer));
+
+	m_VelocityVarianceTexture = std::make_shared<GLTexture2D>();
+	m_VelocityVarianceTexture->Load(GL_RG16F, nullptr, g_WindowWidth / g_VelocityTileSize, g_WindowHeight / g_VelocityTileSize, GL_RG, GL_FLOAT);
+	m_VelocityVarianceTexture->SetMinMagFilter(GL_NEAREST);
+	m_VelocityVarianceTexture->SetWrapST(GL_CLAMP_TO_BORDER);
+
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_VelocityVarianceTexture->RendererID(), 0));
+	GLCall(glDrawBuffers(1, &attachment));
+
 	// Output framebuffer
-	GLCall(glGenFramebuffers(1, &m_Framebuffer));
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
+	GLCall(glGenFramebuffers(1, &m_OutputFramebuffer));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_OutputFramebuffer));
 	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexture->RendererID(), 0));
 	GLCall(glDrawBuffers(1, &attachment));
 }
@@ -52,9 +66,12 @@ MotionBlurPass::~MotionBlurPass()
 	GLCall(glDeleteFramebuffers(2, m_MaxTileVelocityFramebuffer));
 	m_MaxTileVelocityFramebuffer[0] = 0;
 	m_MaxTileVelocityFramebuffer[1] = 0;
+
+	GLCall(glDeleteFramebuffers(1, &m_VelocityVarianceFramebuffer));
+	m_VelocityVarianceFramebuffer = 0;
 	
-	GLCall(glDeleteFramebuffers(1, &m_Framebuffer));
-	m_Framebuffer = 0;
+	GLCall(glDeleteFramebuffers(1, &m_OutputFramebuffer));
+	m_OutputFramebuffer = 0;
 }
 
 
@@ -76,7 +93,13 @@ void MotionBlurPass::Render(std::vector<Renderable*>& renderables)
 	m_MaxTileVelocityShader->SetUniform1i("u_VerticalSampling", 0);
 	m_FullscreenMesh.Render(m_Renderer);
 
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_VelocityVarianceFramebuffer));
+
+	m_MaxTileVelocityTexture[1]->Bind(0);
+	m_FullscreenMesh.SetMainShader(m_VelocityVarianceShader);
+	m_FullscreenMesh.Render(m_Renderer);
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_OutputFramebuffer));
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 
 	m_InputTexture->Bind(0);

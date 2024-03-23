@@ -65,6 +65,7 @@ std::shared_ptr<GLShader> depthShader;
 std::shared_ptr<GLShader> fullscreenShader;
 std::shared_ptr<GLShader> blur1DShader;
 std::shared_ptr<GLShader> maxTileVelocityShader;
+std::shared_ptr<GLShader> velocityVarianceShader;
 std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomBrightnessShader;
 std::shared_ptr<GLShader> bloomShader;
@@ -170,7 +171,6 @@ int main()
 			std::vector<Material>& materials = bb8->GetMaterials();
 			std::vector<Mesh>& meshes = bb8->GetMeshes();
 
-			if (0)
 			{
 				Material& headMaterial = materials[meshes[0].materialIndex];
 
@@ -181,9 +181,9 @@ int main()
 				headAlbedoTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 				headAlbedoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 				headMaterial.SetAlbedoTexture(headAlbedoTexture);
-			}
 
-			int i = 0;
+				
+			}
 		}
 
 		fighterModel = Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader);
@@ -254,6 +254,7 @@ int main()
 	fullscreenShader.reset();
 	blur1DShader.reset();
 	maxTileVelocityShader.reset();
+	velocityVarianceShader.reset();
 	motionBlurShader.reset();
 	bloomBrightnessShader.reset();
 	bloomShader.reset();
@@ -601,6 +602,11 @@ void LoadShaders()
 	maxTileVelocityShader->CompileShaders();
 	maxTileVelocityShader->SetUniform1i("u_TileSize", g_VelocityTileSize);
 
+	velocityVarianceShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/velocity_variance_vs.glsl");
+	velocityVarianceShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/velocity_variance_fs.glsl");
+	velocityVarianceShader->CompileShaders();
+	velocityVarianceShader->SetUniform2i("u_NumTiles", g_WindowWidth / g_VelocityTileSize, g_WindowHeight / g_VelocityTileSize);
+
 	motionBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/motion_blur_vs.glsl");
 	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
 	motionBlurShader->CompileShaders();
@@ -700,6 +706,7 @@ void InitTiledForwardRendering()
 	fullscreenShader = std::make_shared<GLShader>();
 	blur1DShader = std::make_shared<GLShader>();
 	maxTileVelocityShader = std::make_shared<GLShader>();
+	velocityVarianceShader = std::make_shared<GLShader>();
 	motionBlurShader = std::make_shared<GLShader>();
 	bloomBrightnessShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
@@ -754,6 +761,7 @@ void InitTiledForwardRendering()
 	std::shared_ptr<MotionBlurPass> motionBlurPass = std::make_shared<MotionBlurPass>(
 		renderer, 
 		maxTileVelocityShader,
+		velocityVarianceShader,
 		motionBlurShader,
 		lightingPassColorTexture,
 		clipSpaceVelocityTexture,
