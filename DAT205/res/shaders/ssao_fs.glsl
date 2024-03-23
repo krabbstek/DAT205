@@ -4,6 +4,7 @@ layout (location = 0) out vec3 out_Occlusion;
 
 layout (binding = 10) uniform sampler2D u_ViewSpacePositionTexture;
 layout (binding = 11) uniform sampler2D u_ViewSpaceNormalTexture;
+layout (binding = 12) uniform sampler2D u_RandomAnglesTexture;
 
 uniform vec3 u_Samples[64];
 uniform int u_NumSamples;
@@ -55,11 +56,8 @@ void main()
 	vec3 viewSpaceBitangent = normalize(cross(viewSpaceNormal, viewSpaceTangent));
 	viewSpaceTangent = normalize(cross(viewSpaceBitangent, viewSpaceNormal));
 
-	//texCoord %= 8;
-	//float randomAngle = texture(u_RandomAnglesTexture, gl_FragCoord.xy * (1.0f / 64.0f)).r;
-	//float randomAngle = texelFetch(u_RandomAnglesTexture, texCoord, 0).r;
-	texCoord.xy &= 7;
-	float randomAngle = u_RandomAngles[texCoord.y * 8 + texCoord.x];
+	texCoord &= (64 - 1);
+	float randomAngle = texelFetch(u_RandomAnglesTexture, texCoord, 0).r;
 	mat3 TBN = mat3(viewSpaceTangent, viewSpaceBitangent, viewSpaceNormal) * randomRotation(randomAngle);
 
 	vec3 sampleVec;

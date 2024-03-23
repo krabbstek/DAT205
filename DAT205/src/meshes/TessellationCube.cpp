@@ -2,46 +2,46 @@
 
 float cubeVertices[] =
 {
-	// Position | Normal
+	// Position | Tex coords
 
 	// Left
-	-0.5f, -0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,   0.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  -1.0f,  0.0f,  0.0f,   1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,   0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,   0.0f, 1.0f,
 
 	// Right
-	 0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,   1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,   1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
 
 	 // Bottom
-	-0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,   0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,   1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,   1.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,   0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,   0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,   1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,   1.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,   0.0f, 1.0f,
 
 	// Top
-	-0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,   1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,   0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,   0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,   1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,   1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,   0.0f, 1.0f,
 
 	// Back
-	-0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   1.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,   0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,   1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,   1.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,   0.0f, 0.0f,
 
 	// Front
-	-0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,   0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,   0.0f,  0.0f,  1.0f,   1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,   1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,   0.0f,  0.0f,  1.0f,   0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,   0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,   1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,   1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,   0.0f, 1.0f,
 };
 
-unsigned int cubeIndices[] =
+/*unsigned int cubeIndices[] =
 {
 	// Left
 	 0,  1,  2,
@@ -66,6 +66,16 @@ unsigned int cubeIndices[] =
 	// Front
 	20, 21, 22,
 	20, 22, 23,
+};*/
+
+unsigned int cubeIndices[] =
+{
+	 0,  1,  2,  3,
+	 4,  5,  6,  7,
+	 8,  9, 10, 11,
+	12, 13, 14, 15,
+	16, 17, 18, 19,
+	20, 21, 22, 23,
 };
 
 TessellationCube::TessellationCube(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader, const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/)
@@ -73,7 +83,6 @@ TessellationCube::TessellationCube(std::shared_ptr<GLShader> prepassShader, std:
 {
 	m_VBO = new GLVertexBuffer(cubeVertices, sizeof(cubeVertices));
 	GLVertexBufferLayout layout;
-	layout.Push(GL_FLOAT, 3);
 	layout.Push(GL_FLOAT, 3);
 	layout.Push(GL_FLOAT, 2);
 	m_VBO->SetVertexBufferLayout(layout);
