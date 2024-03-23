@@ -18,8 +18,7 @@ Entity* testEntity;
 
 float t = 0.0f;
 mat4 translate(1.0f);
-mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
-mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
+mat4 MVP, projection, view;
 
 float rx, ry, rz;
 
@@ -155,8 +154,7 @@ void core::OnRender()
 	Quaternion qz = Quaternion::Rotation(vec3(0.0f, 0.0f, 1.0f), rz);
 	Quaternion q = qx * qy * qz;
 	projection = testEntity->GetComponent<Camera>()->GetProjectionMatrix();
-	testEntity->GetComponent<Camera>()->GenerateViewMatrix();
-	view = testEntity->GetComponent<Camera>()->GetViewMatrix();
+	view = testEntity->GetComponent<Camera>()->GenerateViewMatrix();
 	MVP = projection * view * q.Matrix();
 	shader->SetUniformMat4("transformation", MVP);
 
