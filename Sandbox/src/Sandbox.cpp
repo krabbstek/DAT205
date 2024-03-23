@@ -77,7 +77,6 @@ void core::OnStart()
 	Application::SetKeyReleasedEventCallback(KeyCallback, 'S');
 	Application::SetKeyReleasedEventCallback(KeyCallback, 'D');
 
-	//Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae");
 	cube = Mesh::Cube();
 
 	// Create moving square buffers
@@ -94,7 +93,7 @@ void core::OnStart()
 			0, 1, 2,
 			0, 2, 3,
 		};
-		vbo = new GLVertexBuffer(v, sizeof(v));
+		vbo = cnew GLVertexBuffer(v, sizeof(v));
 		GLVertexBufferLayout layout;
 		layout.Push(GL_FLOAT, 2);
 		layout.Push(GL_FLOAT, 3);
@@ -127,6 +126,8 @@ void core::OnStart()
 
 	vec3 move = -2.0f * testEntity->GetComponent<Camera>()->GetForward();
 	testEntity->GetComponent<Transform>()->Move(move);
+
+	Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae", shader);
 }
 
 void core::OnUpdate(float deltaTime)
