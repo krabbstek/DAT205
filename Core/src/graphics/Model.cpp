@@ -7,6 +7,9 @@
 
 #include "system/file_utils.h"
 
+#include "assimp/Importer.hpp"
+#include "assimp/scene.h"
+
 #include <cstdlib>
 
 struct IndexSet
@@ -33,6 +36,8 @@ struct std::hash<IndexSet>
 };
 
 namespace core {
+
+	Assimp::Importer importer;
 
 	Model::Model()
 		: m_VAO(nullptr), m_IBO(nullptr)
