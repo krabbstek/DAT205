@@ -12,15 +12,14 @@ void core::OnStart()
 {
 	float v[] = 
 	{
-		-0.5f, -0.5f,
-		 0.5f, -0.5f,
-		 0.0f,  0.5f
+		-1.0f, -1.0f,
+		 1.0f, -1.0f,
+		 0.0f,  1.0f
 	};
 	vbo = new GLVertexBuffer(v, sizeof(v));
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
 	vao = new GLVertexArray(*vbo, layout);
-	vbo->Bind();
 	vao->Bind();
 
 	shader = new GLShader();
@@ -28,7 +27,8 @@ void core::OnStart()
 	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
 	shader->CompileShaders();
 	shader->Bind();
-	CORE_INFO("{}", shader->GetUniformLocation(std::string("color")));
+	shader->SetUniform4f("color", vec4(0.2f, 0.3f, 0.8f, 1.0f));
+	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 }
 
 void core::OnUpdate()
