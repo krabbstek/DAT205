@@ -136,135 +136,129 @@ namespace core {
 
 	mat4 mat4::Translate(float t)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
-		elements[INDEX(0, 0)] = 1.0f;
-		elements[INDEX(1, 1)] = 1.0f;
-		elements[INDEX(2, 2)] = 1.0f;
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(0, 0)] = 1.0f;
+		result.elements[INDEX(1, 1)] = 1.0f;
+		result.elements[INDEX(2, 2)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(0, 3)] = t;
-		elements[INDEX(1, 3)] = t;
-		elements[INDEX(2, 3)] = t;
+		result.elements[INDEX(0, 3)] = t;
+		result.elements[INDEX(1, 3)] = t;
+		result.elements[INDEX(2, 3)] = t;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Translate(float tx, float ty, float tz)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
-		elements[INDEX(0, 0)] = 1.0f;
-		elements[INDEX(1, 1)] = 1.0f;
-		elements[INDEX(2, 2)] = 1.0f;
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(0, 0)] = 1.0f;
+		result.elements[INDEX(1, 1)] = 1.0f;
+		result.elements[INDEX(2, 2)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(0, 3)] = tx;
-		elements[INDEX(1, 3)] = ty;
-		elements[INDEX(2, 3)] = tz;
+		result.elements[INDEX(0, 3)] = tx;
+		result.elements[INDEX(1, 3)] = ty;
+		result.elements[INDEX(2, 3)] = tz;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Translate(const vec3& t)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
-		elements[INDEX(0, 0)] = 1.0f;
-		elements[INDEX(1, 1)] = 1.0f;
-		elements[INDEX(2, 2)] = 1.0f;
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(0, 0)] = 1.0f;
+		result.elements[INDEX(1, 1)] = 1.0f;
+		result.elements[INDEX(2, 2)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(0, 3)] = t.x;
-		elements[INDEX(1, 3)] = t.y;
-		elements[INDEX(2, 3)] = t.z;
+		result.elements[INDEX(0, 3)] = t.x;
+		result.elements[INDEX(1, 3)] = t.y;
+		result.elements[INDEX(2, 3)] = t.z;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Translate(const vec4& t)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
-		elements[INDEX(0, 0)] = 1.0f;
-		elements[INDEX(1, 1)] = 1.0f;
-		elements[INDEX(2, 2)] = 1.0f;
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(0, 0)] = 1.0f;
+		result.elements[INDEX(1, 1)] = 1.0f;
+		result.elements[INDEX(2, 2)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(0, 3)] = t.x;
-		elements[INDEX(1, 3)] = t.y;
-		elements[INDEX(2, 3)] = t.z;
+		result.elements[INDEX(0, 3)] = t.x;
+		result.elements[INDEX(1, 3)] = t.y;
+		result.elements[INDEX(2, 3)] = t.z;
 
-		return mat4(elements);
+		return result;
 	}
 
 
 	mat4 mat4::RotateX(float radians)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
+
 		float s = sin(radians);
 		float c = cos(radians);
 
-		elements[INDEX(0, 0)] = 1.0f;
+		result.elements[INDEX(0, 0)] = 1.0f;
 
-		elements[INDEX(1, 1)] = c;
-		elements[INDEX(1, 2)] = -s;
-		elements[INDEX(2, 1)] = s;
-		elements[INDEX(2, 2)] = c;
+		result.elements[INDEX(1, 1)] = c;
+		result.elements[INDEX(1, 2)] = -s;
+		result.elements[INDEX(2, 1)] = s;
+		result.elements[INDEX(2, 2)] = c;
 
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::RotateY(float radians)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
+
 		float s = sin(radians);
 		float c = cos(radians);
 
-		elements[INDEX(0, 0)] = c;
-		elements[INDEX(0, 2)] = s;
-		elements[INDEX(2, 0)] = -s;
-		elements[INDEX(2, 2)] = c;
+		result.elements[INDEX(0, 0)] = c;
+		result.elements[INDEX(0, 2)] = s;
+		result.elements[INDEX(2, 0)] = -s;
+		result.elements[INDEX(2, 2)] = c;
 
-		elements[INDEX(1, 1)] = 1.0f;
+		result.elements[INDEX(1, 1)] = 1.0f;
 
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::RotateZ(float radians)
 	{
 		mat4 result;
 
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
 		float s = sin(radians);
 		float c = cos(radians);
 
-		elements[INDEX(0, 0)] = c;
-		elements[INDEX(0, 1)] = -s;
-		elements[INDEX(1, 0)] = s;
-		elements[INDEX(1, 1)] = c;
+		result.elements[INDEX(0, 0)] = c;
+		result.elements[INDEX(0, 1)] = -s;
+		result.elements[INDEX(1, 0)] = s;
+		result.elements[INDEX(1, 1)] = c;
 
-		elements[INDEX(2, 2)] = 1.0f;
+		result.elements[INDEX(2, 2)] = 1.0f;
 
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Rotate(float radians, float ax, float ay, float az)
 	{
-		float elements[16];
+		mat4 result;
 
 		float c = cos(radians);
 		float nc = 1.0f - c;
@@ -285,34 +279,34 @@ namespace core {
 		float ay_s = ay * s;
 		float az_s = az * s;
 
-		elements[INDEX(0, 0)] = c + ax2 * nc;
-		elements[INDEX(0, 1)] = axy_nc - az_s;
-		elements[INDEX(0, 2)] = axz_nc + ay_s;
+		result.elements[INDEX(0, 0)] = c + ax2 * nc;
+		result.elements[INDEX(0, 1)] = axy_nc - az_s;
+		result.elements[INDEX(0, 2)] = axz_nc + ay_s;
 
-		elements[INDEX(1, 0)] = axy_nc + az_s;
-		elements[INDEX(1, 1)] = c + ay2 * nc;
-		elements[INDEX(1, 2)] = ayz_nc - ax_s;
+		result.elements[INDEX(1, 0)] = axy_nc + az_s;
+		result.elements[INDEX(1, 1)] = c + ay2 * nc;
+		result.elements[INDEX(1, 2)] = ayz_nc - ax_s;
 
-		elements[INDEX(2, 0)] = axz_nc - ay_s;
-		elements[INDEX(2, 1)] = ayz_nc + ax_s;
-		elements[INDEX(2, 2)] = c + az2 * nc;
+		result.elements[INDEX(2, 0)] = axz_nc - ay_s;
+		result.elements[INDEX(2, 1)] = ayz_nc + ax_s;
+		result.elements[INDEX(2, 2)] = c + az2 * nc;
 
-		elements[INDEX(0, 3)] = 0.0f;
-		elements[INDEX(1, 3)] = 0.0f;
-		elements[INDEX(2, 3)] = 0.0f;
+		result.elements[INDEX(0, 3)] = 0.0f;
+		result.elements[INDEX(1, 3)] = 0.0f;
+		result.elements[INDEX(2, 3)] = 0.0f;
 
-		elements[INDEX(3, 0)] = 0.0f;
-		elements[INDEX(3, 1)] = 0.0f;
-		elements[INDEX(3, 2)] = 0.0f;
+		result.elements[INDEX(3, 0)] = 0.0f;
+		result.elements[INDEX(3, 1)] = 0.0f;
+		result.elements[INDEX(3, 2)] = 0.0f;
 
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Rotate(float radians, const vec3& axis)
 	{
-		float elements[16];
+		mat4 result;
 
 		float c = cos(radians);
 		float nc = 1.0f - c;
@@ -333,34 +327,34 @@ namespace core {
 		float ay_s = axis.y * s;
 		float az_s = axis.z * s;
 
-		elements[INDEX(0, 0)] = c + ax2 * nc;
-		elements[INDEX(0, 1)] = axy_nc - az_s;
-		elements[INDEX(0, 2)] = axz_nc + ay_s;
+		result.elements[INDEX(0, 0)] = c + ax2 * nc;
+		result.elements[INDEX(0, 1)] = axy_nc - az_s;
+		result.elements[INDEX(0, 2)] = axz_nc + ay_s;
+		
+		result.elements[INDEX(1, 0)] = axy_nc + az_s;
+		result.elements[INDEX(1, 1)] = c + ay2 * nc;
+		result.elements[INDEX(1, 2)] = ayz_nc - ax_s;
+		
+		result.elements[INDEX(2, 0)] = axz_nc - ay_s;
+		result.elements[INDEX(2, 1)] = ayz_nc + ax_s;
+		result.elements[INDEX(2, 2)] = c + az2 * nc;
+		
+		result.elements[INDEX(0, 3)] = 0.0f;
+		result.elements[INDEX(1, 3)] = 0.0f;
+		result.elements[INDEX(2, 3)] = 0.0f;
+		
+		result.elements[INDEX(3, 0)] = 0.0f;
+		result.elements[INDEX(3, 1)] = 0.0f;
+		result.elements[INDEX(3, 2)] = 0.0f;
+		
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(1, 0)] = axy_nc + az_s;
-		elements[INDEX(1, 1)] = c + ay2 * nc;
-		elements[INDEX(1, 2)] = ayz_nc - ax_s;
-
-		elements[INDEX(2, 0)] = axz_nc - ay_s;
-		elements[INDEX(2, 1)] = ayz_nc + ax_s;
-		elements[INDEX(2, 2)] = c + az2 * nc;
-
-		elements[INDEX(0, 3)] = 0.0f;
-		elements[INDEX(1, 3)] = 0.0f;
-		elements[INDEX(2, 3)] = 0.0f;
-
-		elements[INDEX(3, 0)] = 0.0f;
-		elements[INDEX(3, 1)] = 0.0f;
-		elements[INDEX(3, 2)] = 0.0f;
-
-		elements[INDEX(3, 3)] = 1.0f;
-
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Rotate(float radians, const vec4& axis)
 	{
-		float elements[16];
+		mat4 result;
 
 		float c = cos(radians);
 		float nc = 1.0f - c;
@@ -381,70 +375,68 @@ namespace core {
 		float ay_s = axis.y * s;
 		float az_s = axis.z * s;
 
-		elements[INDEX(0, 0)] = c + ax2 * nc;
-		elements[INDEX(0, 1)] = axy_nc - az_s;
-		elements[INDEX(0, 2)] = axz_nc + ay_s;
+		result.elements[INDEX(0, 0)] = c + ax2 * nc;
+		result.elements[INDEX(0, 1)] = axy_nc - az_s;
+		result.elements[INDEX(0, 2)] = axz_nc + ay_s;
+		
+		result.elements[INDEX(1, 0)] = axy_nc + az_s;
+		result.elements[INDEX(1, 1)] = c + ay2 * nc;
+		result.elements[INDEX(1, 2)] = ayz_nc - ax_s;
+		
+		result.elements[INDEX(2, 0)] = axz_nc - ay_s;
+		result.elements[INDEX(2, 1)] = ayz_nc + ax_s;
+		result.elements[INDEX(2, 2)] = c + az2 * nc;
+		
+		result.elements[INDEX(0, 3)] = 0.0f;
+		result.elements[INDEX(1, 3)] = 0.0f;
+		result.elements[INDEX(2, 3)] = 0.0f;
+		
+		result.elements[INDEX(3, 0)] = 0.0f;
+		result.elements[INDEX(3, 1)] = 0.0f;
+		result.elements[INDEX(3, 2)] = 0.0f;
+		
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(1, 0)] = axy_nc + az_s;
-		elements[INDEX(1, 1)] = c + ay2 * nc;
-		elements[INDEX(1, 2)] = ayz_nc - ax_s;
-
-		elements[INDEX(2, 0)] = axz_nc - ay_s;
-		elements[INDEX(2, 1)] = ayz_nc + ax_s;
-		elements[INDEX(2, 2)] = c + az2 * nc;
-
-		elements[INDEX(0, 3)] = 0.0f;
-		elements[INDEX(1, 3)] = 0.0f;
-		elements[INDEX(2, 3)] = 0.0f;
-
-		elements[INDEX(3, 0)] = 0.0f;
-		elements[INDEX(3, 1)] = 0.0f;
-		elements[INDEX(3, 2)] = 0.0f;
-
-		elements[INDEX(3, 3)] = 1.0f;
-
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Orthographic(float left, float right, float bottom, float top, float near, float far)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
 		float _rl = 1.0f / (right - left);
 		float _tb = 1.0f / (top - bottom);
 		float _nf = 1.0f / (near - far);
 
-		elements[INDEX(0, 0)] = 2.0f * _rl;
-		elements[INDEX(1, 1)] = 2.0f * _tb;
-		elements[INDEX(2, 2)] = 2.0f * _nf;
+		result.elements[INDEX(0, 0)] = 2.0f * _rl;
+		result.elements[INDEX(1, 1)] = 2.0f * _tb;
+		result.elements[INDEX(2, 2)] = 2.0f * _nf;
 
-		elements[INDEX(0, 3)] = -(right + left) * _rl;
-		elements[INDEX(1, 3)] = -(top + bottom) * _tb;
-		elements[INDEX(2, 3)] = (far + near) * _nf;
+		result.elements[INDEX(0, 3)] = -(right + left) * _rl;
+		result.elements[INDEX(1, 3)] = -(top + bottom) * _tb;
+		result.elements[INDEX(2, 3)] = (far + near) * _nf;
 
-		elements[INDEX(3, 3)] = 1.0f;
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::Perspective(float fov, float aspectRatio, float near, float far)
 	{
-		float elements[16];
-		memset(elements, 0, sizeof(elements));
+		mat4 result;
 
-		float _t = 1.0f / tan(0.5f * fov);
-		float _nf = 1.0f / (near - far);
+		float t_inv = 1.0f / tan(0.5f * fov);
+		float nearfar_inv = 1.0f / (near - far);
 
-		elements[INDEX(0, 0)] = _t / aspectRatio;
-		elements[INDEX(1, 1)] = _t;
+		result.elements[INDEX(0, 0)] = t_inv / aspectRatio;
+		result.elements[INDEX(1, 1)] = t_inv;
 
-		elements[INDEX(2, 2)] = (far + near) * _nf;
-		elements[INDEX(2, 3)] = 2 * far * near * _nf;
+		result.elements[INDEX(2, 2)] = (far + near) * nearfar_inv;
+		result.elements[INDEX(2, 3)] = 2.0f * far * near * nearfar_inv;
 
-		elements[INDEX(3, 2)] = -1.0f;
+		result.elements[INDEX(3, 2)] = -1.0f;
 
-		return mat4(elements);
+		return result;
 	}
 
 	mat4 mat4::LookAt(const vec3& cameraPosition, const vec3& objectPosition, const vec3& up)
@@ -454,31 +446,31 @@ namespace core {
 		vec3 yAxis = vec3::Cross(zAxis, xAxis);
 		vec3 t(vec3::Dot(xAxis, cameraPosition), vec3::Dot(yAxis, cameraPosition), vec3::Dot(zAxis, cameraPosition));
 
-		float elements[16];
+		mat4 result;
 
-		elements[INDEX(0, 0)] = xAxis.x;
-		elements[INDEX(1, 0)] = yAxis.x;
-		elements[INDEX(2, 0)] = zAxis.x;
+		result.elements[INDEX(0, 0)] = xAxis.x;
+		result.elements[INDEX(1, 0)] = yAxis.x;
+		result.elements[INDEX(2, 0)] = zAxis.x;
+		
+		result.elements[INDEX(0, 1)] = xAxis.y;
+		result.elements[INDEX(1, 1)] = yAxis.y;
+		result.elements[INDEX(2, 1)] = zAxis.y;
+		
+		result.elements[INDEX(0, 2)] = xAxis.z;
+		result.elements[INDEX(1, 2)] = yAxis.z;
+		result.elements[INDEX(2, 2)] = zAxis.z;
+		
+		result.elements[INDEX(0, 3)] = t.x;
+		result.elements[INDEX(1, 3)] = t.y;
+		result.elements[INDEX(2, 3)] = t.z;
+		
+		result.elements[INDEX(3, 0)] = 0.0f;
+		result.elements[INDEX(3, 1)] = 0.0f;
+		result.elements[INDEX(3, 2)] = 0.0f;
+		
+		result.elements[INDEX(3, 3)] = 1.0f;
 
-		elements[INDEX(0, 1)] = xAxis.y;
-		elements[INDEX(1, 1)] = yAxis.y;
-		elements[INDEX(2, 1)] = zAxis.y;
-
-		elements[INDEX(0, 2)] = xAxis.z;
-		elements[INDEX(1, 2)] = yAxis.z;
-		elements[INDEX(2, 2)] = zAxis.z;
-
-		elements[INDEX(0, 3)] = t.x;
-		elements[INDEX(1, 3)] = t.y;
-		elements[INDEX(2, 3)] = t.z;
-
-		elements[INDEX(3, 0)] = 0.0f;
-		elements[INDEX(3, 1)] = 0.0f;
-		elements[INDEX(3, 2)] = 0.0f;
-
-		elements[INDEX(3, 3)] = 1.0f;
-
-		return mat4(elements);
+		return result;
 	}
 
 
@@ -538,7 +530,7 @@ namespace core {
 		float newElements[16];
 		memset(newElements, 0, sizeof(newElements));
 
-		int i, j;
+		unsigned int i, j;
 		for (i = 0; i < 4; i++)
 		{
 			for (j = 0; j < 4; j++)
@@ -554,11 +546,29 @@ namespace core {
 		return *this;
 	}
 
-
-	mat4 CORE_API operator*(mat4 left, const mat4& right)
+	mat4 mat4::Multiply(const mat4& left, const mat4& right)
 	{
-		left.Multiply(right);
-		return mat4(left.elements);
+		mat4 result;
+
+		unsigned int i, j;
+		for (i = 0; i < 4; i++)
+		{
+			for (j = 0; j < 4; j++)
+			{
+				result.elements[INDEX(i, j)] += left.elements[INDEX(i, 0)] * right.elements[INDEX(0, j)];
+				result.elements[INDEX(i, j)] += left.elements[INDEX(i, 1)] * right.elements[INDEX(1, j)];
+				result.elements[INDEX(i, j)] += left.elements[INDEX(i, 2)] * right.elements[INDEX(2, j)];
+				result.elements[INDEX(i, j)] += left.elements[INDEX(i, 3)] * right.elements[INDEX(3, j)];
+			}
+		}
+
+		return result;
+	}
+
+
+	mat4 CORE_API operator*(const mat4& left, const mat4& right)
+	{
+		return mat4::Multiply(left, right);
 	}
 
 
@@ -581,7 +591,7 @@ namespace core {
 			+ elements[INDEX(2, 2)] * vec.z
 			+ elements[INDEX(2, 3)];
 
-		return vec;
+		return result;
 	}
 
 	vec3 mat4::RightMultiply(const vec3& vec) const
@@ -603,7 +613,7 @@ namespace core {
 			+ elements[INDEX(2, 2)] * vec.z
 			+ elements[INDEX(3, 2)];
 
-		return vec;
+		return result;
 	}
 
 	vec4 mat4::Multiply(const vec4& vec) const
@@ -630,7 +640,7 @@ namespace core {
 			+ elements[INDEX(3, 2)] * vec.z
 			+ elements[INDEX(3, 3)] * vec.w;
 
-		return vec;
+		return result;
 	}
 
 	vec4 mat4::RightMultiply(const vec4& vec) const
@@ -657,7 +667,7 @@ namespace core {
 			+ elements[INDEX(2, 3)] * vec.z
 			+ elements[INDEX(3, 3)] * vec.w;
 
-		return vec;
+		return result;
 	}
 
 
@@ -838,12 +848,29 @@ namespace core {
 #define a43 matrix.elements[INDEX(3, 2)]
 #define a44 matrix.elements[INDEX(3, 3)]
 
+#define b11 result.elements[INDEX(0, 0)]
+#define b12 result.elements[INDEX(0, 1)]
+#define b13 result.elements[INDEX(0, 2)]
+#define b14 result.elements[INDEX(0, 3)]
+#define b21 result.elements[INDEX(1, 0)]
+#define b22 result.elements[INDEX(1, 1)]
+#define b23 result.elements[INDEX(1, 2)]
+#define b24 result.elements[INDEX(1, 3)]
+#define b31 result.elements[INDEX(2, 0)]
+#define b32 result.elements[INDEX(2, 1)]
+#define b33 result.elements[INDEX(2, 2)]
+#define b34 result.elements[INDEX(2, 3)]
+#define b41 result.elements[INDEX(3, 0)]
+#define b42 result.elements[INDEX(3, 1)]
+#define b43 result.elements[INDEX(3, 2)]
+#define b44 result.elements[INDEX(3, 3)]
+
 #pragma warning(default: 4005)
 
 
 	mat4 mat4::Inverse(const mat4& matrix)
 	{
-		float newElements[16];
+		mat4 result;
 
 		b11 = a22 * a33 * a44 - a22 * a34 * a43 - a23 * a32 * a44
 			+ a23 * a34 * a42 + a24 * a32 * a43 - a24 * a33 * a42;
@@ -884,19 +911,18 @@ namespace core {
 		float detInv = 1.0f / matrix.Determinant();
 		for (int i = 0; i < 16; i += 4)
 		{
-			newElements[i + 0] *= detInv;
-			newElements[i + 1] *= detInv;
-			newElements[i + 2] *= detInv;
-			newElements[i + 3] *= detInv;
+			result.elements[i + 0] *= detInv;
+			result.elements[i + 1] *= detInv;
+			result.elements[i + 2] *= detInv;
+			result.elements[i + 3] *= detInv;
 		}
 
-		return mat4(newElements);
+		return result;
 	}
 
 	mat4 mat4::Transpose(const mat4& matrix)
 	{
-		float newElements[16];
-		memcpy(newElements, matrix.elements, sizeof(newElements));
+		mat4 result;
 
 		b12 = a21;
 		b21 = a12;
@@ -916,7 +942,7 @@ namespace core {
 		b34 = a43;
 		b43 = a34;
 
-		return mat4(newElements);
+		return result;
 	}
 
 #undef a11

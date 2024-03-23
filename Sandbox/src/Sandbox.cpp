@@ -24,7 +24,7 @@ GLTexture2D* colorOverlayTexture;
 float t = 0.0f;
 mat4 translate(1.0f);
 mat4 MVP, prevMVP, projection = mat4::Perspective(DegToRad(90.0f), 16.0f / 9.0f, 0.01f, 1000.0f);
-mat4 view = mat4::Translate(0.0f, 0.0f, 2.0f) * mat4::RotateY(0.5f);
+mat4 view = mat4::Translate(0.0f, 0.0f, -2.0f) * mat4::RotateY(0.5f);
 
 Mesh* cube;
 
