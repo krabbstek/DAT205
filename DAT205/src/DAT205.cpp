@@ -404,7 +404,7 @@ void ImGuiRender()
 	ImGui::Separator();
 
 	ImGui::Text("SSAO");
-	ImGui::SliderFloat("SSAO kernel size", &g_SSAOKernelSize, 0.1f, 10.0f, "%.2f", 2.0f);
+	ImGui::SliderFloat("SSAO bias", &g_SSAOBias, 0.01f, 1.0f, "%.3f", 2.0f);
 	ImGui::SliderFloat("SSAO radius", &g_SSAORadius, 0.1f, 10.0f, "%.2f", 2.0f);
 	ImGui::SliderInt("Bilateral blur sample size", &g_SSAOBlurSampleSize, 0, 20);
 	ImGui::SliderFloat("SSAO blur sigma", &g_SSAOBilateralBlurSigma, 0.1f, 10.0f);
@@ -573,7 +573,7 @@ void InitTiledForwardRendering()
 {
 	// Textures
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture = std::make_shared<GLTexture2D>();
-	viewSpacePositionTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	viewSpacePositionTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	viewSpacePositionTexture->SetMinMagFilter(GL_NEAREST);
 	viewSpacePositionTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
@@ -737,7 +737,7 @@ void Update()
 	HandleKeyInput(g_DeltaTime);
 
 	glowingParticleSystem->UpdateParticles(g_DeltaTime);
-
+	
 	for (int i = 0; i < 2; i++)
 	{
 		Particle particle;
