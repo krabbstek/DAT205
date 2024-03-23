@@ -6,6 +6,7 @@ using namespace core;
 
 GLVertexBuffer* vbo;
 GLVertexArray* vao;
+GLShader* shader;
 
 void core::OnStart()
 {
@@ -19,6 +20,12 @@ void core::OnStart()
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
 	vao = new GLVertexArray(*vbo, layout);
+
+	shader = new GLShader();
+	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
+	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
+	shader->CompileShaders();
+	shader->Bind();
 }
 
 void core::OnUpdate()
