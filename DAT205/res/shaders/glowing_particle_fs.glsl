@@ -9,14 +9,12 @@ in float radius;
 
 out vec4 out_Color;
 
+uniform float u_LightIntensityMultiplier;
+
+layout (location = 0) uniform sampler2D u_FireSphereTexture;
+
 void main()
 {
-	float a = 0.4;
-
-	vec2 position = gl_PointCoord - 0.5;
-	float p2 = dot(position, position);
-	if (p2 > 0.125)
-		a = max(0.0, 3.2 * (0.25 - p2));
-
-	out_Color = 4.0 * vec4(emission, a);
+	out_Color = texture(u_FireSphereTexture, gl_PointCoord);
+	out_Color.rgb *= emission * u_LightIntensityMultiplier * 10.0;
 }

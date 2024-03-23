@@ -2,6 +2,8 @@
 
 #include "math/math_util.h"
 
+constexpr float g_DeltaTime = 1.0f / 60.0f;
+
 constexpr unsigned int g_WindowWidth = 1920;
 constexpr unsigned int g_WindowHeight = 1080;
 
