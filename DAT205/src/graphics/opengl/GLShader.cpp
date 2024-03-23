@@ -177,6 +177,15 @@ void GLShader::SetUniform2f(std::string& uniformName, const vec2& vec)
 	}
 }
 
+void GLShader::SetUniform2i(std::string& uniformName, int x, int y)
+{
+	int location = GetUniformLocation(uniformName);
+	if (location != -1)
+	{
+		GLCall(glProgramUniform2i(m_RendererID, location, x, y));
+	}
+}
+
 
 void GLShader::SetUniform3f(std::string& uniformName, float x, float y, float z)
 {
