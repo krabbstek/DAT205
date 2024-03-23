@@ -4,6 +4,6 @@
 
 namespace core {
 
-	char* ReadFullFile(const char* filePath);
+	CORE_API char* ReadFullFile(const char* filePath);
 
 }
