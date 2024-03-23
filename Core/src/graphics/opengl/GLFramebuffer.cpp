@@ -31,13 +31,20 @@ namespace core {
 	}
 
 
-	GLTexture2D* GLFramebuffer::AttachTexture(GLuint type, unsigned int attachment /*= 0*/) const
+	GLTexture2D* GLFramebuffer::AttachTexture(GLuint internalFormat, unsigned int attachment /*= 0*/) const
 	{
 		GLint fbDim[4];
 		GLCall(glGetIntegerv(GL_VIEWPORT, fbDim));
 
+		GLuint format = GetBaseFormat(internalFormat);
+		if (!format)
+		{
+			CORE_ERROR("Invalid format!");
+			__debugbreak();
+		}
+
 		GLTexture2D* texture = new GLTexture2D();
-		texture->Load(type, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], type, GL_UNSIGNED_BYTE);
+		texture->Load(internalFormat, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], format, GL_UNSIGNED_BYTE);
 		texture->SetMinMagFilter(GL_LINEAR);
 
 		Bind();
@@ -78,6 +85,22 @@ namespace core {
 	}
 
 
+	void GLFramebuffer::SetDrawBufferAttachments(unsigned int count) const
+	{
+		GLenum* attachments = new GLenum[count];
+		for (int i = 0; i < count; i++)
+		{
+			attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+		}
+		SetDrawBufferAttachments(attachments, count);
+	}
+
+	void GLFramebuffer::SetDrawBufferAttachments(const GLenum* attachments, unsigned int count) const
+	{
+		GLCall(glDrawBuffers(count, attachments));
+	}
+
+
 	void GLFramebuffer::ClearColor(float r, float g, float b, float a) const
 	{
 		Bind();
@@ -98,6 +121,85 @@ namespace core {
 	void GLFramebuffer::Unbind()
 	{
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
+
+
+	GLuint GLFramebuffer::GetBaseFormat(GLuint internalFormat)
+	{
+		switch (internalFormat)
+		{
+		case GL_R8:
+		case GL_R8_SNORM:
+		case GL_R16:
+		case GL_R16_SNORM:
+		case GL_R16F:
+		case GL_R32F:
+		case GL_R8I:
+		case GL_R8UI:
+		case GL_R16I:
+		case GL_R16UI:
+		case GL_R32I:
+		case GL_R32UI:
+			return GL_RED;
+				 
+		case GL_RG8:
+		case GL_RG8_SNORM:
+		case GL_RG16:
+		case GL_RG16_SNORM:
+		case GL_RG16F:
+		case GL_RG32F:
+		case GL_RG8I:
+		case GL_RG8UI:
+		case GL_RG16I:
+		case GL_RG16UI:
+		case GL_RG32I:
+		case GL_RG32UI:
+			return GL_RG;
+
+		case GL_R3_G3_B2:
+		case GL_RGB4:
+		case GL_RGB5:
+		case GL_RGB8:
+		case GL_RGB8_SNORM:
+		case GL_RGB10:
+		case GL_RGB12:
+		case GL_RGB16_SNORM:
+		case GL_RGBA2:
+		case GL_RGBA4:
+		case GL_SRGB8:
+		case GL_RGB16F:
+		case GL_RGB32F:
+		case GL_R11F_G11F_B10F:
+		case GL_RGB9_E5:
+		case GL_RGB8I:
+		case GL_RGB8UI:
+		case GL_RGB16I:
+		case GL_RGB16UI:
+		case GL_RGB32I:
+		case GL_RGB32UI:
+			return GL_RGB;
+
+		case GL_RGB5_A1:
+		case GL_RGBA8:
+		case GL_RGBA8_SNORM:
+		case GL_RGB10_A2:
+		case GL_RGB10_A2UI:
+		case GL_RGBA12:
+		case GL_RGBA16:
+		case GL_SRGB8_ALPHA8:
+		case GL_RGBA16F:
+		case GL_RGBA32F:
+		case GL_RGBA8I:
+		case GL_RGBA8UI:
+		case GL_RGBA16I:
+		case GL_RGBA16UI:
+		case GL_RGBA32I:
+		case GL_RGBA32UI:
+			return GL_RGBA;
+
+		default:
+			return 0;
+		}
 	}
 
 }

@@ -15,15 +15,21 @@ namespace core {
 		~GLFramebuffer();
 
 		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
-		GLTexture2D* AttachTexture(GLuint type, unsigned int attachment = 0) const;
+		GLTexture2D* AttachTexture(GLuint internalFormat, unsigned int attachment = 0) const;
 
 		void GenerateDepthStencilRenderbuffer();
+		
+		void SetDrawBufferAttachments(unsigned int count) const;
+		void SetDrawBufferAttachments(const GLenum* attachments, unsigned int count) const;
 
 		void ClearColor(float r, float g, float b, float a) const;
 		static void Clear(GLuint mask);
 
 		void Bind() const;
 		static void Unbind();
+		inline static void SetDefaultFramebuffer() { Unbind(); }
+
+		static GLuint GetBaseFormat(GLuint internalFormat);
 
 	private:
 		unsigned int m_Width, m_Height;
