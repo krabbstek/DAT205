@@ -1,9 +1,13 @@
 #pragma once
 
-#include "Log.h"
+#include <app/EntryPoint.h>
 
-#include "math/math_util.h"
-#include "math/vec2.h"
-#include "math/vec3.h"
-#include "math/vec4.h"
-#include "math/mat4.h"
+#include <Log.h>
+
+#include <app/Application.h>
+
+#include <math/math_util.h>
+#include <math/vec2.h>
+#include <math/vec3.h>
+#include <math/vec4.h>
+#include <math/mat4.h>
