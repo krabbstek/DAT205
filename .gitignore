@@ -13,3 +13,6 @@ bin-int
 
 # Premake
 Premake/
+
+# ImGui .ini
+imgui.ini
