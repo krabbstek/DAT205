@@ -22,7 +22,7 @@ namespace core {
 
 		GLCall(glGenTextures(1, &m_RendererID));
 		GLCall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data));
 		STBI_FREE(data);
 		GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 	}
@@ -47,6 +47,8 @@ namespace core {
 
 	void GLTexture::Init()
 	{
+		stbi_set_flip_vertically_on_load(true);
+
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
 		GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 

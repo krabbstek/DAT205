@@ -10,8 +10,14 @@ GLVertexArray* vao;
 GLShader* shader;
 GLTexture* texture;
 
+float t = 0;
+mat4 prevMVP, MVP, projection = mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+
 void core::OnStart()
 {
+	MVP = projection;
+	prevMVP = projection;
+
 float v[] = 
 	{
 		-0.5f, -0.5f,  0.0f, 0.0f,
@@ -35,23 +41,31 @@ float v[] =
 	ibo->Bind();
 
 	shader = new GLShader();
-	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
-	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
+	//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
+	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vert.glsl");
+	//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
+	shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_frag.glsl");
 	shader->CompileShaders();
 	shader->Bind();
-	//shader->SetUniform4f("color", vec4(0.2f, 0.3f, 0.8f, 1.0f));
 	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 
-	texture = new GLTexture("../Core/res/textures/Test.jpg", GL_RGB);
+	texture = new GLTexture("../Core/res/textures/Test.png", GL_RGBA);
 	texture->Bind(0);
 
 	vao->Bind();
 	ibo->Bind();
 }
 
-void core::OnUpdate()
+void core::OnUpdate(float deltaTime)
 {
+	t += deltaTime;
 
+	float x = sin(t * PI);
+	prevMVP = MVP;
+	MVP = projection * mat4::Translate(x, 0.0f, 0.0f);
+
+	shader->SetUniformMat4("prevMVP", prevMVP);
+	shader->SetUniformMat4("MVP", MVP);
 }
 
 void core::OnRender()

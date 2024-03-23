@@ -26,7 +26,7 @@ namespace core {
 	bool Application::s_Running = true;
 
 	void(*Application::s_OnStart)() = 0;
-	void(*Application::s_OnUpdate)() = 0;
+	void(*Application::s_OnUpdate)(float) = 0;
 	void(*Application::s_OnRender)() = 0;
 
 	unsigned int _Application_Frames = 0;
@@ -34,7 +34,7 @@ namespace core {
 	unsigned int _Application_Updates = 0;
 	unsigned int _Application_ImGui_Updates = 0;
 
-	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(void), void(*OnRender)(void))
+	bool Application::Init(const char* windowTitle, unsigned int width, unsigned int height, bool vSync, void(*OnStart)(void), void(*OnUpdate)(float), void(*OnRender)(void))
 	{
 		s_WindowTitle = windowTitle;
 		s_Width = width;
@@ -154,7 +154,7 @@ namespace core {
 	void Application::Update(float secondsPerUpdate)
 	{
 		s_Window->Update(secondsPerUpdate);
-		s_OnUpdate();
+		s_OnUpdate(secondsPerUpdate);
 		_Application_Updates++;
 	}
 
@@ -188,7 +188,7 @@ namespace core {
 
 		ImGui::Begin("FPS / UPS", false, fpsUpsFlags);
 		ImGui::SetWindowPos({ 0, 0 });
-		ImGui::SetWindowSize({ 64, 64 });
+		ImGui::SetWindowSize({ 128, 128 });
 		ImGui::Text("FPS: %d", _Application_ImGui_Frames);
 		ImGui::Text("UPS: %d", _Application_ImGui_Updates);
 		ImGui::End();	
