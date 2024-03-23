@@ -87,6 +87,4 @@ namespace core {
 		static mat4 Transpose(const mat4& matrix);
 	};
 
-	int i = sizeof(mat4);
-
 }
