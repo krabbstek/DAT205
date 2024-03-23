@@ -480,6 +480,9 @@ void ImGuiRender()
 	ImGui::Text("Bloom");
 	ImGui::SliderFloat("Bloom alpha", &g_BloomAlpha, 0.0f, 1.0f);
 	ImGui::SliderFloat("Bloom threshold", &g_BloomThreshold, 1.0f, 100.0f, "%.2f", 3.0f);
+	ImGui::Checkbox("Bloom level 1", &g_UseBloomLevelTexture[0]);
+	ImGui::Checkbox("Bloom level 2", &g_UseBloomLevelTexture[1]);
+	ImGui::Checkbox("Bloom level 3", &g_UseBloomLevelTexture[2]);
 
 	ImGui::Separator();
 
