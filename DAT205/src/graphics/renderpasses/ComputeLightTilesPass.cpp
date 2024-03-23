@@ -48,8 +48,6 @@ void ComputeLightTilesPass::Render(std::vector<Renderable*>& renderables)
 	m_ViewSpacePositionTexture->Bind(0);
 
 	int zero = 0;
-
-	m_LightSSBO->SetData(&g_GlobalLight, sizeof(g_GlobalLight));
 	m_LightIndexSSBO->SetSubData(&zero, 0, sizeof(zero));
 
 	m_LightSSBO->Bind(3);

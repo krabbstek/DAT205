@@ -62,6 +62,7 @@ std::shared_ptr<GLShader> fullscreenShader;
 std::shared_ptr<GLShader> blur1DShader;
 std::shared_ptr<GLShader> motionBlurShader;
 std::shared_ptr<GLShader> bloomShader;
+std::shared_ptr<GLShader> lightTilesOverlayShader;
 
 std::shared_ptr<GLShaderStorageBuffer> lightSSBO;
 std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO;
@@ -227,6 +228,7 @@ glfwSwapBuffers(window);
 	blur1DShader.reset();
 	motionBlurShader.reset();
 	bloomShader.reset();
+	lightTilesOverlayShader.reset();
 
 	ImGui_ImplGlfw_Shutdown();
 	glfwTerminate();
@@ -344,10 +346,12 @@ void UpdateLights()
 	int size = numParticles + 1;
 	Light* lights = new Light[size];
 
+	mat4 V = renderer.camera.GetViewMatrix();
+
 	for (int i = 0; i < numParticles; i++)
 	{
 		Particle& particle = glowingParticleSystem->GetParticle(i);
-		lights[i].viewSpacePosition.xyz = particle.position;
+		lights[i].viewSpacePosition.xyz = V * particle.position;
 		lights[i].viewSpacePosition.w = 1.0f;
 		lights[i].color.rgb = g_GlowingParticleLightIntensityMultiplier * particle.emission;
 		lights[i].color.a = g_LightFalloffThreshold / g_GlowingParticleLightIntensityMultiplier;
@@ -379,6 +383,7 @@ void ImGuiRender()
 	ImGui::RadioButton("Lighting", (int*)&outputSelection, OUTPUT_SELECTION_LIGHTING);
 	ImGui::RadioButton("Motion blur", (int*)&outputSelection, OUTPUT_SELECTION_MOTION_BLUR);
 	ImGui::RadioButton("Bloom", (int*)&outputSelection, OUTPUT_SELECTION_BLOOM);
+	ImGui::Checkbox("Light tiles overlay", &g_DisplayLightTilesOverlay);
 
 	ImGui::Separator();
 
@@ -394,6 +399,10 @@ void ImGuiRender()
 	g_GlobalLight.color.rgb = vec3(globalLightIntensity);
 	g_GlobalLight.color.a = g_LightFalloffThreshold / globalLightIntensity;
 	g_GlobalLight.viewSpacePosition = renderer.camera.GetViewMatrix() * globalLightPosition;
+
+	ImGui::Text("Glowing particles");
+	ImGui::SliderFloat("Particle light intensity multiplier", &g_GlowingParticleLightIntensityMultiplier, 1.0f, 1000.0f, "%.1f", 3.0f);
+	ImGui::SliderFloat("Light falloff threshold", &g_LightFalloffThreshold, 0.001f, 0.1f, "%.4f", 3.0f);
 
 	ImGui::Separator();
 
@@ -554,6 +563,13 @@ void LoadShaders()
 	bloomShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_vs.glsl");
 	bloomShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_fs.glsl");
 	bloomShader->CompileShaders();
+
+	lightTilesOverlayShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/light_tiles_overlay_vs.glsl");
+	lightTilesOverlayShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/light_tiles_overlay_fs.glsl");
+	lightTilesOverlayShader->CompileShaders();
+	lightTilesOverlayShader->SetUniform1i("u_TileSize", g_TileSize);
+	lightTilesOverlayShader->SetUniform1i("u_NumTileCols", g_NumTileCols);
+	lightTilesOverlayShader->SetUniform1f("u_MaxNumLightsPerTile", g_MaxNumLightsPerTile);
 }
 
 void InitTiledForwardRendering()
@@ -619,6 +635,7 @@ void InitTiledForwardRendering()
 	blur1DShader = std::make_shared<GLShader>();
 	motionBlurShader = std::make_shared<GLShader>();
 	bloomShader = std::make_shared<GLShader>();
+	lightTilesOverlayShader = std::make_shared<GLShader>();
 	LoadShaders();
 
 	// Render passes
@@ -677,6 +694,8 @@ void InitTiledForwardRendering()
 		outputSelection,
 		depthShader,
 		fullscreenShader,
+		lightTilesOverlayShader,
+		tileIndexSSBO,
 		viewSpacePositionTexture,
 		viewSpaceNormalTexture,
 		ssaoTexture,

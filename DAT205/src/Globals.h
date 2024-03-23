@@ -5,6 +5,8 @@
 #include "graphics/Light.h"
 #include "graphics/RenderTechnique.h"
 
+extern bool g_DisplayLightTilesOverlay;
+
 extern Light g_GlobalLight;
 
 extern float g_SSAORadius;

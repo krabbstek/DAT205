@@ -4,6 +4,8 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer,
 	const OUTPUT_SELECTION& outputSelection,
 	std::shared_ptr<GLShader> depthShader,
 	std::shared_ptr<GLShader> fullscreenShader,
+	std::shared_ptr<GLShader> lightTilesOverlayShader,
+	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO,
 	std::shared_ptr<GLTexture2D> viewSpacePositionTexture,
 	std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 	std::shared_ptr<GLTexture2D> ssaoTexture,
@@ -14,6 +16,8 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer,
 	m_OutputSelection(outputSelection),
 	m_DepthShader(depthShader),
 	m_FullscreenShader(fullscreenShader),
+	m_LightTilesOverlayShader(lightTilesOverlayShader),
+	m_TileIndexSSBO(tileIndexSSBO),
 	m_ViewSpacePositionTexture(viewSpacePositionTexture),
 	m_ViewSpaceNormalTexture(viewSpaceNormalTexture),
 	m_SSAOTexture(ssaoTexture),
@@ -74,6 +78,17 @@ void OutputSelectionPass::Render(std::vector<Renderable*>& renderables)
 		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
 		m_FullscreenMesh.Render(m_Renderer);
 		break;
+	}
+
+	if (g_DisplayLightTilesOverlay)
+	{
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+		m_FullscreenMesh.SetMainShader(m_LightTilesOverlayShader);
+		m_FullscreenMesh.Render(m_Renderer);
+
+		GLCall(glDisable(GL_BLEND));
 	}
 
 	GLCall(glEnable(GL_DEPTH_TEST));
