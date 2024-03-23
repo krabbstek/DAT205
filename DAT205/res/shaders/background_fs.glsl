@@ -5,6 +5,7 @@ precision highp float;
 in vec2 texCoord;
 
 layout (location = 0) out vec4 out_Color;
+layout (location = 1) out vec3 out_BloomColor;
 
 layout (binding = 6) uniform sampler2D u_EnvironmentMap; 
 
@@ -32,4 +33,7 @@ void main()
 	// Use these to lookup the color in the environment map
 	vec2 lookup = vec2(phi / (2.0 * PI), theta / PI);
 	out_Color = u_EnvironmentMultiplier * texture(u_EnvironmentMap, lookup);
+
+	float brightness = out_Color.r + out_Color.g + out_Color.b;
+	out_BloomColor = brightness >= 1.0 ? out_Color.rgb : vec3(0.0);
 }

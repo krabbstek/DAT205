@@ -13,6 +13,7 @@ enum OUTPUT_SELECTION
 	OUTPUT_SELECTION_SSAO,
 	OUTPUT_SELECTION_LIGHTING,
 	OUTPUT_SELECTION_MOTION_BLUR,
+	OUTPUT_SELECTION_BLOOM,
 };
 
 #define OUTPUT_R   1
@@ -34,7 +35,8 @@ public:
 		std::shared_ptr<GLTexture2D> viewSpaceNormalTexture,
 		std::shared_ptr<GLTexture2D> ssaoTexture,
 		std::shared_ptr<GLTexture2D> lightingColorTexture,
-		std::shared_ptr<GLTexture2D> motionBlurredTexture);
+		std::shared_ptr<GLTexture2D> motionBlurredTexture,
+		std::shared_ptr<GLTexture2D> bloomTexture);
 
 	virtual void Render(std::vector<Renderable*>& renderables) override;
 
@@ -47,5 +49,6 @@ private:
 	std::shared_ptr<GLTexture2D> m_SSAOTexture;
 	std::shared_ptr<GLTexture2D> m_LightingColorTexture;
 	std::shared_ptr<GLTexture2D> m_MotionBlurredTexture;
+	std::shared_ptr<GLTexture2D> m_BloomTexture;
 	FullscreenMesh m_FullscreenMesh;
 };

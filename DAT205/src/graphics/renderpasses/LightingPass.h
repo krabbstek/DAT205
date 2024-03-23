@@ -15,6 +15,7 @@ public:
 		std::shared_ptr<GLTexture2D> irradianceMap,
 		std::shared_ptr<GLTexture2D> reflectionMap,
 		std::shared_ptr<GLTexture2D> ssaoTexture,
+		std::shared_ptr<GLTexture2D> bloomTexture,
 		std::shared_ptr<GLShaderStorageBuffer> lightSSBO,
 		std::shared_ptr<GLShaderStorageBuffer> lightIndexSSBO,
 		std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO);

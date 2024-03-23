@@ -5,6 +5,7 @@
 #include "graphics/RenderTechnique.h"
 #include "graphics/opengl/OpenGL.h"
 #include "graphics/renderpasses/BackgroundPass.h"
+#include "graphics/renderpasses/BloomPass.h"
 #include "graphics/renderpasses/Blur2DPass.h"
 #include "graphics/renderpasses/ComputeLightTilesPass.h"
 #include "graphics/renderpasses/LightingPass.h"
@@ -58,6 +59,7 @@ void MouseButtonCallback(GLFWwindow* window, int key, int action, int mods);
 void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 void InitTiledForwardRendering();
 void ImGuiRender();
+void AddGLTimedRenderPass(std::shared_ptr<RenderTechnique> renderTechnique, std::shared_ptr<RenderPass> renderPass, std::shared_ptr<PlotTimersPass> plotTimersPass, const char* renderPassName);
 
 int main()
 {
@@ -300,6 +302,7 @@ void ImGuiRender()
 	ImGui::RadioButton("SSAO", (int*)&outputSelection, OUTPUT_SELECTION_SSAO);
 	ImGui::RadioButton("Lighting", (int*)&outputSelection, OUTPUT_SELECTION_LIGHTING);
 	ImGui::RadioButton("Motion blur", (int*)&outputSelection, OUTPUT_SELECTION_MOTION_BLUR);
+	ImGui::RadioButton("Bloom", (int*)&outputSelection, OUTPUT_SELECTION_BLOOM);
 
 	ImGui::Separator();
 
@@ -325,6 +328,12 @@ void ImGuiRender()
 
 	ImGui::Text("Motion blur");
 	ImGui::SliderFloat("Velocity scale", &g_MotionBlurVelocityScale, 0.01f, 100.0f, "%.3f", 3.0f);
+
+	ImGui::Separator();
+
+	ImGui::Text("Bloom");
+	ImGui::SliderFloat("Bloom alpha", &g_BloomAlpha, 0.0f, 1.0f);
+	ImGui::SliderFloat("Bloom threshold", &g_BloomThreshold, 1.0f, 100.0f, "%.2f", 3.0f);
 
 	ImGui::Separator();
 
@@ -404,7 +413,7 @@ void InitTiledForwardRendering()
 
 	std::shared_ptr<GLTexture2D> lightingPassColorTexture = std::make_shared<GLTexture2D>();
 	lightingPassColorTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
-	lightingPassColorTexture->SetMinMagFilter(GL_NEAREST);
+	lightingPassColorTexture->SetMinMagFilter(GL_LINEAR);
 	lightingPassColorTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> ssaoTexture = std::make_shared<GLTexture2D>();
@@ -416,6 +425,18 @@ void InitTiledForwardRendering()
 	motionBlurredTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	motionBlurredTexture->SetMinMagFilter(GL_NEAREST);
 	motionBlurredTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+
+	std::shared_ptr<GLTexture2D> bloomInputTexture = std::make_shared<GLTexture2D>();
+	bloomInputTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	bloomInputTexture->SetMinMagFilter(GL_LINEAR);
+	bloomInputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+	bloomInputTexture->Bind();
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3));
+
+	std::shared_ptr<GLTexture2D> bloomOutputTexture = std::make_shared<GLTexture2D>();
+	bloomOutputTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	bloomOutputTexture->SetMinMagFilter(GL_LINEAR);
+	bloomOutputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	// SSBOs
 	std::shared_ptr<GLShaderStorageBuffer> lightSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, sizeof(g_GlobalLight));
@@ -485,7 +506,17 @@ void InitTiledForwardRendering()
 	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
 	motionBlurShader->CompileShaders();
 
+	std::shared_ptr<GLShader> bloomShader = std::make_shared<GLShader>();
+	bloomShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_vs.glsl");
+	bloomShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_fs.glsl");
+	bloomShader->CompileShaders();
+
 	// Render passes
+	std::shared_ptr<PlotTimersPass> plotTimersPass = std::make_shared<PlotTimersPass>(renderer);
+	std::shared_ptr<GLTimer> totalRenderTimer = std::make_shared<GLTimer>();
+	plotTimersPass->AddLargeTimer("Total render time", totalRenderTimer);
+	std::shared_ptr<StartTimerPass> startTotalRenderTimePass = std::make_shared<StartTimerPass>(renderer, totalRenderTimer);
+	std::shared_ptr<StopTimerPass> stopTotalRenderTimePass = std::make_shared<StopTimerPass>(renderer, totalRenderTimer);
 	std::shared_ptr<Prepass> prepass = std::make_shared<Prepass>(
 		renderer, prepassShader,
 		viewSpacePositionTexture,
@@ -509,6 +540,7 @@ void InitTiledForwardRendering()
 		irradianceMap,
 		reflectionMap,
 		ssaoTexture,
+		bloomInputTexture,
 		lightSSBO,
 		lightIndexSSBO,
 		tileIndexSSBO);
@@ -521,6 +553,12 @@ void InitTiledForwardRendering()
 		lightingPassColorTexture,
 		clipSpaceVelocityTexture,
 		motionBlurredTexture);
+	std::shared_ptr<BloomPass> bloomPass = std::make_shared<BloomPass>(
+		renderer, bloomShader,
+		blur1DShader,
+		lightingPassColorTexture,
+		bloomInputTexture,
+		bloomOutputTexture);
 	std::shared_ptr<OutputSelectionPass> outputSelectionPass = std::make_shared<OutputSelectionPass>(
 		renderer, std::make_shared<GLShader>(),
 		outputSelection,
@@ -530,15 +568,35 @@ void InitTiledForwardRendering()
 		viewSpaceNormalTexture,
 		ssaoTexture,
 		lightingPassColorTexture,
-		motionBlurredTexture);
+		motionBlurredTexture,
+		bloomOutputTexture);
 
 	// Render technique
 	renderTechnique = std::make_shared<RenderTechnique>();
-	renderTechnique->AddRenderPass(prepass);
-	renderTechnique->AddRenderPass(ssaoPass);
-	renderTechnique->AddRenderPass(computeLightTilesPass);
-	renderTechnique->AddRenderPass(backgroundPass);
-	renderTechnique->AddRenderPass(lightingPass);
-	renderTechnique->AddRenderPass(motionBlurPass);
-	renderTechnique->AddRenderPass(outputSelectionPass);
+	renderTechnique->AddRenderPass(plotTimersPass);
+	renderTechnique->AddRenderPass(startTotalRenderTimePass);
+	AddGLTimedRenderPass(renderTechnique, prepass, plotTimersPass, "Prepass");
+	AddGLTimedRenderPass(renderTechnique, ssaoPass, plotTimersPass, "SSAO pass");
+	AddGLTimedRenderPass(renderTechnique, computeLightTilesPass, plotTimersPass, "Compute light tiles pass");
+	AddGLTimedRenderPass(renderTechnique, backgroundPass, plotTimersPass, "Background pass");
+	AddGLTimedRenderPass(renderTechnique, lightingPass, plotTimersPass, "Lighting pass");
+	AddGLTimedRenderPass(renderTechnique, motionBlurPass, plotTimersPass, "Motion blur pass");
+	AddGLTimedRenderPass(renderTechnique, bloomPass, plotTimersPass, "Bloom pass");
+	AddGLTimedRenderPass(renderTechnique, outputSelectionPass, plotTimersPass, "Output selection pass");
+	renderTechnique->AddRenderPass(stopTotalRenderTimePass);
+}
+
+
+void AddGLTimedRenderPass(std::shared_ptr<RenderTechnique> renderTechnique, std::shared_ptr<RenderPass> renderPass, std::shared_ptr<PlotTimersPass> plotTimersPass, const char* renderPassName)
+{
+	std::shared_ptr<GLTimer> timer = std::make_shared<GLTimer>();
+
+	std::shared_ptr<StartTimerPass> startTimerPass = std::make_shared<StartTimerPass>(renderer, timer);
+	std::shared_ptr<StopTimerPass> stopTimerPass = std::make_shared<StopTimerPass>(renderer, timer);
+
+	renderTechnique->AddRenderPass(startTimerPass);
+	renderTechnique->AddRenderPass(renderPass);
+	renderTechnique->AddRenderPass(stopTimerPass);
+
+	plotTimersPass->AddSmallTimer(renderPassName, timer);
 }
