@@ -68,6 +68,8 @@ void KeyCallback(KeyEvent& event)
 
 void core::OnStart()
 {
+	Allocator::PrintStatus();
+
 	Application::SetKeyPressedEventCallback(KeyCallback, 'W');
 	Application::SetKeyPressedEventCallback(KeyCallback, 'A');
 	Application::SetKeyPressedEventCallback(KeyCallback, 'S');
@@ -127,7 +129,7 @@ void core::OnStart()
 	vec3 move = -2.0f * testEntity->GetComponent<Camera>()->GetForward();
 	testEntity->GetComponent<Transform>()->Move(move);
 
-	Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae", shader);
+	//Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae", shader);
 }
 
 void core::OnUpdate(float deltaTime)
@@ -174,4 +176,6 @@ void core::OnQuit()
 
 	delete testEntity;
 	delete cube;
+
+	Allocator::PrintStatus();
 }
