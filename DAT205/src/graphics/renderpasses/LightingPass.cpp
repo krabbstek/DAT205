@@ -56,7 +56,7 @@ void LightingPass::Render(std::vector<Renderable*>& renderables)
 	m_ReflectionMap->Bind(8);
 	m_SSAOTexture->Bind(9);
 
-	m_Shader->SetUniformMat4("u_ViewInverse", mat4::Inverse(m_Renderer.camera.GetViewMatrix()));
+	m_Shader->SetUniformMat4("u_ViewInverse", mat4::Inverse(m_Renderer.camera.GetInverseViewMatrix()));
 	m_Shader->SetUniform1f("u_EnvironmentMultiplier", g_EnvironmentMultiplier);
 	m_Shader->SetUniform4f("u_Light.viewSpacePosition", g_GlobalLight.viewSpacePosition);
 	m_Shader->SetUniform4f("u_Light.color", g_GlobalLight.color);

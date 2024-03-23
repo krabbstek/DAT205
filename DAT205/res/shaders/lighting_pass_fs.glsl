@@ -146,10 +146,10 @@ vec3 calculateIndirectIlluminationTerm()
 	vec3 worldSpaceNormal = normalize(mat3(u_ViewInverse) * n);
 
 	// Calculate the spherical coordinates of the direction
-	float theta = acos(max(-1.0f, min(1.0f, worldSpaceNormal.y)));
+	float theta = acos(clamp(worldSpaceNormal.y, -1.0, 1.0));
 	float phi = atan(worldSpaceNormal.z, worldSpaceNormal.x);
-	if (phi < 0.0f)
-		phi = phi + 2.0f * PI;
+	if (phi < 0.0)
+		phi = phi + 2.0 * PI;
 
 	// Use these to lookup the color in the environment map
 	vec2 lookup = vec2(phi / (2.0 * PI), theta / PI);
@@ -164,12 +164,12 @@ vec3 calculateIndirectIlluminationTerm()
 
 vec3 calculateGlossyReflection()
 {
-	vec3 wi = reflect(-wo, n);
+	vec3 wiGlossy = reflect(-wo, n);
 	float roughness = sqrt(sqrt(2.0 / (u_Material.shininess + 2.0)));
-	vec3 dir = normalize(mat3(u_ViewInverse) * wi);
+	vec3 dir = normalize(mat3(u_ViewInverse) * wiGlossy);
 
 	// Calculate the spherical coordinates of the direction
-	float theta = acos(max(-1.0f, min(1.0f, dir.y)));
+	float theta = acos(clamp(dir.y, -1.0f, 1.0f));
 	float phi = atan(dir.z, dir.x);
 	if (phi < 0.0f)
 		phi = phi + 2.0f * PI;
@@ -179,9 +179,13 @@ vec3 calculateGlossyReflection()
 
 	vec3 Li = u_EnvironmentMultiplier * textureLod(u_ReflectionMap, lookup, roughness * 7.0).rgb;
 
-	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * n_wi * Li;
-	vec3 dielectricTerm = _F * Li + (1.0 - _F) * diffuseTerm;
-	vec3 metalTerm = _F * u_Material.albedo.rgb * Li;
+	vec3 whGlossy = normalize(wiGlossy + wo);
+
+	float f = F(dot(wiGlossy, whGlossy));
+
+	vec3 diffuseTerm = u_Material.albedo.rgb * (1.0 / PI) * dot(n, wiGlossy) * Li;
+	vec3 dielectricTerm = f * Li + (1.0 - f) * diffuseTerm;
+	vec3 metalTerm = f * u_Material.albedo.rgb * Li;
 	vec3 microfacetTerm = u_Material.metalness * metalTerm + (1.0 - u_Material.metalness) * dielectricTerm;
 
 	return u_Material.reflectivity * microfacetTerm + (1.0 - u_Material.reflectivity) * diffuseTerm;
@@ -240,7 +244,10 @@ void main()
 	vec3 glossyReflectionTerm = calculateGlossyReflection();
 	vec3 emissionTerm = u_Material.emission * u_Material.albedo.rgb;
 
-	out_Color = directIlluminationTerm + indirectIlluminationTerm + glossyReflectionTerm + emissionTerm;
+	out_Color = directIlluminationTerm
+			  + indirectIlluminationTerm
+			  + glossyReflectionTerm
+			  + emissionTerm;
 
 	float brightness = out_Color.r + out_Color.g + out_Color.b;
 	out_BloomColor = brightness >= u_BloomThreshold ? out_Color : vec3(0.0);
