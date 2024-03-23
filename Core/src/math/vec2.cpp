@@ -300,12 +300,6 @@ namespace core {
 		return Divide(Magnitude());
 	}
 
-	vec2 vec2::Normalized() const
-	{
-		float f = 1.0f / Magnitude();
-		return vec2(x * f, y * f);
-	}
-
 
 	std::string vec2::ToString() const
 	{

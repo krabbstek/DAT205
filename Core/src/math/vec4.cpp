@@ -400,12 +400,6 @@ namespace core {
 		return Divide(Magnitude());
 	}
 
-	vec4 vec4::Normalized() const
-	{
-		float f = 1.0f / Magnitude();
-		return vec4(x * f, y * f, z * f, w * f);
-	}
-
 
 	std::string vec4::ToString() const
 	{

@@ -358,12 +358,6 @@ namespace core {
 		return Divide(Magnitude());
 	}
 
-	vec3 vec3::Normalized() const
-	{
-		float f = 1.0f / Magnitude();
-		return vec3(x * f, y * f, z * f);
-	}
-
 
 	std::string vec3::ToString() const
 	{
