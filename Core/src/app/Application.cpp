@@ -17,7 +17,7 @@
 
 namespace core {
 
-	void RenderImGui();
+	void CORE_API RenderImGui();
 
 	HINSTANCE Application::s_hInstance = 0;
 	const char* Application::s_WindowTitle = nullptr;
@@ -26,6 +26,9 @@ namespace core {
 	bool Application::s_VSync = true;
 	Window* Application::s_Window = nullptr;
 	bool Application::s_Running = true;
+
+	std::unordered_map<int, void(*)(KeyEvent&)> Application::s_KeyPressedCallbacks;
+	std::unordered_map<int, void(*)(KeyEvent&)> Application::s_KeyReleasedCallbacks;
 
 	void(*Application::s_OnStart)() = 0;
 	void(*Application::s_OnUpdate)(float) = 0;
@@ -64,6 +67,8 @@ namespace core {
 			return false;
 		}
 		CORE_TRACE("Created window.");
+
+		glfwSetKeyCallback(s_Window->m_Window, KeyCallback);
 
 		GLenum err = glewInit();
 		if (err != GLEW_OK)
@@ -183,7 +188,7 @@ namespace core {
 		_Application_Frames++;
 	}
 
-	void RenderImGui()
+	void CORE_API RenderImGui()
 	{
 		static ImGuiWindowFlags fpsUpsFlags = ImGuiWindowFlags_NoTitleBar
 			| ImGuiWindowFlags_NoScrollbar
@@ -199,6 +204,51 @@ namespace core {
 		ImGui::Text("FPS: %d", _Application_ImGui_Frames);
 		ImGui::Text("UPS: %d", _Application_ImGui_Updates);
 		ImGui::End();	
+	}
+
+
+	void Application::SetKeyEventCallback(void(*callback)(KeyEvent&), KeyEvent& event)
+	{
+		int key = event.GetKeyCode();
+
+		switch (event.GetEventType())
+		{
+		case EventType::KeyPressed:
+			s_KeyPressedCallbacks[key] = callback;
+			break;
+
+		case EventType::KeyReleased:
+			s_KeyReleasedCallbacks[key] = callback;
+			break;
+		}
+	}
+
+
+	void Application::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		switch (action)
+		{
+		case GLFW_PRESS:
+		case GLFW_REPEAT:
+			{
+				auto entry = s_KeyPressedCallbacks.find(key);
+				if (entry == s_KeyPressedCallbacks.end())
+					return;
+				KeyPressedEvent event(key);
+				s_KeyPressedCallbacks[key](event);
+			}
+			break;
+
+		case GLFW_RELEASE:
+			{
+				auto entry = s_KeyReleasedCallbacks.find(key);
+				if (entry == s_KeyReleasedCallbacks.end())
+					return;
+				KeyReleasedEvent event(key);
+				s_KeyReleasedCallbacks[key](event);
+			}
+			break;
+		}
 	}
 
 }

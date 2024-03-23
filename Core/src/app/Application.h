@@ -2,7 +2,12 @@
 
 #include "Common.h"
 
+#include "event/Event.h"
+#include "event/KeyEvent.h"
+
 #include <Windows.h>
+
+struct GLFWwindow;
 
 namespace core {
 
@@ -21,6 +26,10 @@ namespace core {
 		static void Update(float secondsPerUpdate);
 		static void Render();
 
+		static void SetKeyEventCallback(void(*callback)(KeyEvent&), KeyEvent& event);
+		inline static void SetKeyPressedEventCallback(void(*callback)(KeyEvent&), int keycode) { s_KeyPressedCallbacks[keycode] = callback; }
+		inline static void SetKeyReleasedEventCallback(void(*callback)(KeyEvent&), int keycode) { s_KeyReleasedCallbacks[keycode] = callback; }
+
 	protected:
 		static HINSTANCE s_hInstance;
 		static const char* s_WindowTitle;
@@ -29,6 +38,9 @@ namespace core {
 		static bool s_VSync;
 		static Window* s_Window;
 		static bool s_Running;
+
+		static std::unordered_map<int, void(*)(KeyEvent&)> s_KeyPressedCallbacks;
+		static std::unordered_map<int, void(*)(KeyEvent&)> s_KeyReleasedCallbacks;
 
 		/* Function pointer to user-defined OnStart function. */
 		static void(*s_OnStart)(void);
@@ -40,6 +52,9 @@ namespace core {
 		static void(*s_OnQuit)(void);
 
 		friend int ::WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
+
+	private:
+		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	};
 
 }
