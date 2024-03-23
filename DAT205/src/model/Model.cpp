@@ -92,8 +92,8 @@ Model* Model::LoadModelFromOBJ(const char* file)
 				attrib.vertices[shape.mesh.indices[face * 3 + 2].vertex_index * 3 + 2]
 			);
 
-			vec3 e0 = v1 - v0;
-			vec3 e1 = v2 - v0;
+			vec3 e0 = vec3::Normalize(v1 - v0);
+			vec3 e1 = vec3::Normalize(v2 - v0);
 			vec3 faceNormal = vec3::Normalize(vec3::Cross(e0, e1));
 
 			autoNormals[shape.mesh.indices[face * 3 + 0].vertex_index] += vec4(faceNormal.x, faceNormal.y, faceNormal.z, 1.0f);
@@ -101,10 +101,10 @@ Model* Model::LoadModelFromOBJ(const char* file)
 			autoNormals[shape.mesh.indices[face * 3 + 2].vertex_index] += vec4(faceNormal.x, faceNormal.y, faceNormal.z, 1.0f);
 		}
 	}
-	for (auto & normal : autoNormals)
+	for (vec4& normal : autoNormals)
 		normal = (1.0f / normal.w) * normal;
 
-	unsigned int numVertices = 0;
+	size_t numVertices = 0;
 	for (tinyobj::shape_t& shape : shapes)
 		numVertices += shape.mesh.indices.size();
 
@@ -183,7 +183,7 @@ Model* Model::LoadModelFromOBJ(const char* file)
 
 			// Finalize and push this mesh to the list
 			mesh.vertexCount = verticesSoFar - mesh.startIndex;
-			model->m_Meshes.push_back(mesh);
+			model->m_Meshes.emplace_back(mesh);
 			finishedMaterials[currentMaterialIndex] = true;
 		}
 		if (numberOfMaterialsInShape == 1)
@@ -227,7 +227,7 @@ void Model::Render(const Renderer& renderer, GLShader& shader) const
 
 	shader.Bind();
 	shader.SetUniformMat4("u_MV", MV);
-	shader.SetUniformMat4("u_NV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
 	shader.SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
 
 	m_VAO.Bind();

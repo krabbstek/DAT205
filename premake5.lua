@@ -62,7 +62,7 @@ workspace "DAT205"
 
         defines {
             "IMGUI_IMPL_OPENGL_LOADER_GLAD",
-            "USE_COMPUTE_SHADER",
+            "_CRT_SECURE_NO_WARNINGS",
         }
 
         filter "system:windows"

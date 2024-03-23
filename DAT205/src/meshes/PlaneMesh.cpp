@@ -28,6 +28,13 @@ PlaneMesh::PlaneMesh(const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/, const vec2
 	m_VAO->AddVertexBuffer(*m_VBO);
 
 	m_IBO = std::make_shared<GLIndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
+
+	m_Material.albedo = vec4(0.4f, 0.4f, 0.4f, 1.0f);
+	m_Material.emission = 0.0f;
+	m_Material.reflectivity = 0.5f;
+	m_Material.shininess = 10.0f;
+	m_Material.fresnel = 0.5f;
+	m_Material.metalness = 0.5f;
 }
 
 PlaneMesh::~PlaneMesh()
@@ -44,6 +51,8 @@ void PlaneMesh::Render(const Renderer& renderer, GLShader& shader) const
 	shader.SetUniformMat4("u_MV", MV);
 	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
 	shader.SetUniformMat4("u_MVP", P * MV);
+
+	m_Material.Bind(shader);
 
 	m_VAO->Bind();
 	m_IBO->Bind();

@@ -22,8 +22,8 @@ void GLVertexArray::AddVertexBuffer(const GLVertexBuffer& vbo)
 	const GLVertexBufferLayout& layout = vbo.GetVertexBufferLayout();
 	unsigned long long offset = 0;
 		
-	vbo.Bind();
 	Bind();
+	vbo.Bind();
 	for (std::pair<GLuint, unsigned int> location : layout.GetLayoutElements())
 	{
 		if (!location.second)
