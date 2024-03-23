@@ -120,6 +120,13 @@ void GLTexture2D::SetMinMagFilter(GLuint parameter) const
 }
 
 
+void GLTexture2D::GenerateMipmap()
+{
+	Bind();
+	GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+}
+
+
 void GLTexture2D::Bind(unsigned int slot) const
 {
 	GLCall(glActiveTexture(GL_TEXTURE0 + slot));

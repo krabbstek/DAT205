@@ -26,6 +26,8 @@ public:
 	void SetMagFilter(GLuint parameter) const;
 	void SetMinMagFilter(GLuint parameter) const;
 
+	void GenerateMipmap();
+
 	void Bind(unsigned int slot = 0) const;
 	static void Unbind(unsigned int slot = 0);
 

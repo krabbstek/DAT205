@@ -5,6 +5,7 @@
 #include "graphics/RenderTechnique.h"
 #include "graphics/opengl/OpenGL.h"
 #include "graphics/renderpasses/BackgroundPass.h"
+#include "graphics/renderpasses/BackgroundPrepass.h"
 #include "graphics/renderpasses/BloomPass.h"
 #include "graphics/renderpasses/Blur2DPass.h"
 #include "graphics/renderpasses/ComputeLightTilesPass.h"
@@ -46,12 +47,14 @@ vec2 mousePrevPos(-1.0f);
 
 std::shared_ptr<RenderTechnique> renderTechnique;
 
+std::shared_ptr<Model> bb8;
 std::shared_ptr<Model> fighterModel;
 std::shared_ptr<TessellationCube> tessellationCube;
 
 std::shared_ptr<GlowingParticleSystem> glowingParticleSystem;
 
 std::shared_ptr<GLShader> prepassShader;
+std::shared_ptr<GLShader> backgroundPrepassShader;
 std::shared_ptr<GLShader> ssaoShader;
 std::shared_ptr<GLShader> ssaoBilateralBlurShader;
 std::shared_ptr<GLShader> backgroundShader;
@@ -158,7 +161,29 @@ int main()
 		/// Render technique
 		InitTiledForwardRendering();
 
-		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader));
+		bb8 = Model::LoadModelFromOBJ("res/models/bb8/bb8.obj", prepassShader, lightingPassShader);
+		bb8->modelMatrix = mat4::Scale(0.05f);
+		{
+			std::vector<Material>& materials = bb8->GetMaterials();
+			std::vector<Mesh>& meshes = bb8->GetMeshes();
+
+			if (0)
+			{
+				Material& headMaterial = materials[meshes[0].materialIndex];
+
+				std::shared_ptr<GLTexture2D> headAlbedoTexture = std::make_shared<GLTexture2D>();
+				headAlbedoTexture->LoadFromFile("res/models/bb8/HEAD diff MAP.jpg");
+				headAlbedoTexture->GenerateMipmap();
+				headAlbedoTexture->SetMagFilter(GL_LINEAR);
+				headAlbedoTexture->SetMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+				headAlbedoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
+				headMaterial.SetAlbedoTexture(headAlbedoTexture);
+			}
+
+			int i = 0;
+		}
+
+		fighterModel = Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader);
 		fighterModel->modelMatrix = mat4(1.0f);
 
 		tessellationCube = std::make_shared<TessellationCube>(cubeTessellationShader, cubeTessellationShader);
@@ -198,6 +223,7 @@ int main()
 		}
 	}
 
+	bb8.reset();
 	fighterModel.reset();
 	tessellationCube.reset();
 	glowingParticleSystem.reset();
@@ -214,6 +240,7 @@ int main()
 	tileIndexSSBO.reset();
 
 	prepassShader.reset();
+	backgroundPrepassShader.reset();
 	ssaoShader.reset();
 	ssaoBilateralBlurShader.reset();
 	backgroundShader.reset();
@@ -496,6 +523,10 @@ void LoadShaders()
 	prepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/prepass_fs.glsl");
 	prepassShader->CompileShaders();
 
+	backgroundPrepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_prepass_vs.glsl");
+	backgroundPrepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/background_prepass_fs.glsl");
+	backgroundPrepassShader->CompileShaders();
+
 	constexpr int numSamples = 64;
 	vec3 s[numSamples];
 	for (int i = 0; i < sizeof(s) / sizeof(vec3); i++)
@@ -640,6 +671,7 @@ void InitTiledForwardRendering()
 
 	// Shaders
 	prepassShader = std::make_shared<GLShader>();
+	backgroundPrepassShader = std::make_shared<GLShader>();
 	ssaoShader = std::make_shared<GLShader>();
 	ssaoBilateralBlurShader = std::make_shared<GLShader>();
 	backgroundShader = std::make_shared<GLShader>();
@@ -665,6 +697,10 @@ void InitTiledForwardRendering()
 		renderer,
 		viewSpacePositionTexture,
 		viewSpaceNormalTexture,
+		clipSpaceVelocityTexture);
+	std::shared_ptr<BackgroundPrepass> backgroundPrepass = std::make_shared<BackgroundPrepass>(
+		renderer,
+		backgroundPrepassShader,
 		clipSpaceVelocityTexture);
 	std::shared_ptr<SSAOPass> ssaoPass = std::make_shared<SSAOPass>(
 		renderer,
@@ -725,6 +761,7 @@ void InitTiledForwardRendering()
 	renderTechnique->AddRenderPass(plotTimersPass);
 	renderTechnique->AddRenderPass(startTotalRenderTimePass);
 	AddGLTimedRenderPass(renderTechnique, prepass, plotTimersPass, "Prepass");
+	AddGLTimedRenderPass(renderTechnique, backgroundPrepass, plotTimersPass, "Background prepass");
 	AddGLTimedRenderPass(renderTechnique, ssaoPass, plotTimersPass, "SSAO pass");
 	AddGLTimedRenderPass(renderTechnique, computeLightTilesPass, plotTimersPass, "Compute light tiles pass");
 	AddGLTimedRenderPass(renderTechnique, backgroundPass, plotTimersPass, "Background pass");
@@ -778,12 +815,14 @@ void Render()
 #endif
 
 	UpdateLights();
-	renderTechnique->Render(*fighterModel);
+	//renderTechnique->Render(*fighterModel);
+	renderTechnique->Render(*bb8);
 	renderTechnique->Render(*tessellationCube);
 	renderTechnique->Render(*glowingParticleSystem);
 	renderTechnique->Render();
 
 	renderer.camera.Update();
+	bb8->Update();
 	fighterModel->Update();
 
 #ifdef USE_IMGUI
