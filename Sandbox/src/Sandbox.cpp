@@ -11,7 +11,8 @@ GLVertexArray* fullscreenTextureVAO;
 GLVertexBuffer* fullscreenTextureVBO;
 
 GLFramebuffer* velocityFramebuffer;
-GLTexture2D* velocityTexture;
+GLTexture2D* velocityFramebufferColorTexture;
+GLTexture2D* velocityFramebufferVelocityTexture;
 
 GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
@@ -53,15 +54,19 @@ void core::OnStart()
 		fullscreenTextureVAO = new GLVertexArray(*fullscreenTextureVBO);
 
 		fullscreenTextureShader = new GLShader();
-		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_texture_vs.glsl");
-		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_texture_fs.glsl");
+		//fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_texture_vs.glsl");
+		//fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_texture_fs.glsl");
+		fullscreenTextureShader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_vs.glsl");
+		fullscreenTextureShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/fullscreen_motion_blur_texture_fs.glsl");
 		fullscreenTextureShader->CompileShaders();
 	}
 
 	// Create velocity framebuffer
 	{
 		velocityFramebuffer = new GLFramebuffer(1280, 720);
-		velocityTexture = velocityFramebuffer->AttachTexture(GL_RGB, 0);
+		velocityFramebufferColorTexture = velocityFramebuffer->AttachTexture(GL_RGB32F, 0);
+		velocityFramebufferVelocityTexture = velocityFramebuffer->AttachTexture(GL_RGB32F, 1);
+		velocityFramebuffer->SetDrawBufferAttachments(2);
 		velocityFramebuffer->GenerateDepthStencilRenderbuffer();
 		velocityFramebuffer->ClearColor(0.0f, 0.0f, 0.1f, 1.0f);
 
@@ -95,8 +100,10 @@ void core::OnStart()
 		shader = new GLShader();
 		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
 		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_frag.glsl");
-		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/velocity_vs.glsl");
-		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/velocity_fs.glsl");
+		//shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/velocity_vs.glsl");
+		//shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/velocity_fs.glsl");
+		shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_motion_blur_vs.glsl");
+		shader->AddShaderFromFile(GL_FRAGMENT_SHADER, "../Core/res/shaders/basic_motion_blur_fs.glsl");
 		shader->CompileShaders();
 		shader->Bind();
 		//shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
@@ -131,11 +138,12 @@ void core::OnRender()
 	shader->Bind();
 	texture->Bind();
 	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
-
-	GLFramebuffer::Unbind();
+	
+	GLFramebuffer::SetDefaultFramebuffer();
 	fullscreenTextureShader->Bind();
 	fullscreenTextureVAO->Bind();
 	fullscreenTextureIBO->Bind();
-	velocityTexture->Bind();
+	velocityFramebufferColorTexture->Bind(0);
+	velocityFramebufferVelocityTexture->Bind(1);
 	glDrawElements(GL_TRIANGLES, fullscreenTextureIBO->Count(), GL_UNSIGNED_INT, 0);
 }
