@@ -14,6 +14,10 @@ namespace core {
 		Window(const char* windowTitle, unsigned int width, unsigned int height, bool vSync = true);
 		~Window();
 
+		void Update(float deltaTime);
+		void Render();
+		void Clear();
+
 	private:
 		std::string m_WindowTitle;
 		unsigned int m_Width, m_Height;

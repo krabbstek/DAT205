@@ -223,11 +223,28 @@ workspace "DAT205"
             "%{prj.name}/imgui.cpp",
             "%{prj.name}/imgui_draw.cpp",
             "%{prj.name}/imgui_internal.h",
-            "%{prj.name}/imgui_widgets.cpp"
+            "%{prj.name}/imgui_widgets.cpp",
+            "%{prj.name}/examples/imgui_impl_glfw.h",
+            "%{prj.name}/examples/imgui_impl_glfw.cpp",
+            "%{prj.name}/examples/imgui_impl_opengl3.h",
+            "%{prj.name}/examples/imgui_impl_opengl3.cpp"
+        }
+
+        includedirs {
+            "%{prj.name}",
+            "GLEW/include",
+            "GLFW/include"
+        }
+
+        links {
+            "GLEW",
+            "GLFW",
+            "Opengl32"
         }
 
         defines {
-            "_IMGUI_BUILD_DLL"
+            "_IMGUI_BUILD_DLL",
+            "IMGUI_IMPL_OPENGL_LOADER_GLEW"
         }
 
         filter "system:windows"
