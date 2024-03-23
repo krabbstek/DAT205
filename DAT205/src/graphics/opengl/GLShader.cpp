@@ -106,6 +106,8 @@ bool GLShader::CompileShaders()
 		m_TempSource.pop_back();
 	}
 
+	m_UniformLocations.clear();
+
 	return true;
 }
 
