@@ -1,12 +1,15 @@
 #pragma once
 
-#include <app/EntryPoint.h>
-
 #include <Log.h>
 
 #include <app/Application.h>
+#include <app/EntryPoint.h>
 #include <app/Window.h>
 
+#include <entity/Component.h>
+#include <entity/Entity.h>
+
+#include <graphics/Mesh.h>
 #include <graphics/Model.h>
 
 #include <graphics/opengl/GLFramebuffer.h>
