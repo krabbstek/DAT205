@@ -19,12 +19,14 @@ workspace "DAT205"
 	    pchsource "Core/src/pch.cpp"
 
         files {
+            "%{prj.name}/Core.h",
             "%{prj.name}/src/**.h",
             "%{prj.name}/src/**.cpp"
         }
 
         includedirs {
-            "%{prj.name}/src"
+            "%{prj.name}/src",
+            "%{prj.name}/vendor/include"
         }
 
         filter "system:windows"
