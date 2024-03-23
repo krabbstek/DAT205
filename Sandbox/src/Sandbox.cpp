@@ -23,7 +23,7 @@ float rx, ry, rz;
 
 void core::OnStart()
 {
-	Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae");
+	//Model::LoadDAEModelFromFile("../res/models/mannequin/mannequin.dae");
 	cube = Mesh::Cube();
 
 	// Create moving square buffers
