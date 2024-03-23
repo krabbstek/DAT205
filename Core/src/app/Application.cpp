@@ -5,7 +5,9 @@
 #include "Window.h"
 
 #include "graphics/opengl/GLCommon.h"
-#include "graphics/opengl/GLTexture.h"
+#include "graphics/opengl/GLTexture2D.h"
+
+#include "../vendor/stb/stb_image.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -72,7 +74,7 @@ namespace core {
 		CORE_TRACE("Initialized GLEW.");
 		GLCall(CORE_INFO("OpenGL version: {}.", glGetString(GL_VERSION)));
 
-		GLTexture::Init();
+		stbi_set_flip_vertically_on_load(true);
 
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
