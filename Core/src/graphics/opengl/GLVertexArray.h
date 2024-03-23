@@ -11,14 +11,17 @@ namespace core {
 	class CORE_API GLVertexArray
 	{
 	public:
-		GLVertexArray(const GLVertexBuffer& vbo);
+		GLVertexArray();
 		~GLVertexArray();
+
+		void AddVertexBuffer(const GLVertexBuffer& vbo);
 
 		void Bind() const;
 		static void Unbind();
 
 	private:
 		GLuint m_RendererID;
+		unsigned int m_NumLocations;
 	};
 
 }
