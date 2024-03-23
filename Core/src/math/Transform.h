@@ -12,7 +12,7 @@
 
 namespace core {
 
-	struct CORE_API Transform
+	struct CORE_API Transform : public Component
 	{
 	public:
 		vec3 position;
