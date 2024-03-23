@@ -7,6 +7,7 @@
 #include <app/Application.h>
 #include <app/Window.h>
 
+#include <graphics/GLIndexBuffer.h>
 #include <graphics/GLShader.h>
 #include <graphics/GLVertexArray.h>
 #include <graphics/GLVertexBuffer.h>

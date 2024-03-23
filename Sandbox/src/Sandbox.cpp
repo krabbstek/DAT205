@@ -4,6 +4,7 @@
 
 using namespace core;
 
+GLIndexBuffer* ibo;
 GLVertexBuffer* vbo;
 GLVertexArray* vao;
 GLShader* shader;
@@ -12,15 +13,23 @@ void core::OnStart()
 {
 	float v[] = 
 	{
-		-1.0f, -1.0f,
-		 1.0f, -1.0f,
-		 0.0f,  1.0f
+		-0.5f, -0.5f,
+		 0.5f, -0.5f,
+		 0.5f,  0.5f,
+		-0.5f,  0.5f,
+	};
+	unsigned int i[] = 
+	{
+		0, 1, 2,
+		0, 2, 3,
 	};
 	vbo = new GLVertexBuffer(v, sizeof(v));
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
 	vao = new GLVertexArray(*vbo, layout);
 	vao->Bind();
+	ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
+	ibo->Bind();
 
 	shader = new GLShader();
 	shader->AddShaderFromFile(GL_VERTEX_SHADER, "../Core/res/shaders/basic_vert.glsl");
@@ -38,5 +47,5 @@ void core::OnUpdate()
 
 void core::OnRender()
 {
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, ibo->Count(), GL_UNSIGNED_INT, 0);
 }
