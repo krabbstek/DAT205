@@ -46,6 +46,7 @@ namespace core {
 		GLTexture2D* texture = new GLTexture2D();
 		texture->Load(internalFormat, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], format, GL_UNSIGNED_BYTE);
 		texture->SetMinMagFilter(GL_LINEAR);
+		texture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 		Bind();
 		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texture->m_RendererID, 0));
@@ -57,6 +58,24 @@ namespace core {
 		}
 
 		return texture;
+	}
+
+	void GLFramebuffer::AttachTexture(GLTexture2D& texture, GLuint internalFormat, unsigned int attachment /*= 0*/) const
+	{
+		GLuint format = GetBaseFormat(internalFormat);
+		texture.Load(internalFormat, NULL, /*width =*/ m_Width, /*height =*/ m_Height, format, GL_UNSIGNED_BYTE);
+		texture.SetMinMagFilter(GL_NEAREST);
+		texture.SetWrapST(GL_CLAMP_TO_EDGE);
+
+		Bind();
+		GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment, GL_TEXTURE_2D, texture.m_RendererID, 0));
+
+		GLCall(GLenum error = glCheckFramebufferStatus(GL_FRAMEBUFFER));
+		if (error != GL_FRAMEBUFFER_COMPLETE)
+		{
+			CORE_ERROR("Failed to attach color buffer!");
+			__debugbreak();
+		}
 	}
 
 
@@ -93,11 +112,18 @@ namespace core {
 			attachments[i] = GL_COLOR_ATTACHMENT0 + i;
 		}
 		SetDrawBufferAttachments(attachments, count);
+		delete[] attachments;
 	}
 
 	void GLFramebuffer::SetDrawBufferAttachments(const GLenum* attachments, unsigned int count) const
 	{
 		GLCall(glDrawBuffers(count, attachments));
+		GLCall(GLenum error = glCheckNamedFramebufferStatus(m_FramebufferRendererID, GL_FRAMEBUFFER));
+		if (error != GL_FRAMEBUFFER_COMPLETE)
+		{
+			CORE_ERROR("Failed to set drawbuffer attachments");
+			__debugbreak();
+		}
 	}
 
 

@@ -16,6 +16,8 @@ namespace core {
 
 		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
 		GLTexture2D* AttachTexture(GLuint internalFormat, unsigned int attachment = 0) const;
+		/* type = GL_RGB or similar. attachment = GL_COLOR_ATTACHMENT(0,1,2) or GL_DEPTH_STENCIL_ATTACHMENT. */
+		void AttachTexture(GLTexture2D& texture, GLuint internalFormat, unsigned int attachment = 0) const;
 
 		void GenerateDepthStencilRenderbuffer();
 		

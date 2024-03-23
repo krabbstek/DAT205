@@ -30,8 +30,11 @@ namespace core {
 
 		inline void SetUniform1f(const char* uniformName, float value) { SetUniform1f(std::string(uniformName), value); }
 		void SetUniform1f(const std::string& uniformName, float value);
-		inline void SetUniform1i(const char* uniformName, int value) { SetUniform1f(std::string(uniformName), value); }
+		inline void SetUniform1i(const char* uniformName, int value) { SetUniform1i(std::string(uniformName), value); }
 		void SetUniform1i(const std::string& uniformName, int value);
+
+		inline void SetUniform1fv(const char* uniformName, float* values, unsigned int count) { SetUniform1fv(std::string(uniformName), values, count); }
+		void SetUniform1fv(const std::string& uniformName, float* values, unsigned int count);
 
 		inline void SetUniform2f(const char* uniformName, float x, float y) { return SetUniform2f(std::string(uniformName), x, y); }
 		void SetUniform2f(std::string& uniformName, float x, float y);
