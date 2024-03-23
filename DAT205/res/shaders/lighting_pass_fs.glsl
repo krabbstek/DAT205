@@ -206,15 +206,17 @@ void main()
 	int lightIndicesOffset = tileLights[tileIndex].offset;
 	Light light;
 	int numLights = tileLights[tileIndex].lightCount;
+	float lightThreshold;
 	
 	for (int i = 0; i < numLights; i++)
 	{
 		index = lightIndices[lightIndicesOffset + i];
 		light = lights[index];
+		lightThreshold = light.color.a;
 
 		wi = light.viewSpacePosition.xyz - viewSpacePosition.xyz;
 		d2 = dot(wi, wi);
-		inv_d2 = 1.0 / d2;
+		inv_d2 = max(1.0 / d2 - lightThreshold, 0.0);
 		wi = normalize(wi);
 		n_wi = dot(n, wi);
 		if (n_wi <= 0.0)

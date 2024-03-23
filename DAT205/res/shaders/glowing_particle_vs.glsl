@@ -3,13 +3,13 @@
 layout (location = 0) in vec4 in_Position;
 layout (location = 2) in float in_Scale;
 layout (location = 3) in vec3 in_Emission;
-layout (location = 4) in float in_LifeTime;
-layout (location = 5) in float in_LifeLength;
+layout (location = 4) in float in_Lifetime;
+layout (location = 5) in float in_Lifelength;
 
 out vec2 clipSpaceVelocity;
 out vec3 emission;
-out float lifeTime;
-out float lifeLength;
+out float lifetime;
+out float lifelength;
 
 uniform mat4 u_P = mat4(1.0);
 uniform mat4 u_PrevVVP = mat4(1.0);
@@ -24,8 +24,8 @@ void main()
 	gl_Position = currentClipSpacePosition;
 
 	emission = in_Emission;
-	lifeTime = in_LifeTime;
-	lifeLength = in_LifeLength;
+	lifetime = in_Lifetime;
+	lifelength = in_Lifelength;
 
     // Calculate one projected corner of a quad at the particles view space depth.
     vec4 projQuad = u_P * vec4(1.0, 1.0, in_Position.z, in_Position.w);

@@ -10,7 +10,11 @@ int g_SSAOBlurSampleSize = 5;
 float g_SSAOBilateralBlurSigma = 1.0f;
 float g_SSAODepthSigma = 1.0f;
 
+float g_LightFalloffThreshold = 0.01f;
+
 float g_EnvironmentMultiplier = 1.0f;
+
+float g_GlowingParticleLightIntensityMultiplier = 10.0f;
 
 float g_MotionBlurVelocityScale = 1.0f;
 

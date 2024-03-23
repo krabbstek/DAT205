@@ -147,7 +147,7 @@ void main()
 		light = lights[i];
 		threshold = -1.0 / sqrt(light.color.a);
 		
-		/*planeDistance = PlaneDistance(leftPlane, light.viewSpacePosition);
+		planeDistance = PlaneDistance(leftPlane, light.viewSpacePosition);
 		if (planeDistance <= threshold)
 			continue;
 		planeDistance = PlaneDistance(rightPlane, light.viewSpacePosition);
@@ -167,7 +167,7 @@ void main()
 
 		planeDistance = light.viewSpacePosition.z - s_MinDepth;
 		if (planeDistance <= threshold)
-			continue;*/
+			continue;
 			
 		// If light passed all planes and depth tests: add to list of lights
 		id = min(atomicAdd(s_TileLightCount, 1), u_MaxNumLightsPerTile - 1);

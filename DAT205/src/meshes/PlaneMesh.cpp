@@ -42,7 +42,7 @@ PlaneMesh::~PlaneMesh()
 }
 
 
-void PlaneMesh::PrepassRender(const Renderer& renderer) const
+void PlaneMesh::PrepassRender(const Renderer& renderer)
 {
 	m_PrepassShader->Bind();
 	mat4 M = mat4::Translate(m_Position) * mat4::Scale(m_Scale);
@@ -57,7 +57,7 @@ void PlaneMesh::PrepassRender(const Renderer& renderer) const
 	GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
 }
 
-void PlaneMesh::Render(const Renderer& renderer) const
+void PlaneMesh::Render(const Renderer& renderer)
 {
 	m_MainShader->Bind();
 	mat4 M = mat4::Translate(m_Position) * mat4::Scale(m_Scale);

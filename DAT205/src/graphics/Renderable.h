@@ -10,8 +10,8 @@ public:
 		: m_PrepassShader(prepassShader), m_MainShader(mainShader) {}
 	virtual ~Renderable() {}
 
-	virtual void PrepassRender(const Renderer& renderer) const = 0;
-	virtual void Render(const Renderer& renderer) const = 0;
+	virtual void PrepassRender(const Renderer& renderer) = 0;
+	virtual void Render(const Renderer& renderer) = 0;
 
 	virtual inline bool IsTransparent() const { return false; }
 

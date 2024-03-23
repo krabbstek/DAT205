@@ -221,7 +221,7 @@ void Model::PushMesh(const Mesh& mesh)
 }
 
 
-void Model::PrepassRender(const Renderer& renderer) const
+void Model::PrepassRender(const Renderer& renderer)
 {
 	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
 	mat4 prevMV = renderer.camera.GetPreviousViewMatrix() * prevModelMatrix;
@@ -239,7 +239,7 @@ void Model::PrepassRender(const Renderer& renderer) const
 		GLCall(glDrawArrays(GL_TRIANGLES, mesh.startIndex, (GLsizei)mesh.vertexCount));
 }
 
-void Model::Render(const Renderer& renderer) const
+void Model::Render(const Renderer& renderer)
 {
 	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
 	mat4 prevMV = renderer.camera.GetPreviousViewMatrix() * prevModelMatrix;

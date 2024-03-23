@@ -10,8 +10,8 @@ struct Particle
 	vec3 velocity;
 	float scale;
 	vec3 emission;
-	float lifeTime;
-	float lifeLength;
+	float lifetime;
+	float lifelength;
 };
 
 struct VertexData
@@ -20,26 +20,34 @@ struct VertexData
 	vec3 previousPosition;
 	float scale;
 	vec3 emission;
-	float lifeTime;
-	float lifeLength;
+	float lifetime;
+	float lifelength;
 };
 
 class ParticleSystem : public Renderable
 {
 public:
 	ParticleSystem(int maxNumParticles, std::shared_ptr<GLShader> particleShader);
-	~ParticleSystem();
+	virtual ~ParticleSystem();
 
-	inline void AddTexture(std::shared_ptr<GLTexture2D> texture)
+	virtual inline void AddTexture(std::shared_ptr<GLTexture2D> texture)
 	{
 		if (texture)
 			m_Textures.emplace_back(texture);
 	}
 
-	void PrepassRender(const Renderer& renderer) const override {}
-	void Render(const Renderer& renderer) const override;
+	virtual void SpawnParticle(const Particle& particle);
+	virtual void UpdateParticles(float deltaTime) = 0;
+
+	inline Particle& GetParticle(int i) { return m_Particles[i]; }
+
+	virtual void PrepassRender(const Renderer& renderer) override {}
+	virtual void Render(const Renderer& renderer) override;
 
 	inline bool IsTransparent() const override { return true; }
+
+	inline int NumParticles() const { return m_NumParticles; }
+	inline int MaxNumParticles() const { return m_MaxNumParticles; }
 
 protected:
 	Particle* m_Particles;

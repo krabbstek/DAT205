@@ -91,7 +91,7 @@ Cube::~Cube()
 }
 
 
-void Cube::PrepassRender(const Renderer& renderer) const
+void Cube::PrepassRender(const Renderer& renderer)
 {
 	m_PrepassShader->Bind();
 	mat4 M = mat4::Translate(position);
@@ -107,7 +107,7 @@ void Cube::PrepassRender(const Renderer& renderer) const
 	GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
 }
 
-void Cube::Render(const Renderer& renderer) const
+void Cube::Render(const Renderer& renderer)
 {
 	m_MainShader->Bind();
 	mat4 M = mat4::Translate(position);
