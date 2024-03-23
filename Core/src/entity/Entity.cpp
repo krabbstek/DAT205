@@ -4,6 +4,16 @@
 
 namespace core {
 
+	Entity::~Entity()
+	{
+		for (std::pair<ComponentType, Component*> component : m_Components)
+		{
+			component.second->m_Entity = nullptr;
+			delete component.second;
+		}
+	}
+
+
 	Component* Entity::AddComponent(Component* component)
 	{
 		if (!component)
@@ -36,35 +46,64 @@ namespace core {
 
 	bool Entity::RemoveComponent(Component* component)
 	{
-		if (!component)
-			return false;
-
-		ComponentType type = component->GetComponentType();
-		auto entry = m_Components.find(type);
-		if (entry == m_Components.end())
-			return false;
-
-		if (entry->second == component)
+		if (RemoveComponentInternal(component))
 		{
-			m_Components.erase(type);
+			delete component;
 			return true;
 		}
 		else
 			return false;
 	}
 
-	Component* Entity::RemoveComponent(ComponentType componentType)
+	bool Entity::RemoveComponent(ComponentType componentType)
+	{
+		Component* component = RemoveComponentInternal(componentType);
+		if (component)
+			delete component;
+	}
+
+
+	bool Entity::RemoveComponentInternal(Component* component)
+	{
+		if (!component)
+			return false;
+
+		ComponentType componentType = component->GetComponentType();
+		if (!componentType)
+			return false;
+
+		auto entry = m_Components.find(componentType);
+		if (entry != m_Components.end())
+		{
+			if (entry->second == component)
+			{
+				component->m_Entity = nullptr;
+				m_Components.erase(componentType);
+				return true;
+			}
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+
+	Component* Entity::RemoveComponentInternal(ComponentType componentType)
 	{
 		if (!componentType)
 			return nullptr;
 
+		Component* component;
 		auto entry = m_Components.find(componentType);
-		if (entry == m_Components.end())
+		if (entry != m_Components.end())
+		{
+			component = entry->second;
+			component->m_Entity = nullptr;
+			m_Components.erase(componentType);
+			return component;
+		}
+		else
 			return nullptr;
-
-		Component* component = entry->second;
-		m_Components.erase(componentType);
-		return component;
 	}
 
 }
