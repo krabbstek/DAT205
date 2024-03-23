@@ -35,7 +35,7 @@ SSAOPass::SSAOPass(
 	GLCall(glDrawBuffers(1, &attachment));
 
 	// Init SSAO
-	constexpr int numSamples = 64;
+	constexpr int numSamples = 16;
 	vec3 s[numSamples];
 	for (int i = 0; i < sizeof(s) / sizeof(vec3); i++)
 		s[i] = CosineSampleHemisphere() * RandF();

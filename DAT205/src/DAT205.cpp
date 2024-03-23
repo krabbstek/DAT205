@@ -393,6 +393,9 @@ void ImGuiRender()
 	g_GlobalLight.color.a = g_LightFalloffThreshold / globalLightIntensity;
 	g_GlobalLight.viewSpacePosition = renderer.camera.GetViewMatrix() * globalLightPosition;
 
+	ImGui::Separator();
+
+	ImGui::Text("Number of particles in scene: %d", glowingParticleSystem->NumParticles());
 	ImGui::Text("Glowing particles");
 	ImGui::SliderFloat("Particle light intensity multiplier", &g_GlowingParticleLightIntensityMultiplier, 1.0f, 1000.0f, "%.1f", 3.0f);
 	ImGui::SliderFloat("Light falloff threshold", &g_LightFalloffThreshold, 0.001f, 0.1f, "%.4f", 3.0f);
@@ -599,11 +602,10 @@ void InitTiledForwardRendering()
 	motionBlurredTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 
 	std::shared_ptr<GLTexture2D> bloomInputTexture = std::make_shared<GLTexture2D>();
-	bloomInputTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
+	bloomInputTexture->Load(GL_RGB16F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
 	bloomInputTexture->SetMinMagFilter(GL_LINEAR);
 	bloomInputTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 	bloomInputTexture->Bind();
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3));
 
 	std::shared_ptr<GLTexture2D> bloomOutputTexture = std::make_shared<GLTexture2D>();
 	bloomOutputTexture->Load(GL_RGB32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGB, GL_UNSIGNED_BYTE);
@@ -733,7 +735,7 @@ void Update()
 
 	glowingParticleSystem->UpdateParticles(g_DeltaTime);
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		Particle particle;
 		particle.position = 40.0f * (vec3(RandF(), RandF(), RandF()) - 0.5f);

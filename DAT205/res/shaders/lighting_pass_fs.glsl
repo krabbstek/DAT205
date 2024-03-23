@@ -250,6 +250,6 @@ void main()
 			  + glossyReflectionTerm
 			  + emissionTerm;
 
-	float brightness = out_Color.r + out_Color.g + out_Color.b;
+	float brightness = dot(out_Color, vec3(0.2126, 0.7152, 0.0722));
 	out_BloomColor = brightness >= u_BloomThreshold ? out_Color : vec3(0.0);
 }
