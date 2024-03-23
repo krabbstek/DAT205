@@ -26,4 +26,6 @@ extern float g_MotionBlurVelocityScale;
 extern float g_BloomAlpha;
 extern float g_BloomThreshold;
 
+extern bool g_UseNormalMap;
+
 extern float g_Time;

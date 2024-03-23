@@ -44,7 +44,7 @@ bool GLTexture2D::LoadFromFile(const char* filePath)
 bool GLTexture2D::LoadFromFile(const char* filePath, int level)
 {
 	int width, height, comp;
-	unsigned char* data = stbi_load(filePath, &width, &height, &comp, 4);
+	unsigned char* data = stbi_load(filePath, &width, &height, &comp, 0);
 	if (!data)
 	{
 		std::printf("Failed to load texture from file!");
@@ -74,7 +74,9 @@ bool GLTexture2D::LoadFromFile(const char* filePath, int level)
 		__debugbreak();
 	}
 
-	Load(GL_RGBA, data, width, height, GL_RGBA, GL_UNSIGNED_BYTE, level);
+	GLCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+	Load(format, data, width, height, format, GL_UNSIGNED_BYTE, level);
+	GLCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 4));
 
 	stbi_image_free(data);
 	return true;

@@ -23,4 +23,6 @@ float g_MotionBlurVelocityScale = 1.0f;
 float g_BloomAlpha = 0.25f;
 float g_BloomThreshold = 1.0f;
 
+bool g_UseNormalMap = true;
+
 float g_Time;

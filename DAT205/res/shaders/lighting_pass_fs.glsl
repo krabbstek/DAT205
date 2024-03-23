@@ -15,6 +15,8 @@ layout (binding = 3) uniform sampler2D u_FresnelTexture;
 layout (binding = 4) uniform sampler2D u_ShininessTexture;
 layout (binding = 5) uniform sampler2D u_EmissionTexture;
 
+layout (binding = 6) uniform sampler2D u_NormalMap;
+
 layout (binding = 7) uniform sampler2D u_IrradianceMap;
 layout (binding = 8) uniform sampler2D u_ReflectionMap;
 layout (binding = 9) uniform sampler2D u_SSAOTexture;
@@ -25,6 +27,7 @@ uniform int u_HasMetalnessTexture;
 uniform int u_HasFresnelTexture;
 uniform int u_HasShininessTexture;
 uniform int u_HasEmissionTexture;
+uniform int u_UseNormalMap;
 
 uniform int u_NumTileCols;
 uniform int u_TileSize;
@@ -243,13 +246,39 @@ vec3 calculateGlossyReflection()
 	return materialReflectivity * microfacetTerm + (1.0 - materialReflectivity) * diffuseTerm;
 }
 
+vec3 perpendicular(vec3 v)
+{
+	vec3 av = abs(v);
+	if (av.x < av.y)
+		if (av.x < av.z)
+			return normalize(vec3(0.0f, -v.z, v.y));
+		else
+			return normalize(vec3(-v.y, v.x, 0.0f));
+	else
+		if (av.y < av.z)
+			return normalize(vec3(-v.z, 0.0f, v.x));
+		else
+			return normalize(vec3(-v.y, v.x, 0.0f));
+}
+
+mat3 TBN()
+{
+	vec3 tangent = perpendicular(n);
+	vec3 bitangent = normalize(cross(n, tangent));
+	tangent = cross(bitangent, n);
+
+	return mat3(tangent, bitangent, n);
+}
+
 
 void main()
 {
 	SetMaterialParameters();
 
-	n = normalize(viewSpaceNormal);
 	wo = -normalize(viewSpacePosition.xyz);
+	n = normalize(viewSpaceNormal);
+	if (u_UseNormalMap != 0)
+		n = TBN() * normalize(texture(u_NormalMap, texCoords).xyz);
 
 	vec3 directIlluminationTerm = vec3(0.0);
 

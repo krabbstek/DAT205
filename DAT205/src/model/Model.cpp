@@ -1,5 +1,6 @@
 #include "Model.h"
 
+#include "Globals.h"
 #include "tiny_obj_loader.h"
 #include "graphics/Material.h"
 
@@ -41,32 +42,44 @@ std::shared_ptr<Model> Model::LoadModelFromOBJ(const char* file, std::shared_ptr
 		material.albedo = vec4(m.diffuse[0], m.diffuse[1], m.diffuse[2], 1.0f);
 		if (m.diffuse_texname != "") {
 			material.albedoTexture = std::make_shared<GLTexture2D>();
-			material.albedoTexture->LoadFromFile((directory + m.diffuse_texname).c_str());
+			material.albedoTexture->LoadFromFile((directory + '/' + m.diffuse_texname).c_str());
+			material.albedoTexture->SetMinMagFilter(GL_LINEAR);
+			material.albedoTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.reflectivity = m.specular[0];
 		if (m.specular_texname != "") {
 			material.reflectivityTexture = std::make_shared<GLTexture2D>();
-			material.reflectivityTexture->LoadFromFile((directory + m.specular_texname).c_str());
+			material.reflectivityTexture->LoadFromFile((directory + '/' + m.specular_texname).c_str());
+			material.reflectivityTexture->SetMinMagFilter(GL_LINEAR);
+			material.reflectivityTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.metalness = m.metallic;
 		if (m.metallic_texname != "") {
 			material.metalnessTexture = std::make_shared<GLTexture2D>();
-			material.metalnessTexture->LoadFromFile((directory + m.metallic_texname).c_str());
+			material.metalnessTexture->LoadFromFile((directory + '/' + m.metallic_texname).c_str());
+			material.metalnessTexture->SetMinMagFilter(GL_LINEAR);
+			material.metalnessTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.fresnel = m.sheen;
 		if (m.sheen_texname != "") {
 			material.fresnelTexture = std::make_shared<GLTexture2D>();
-			material.fresnelTexture->LoadFromFile((directory + m.sheen_texname).c_str());
+			material.fresnelTexture->LoadFromFile((directory + '/' + m.sheen_texname).c_str());
+			material.fresnelTexture->SetMinMagFilter(GL_LINEAR);
+			material.fresnelTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.shininess = m.roughness;
 		if (m.roughness_texname != "") {
 			material.shininessTexture = std::make_shared<GLTexture2D>();
-			material.shininessTexture->LoadFromFile((directory + m.roughness_texname).c_str());
+			material.shininessTexture->LoadFromFile((directory + '/' + m.roughness_texname).c_str());
+			material.shininessTexture->SetMinMagFilter(GL_LINEAR);
+			material.shininessTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.emission = m.emission[0];
 		if (m.emissive_texname != "") {
 			material.emissionTexture = std::make_shared<GLTexture2D>();
-			material.emissionTexture->LoadFromFile((directory + m.emissive_texname).c_str());
+			material.emissionTexture->LoadFromFile((directory + '/' + m.emissive_texname).c_str());
+			material.emissionTexture->SetMinMagFilter(GL_LINEAR);
+			material.emissionTexture->SetWrapST(GL_CLAMP_TO_EDGE);
 		}
 		material.transparency = m.transmittance[0];
 		model->m_Materials.push_back(material);
@@ -250,6 +263,7 @@ void Model::Render(const Renderer& renderer)
 	m_MainShader->SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
 	m_MainShader->SetUniformMat4("u_PrevMV", prevMV);
 	m_MainShader->SetUniformMat4("u_PrevMVP", renderer.camera.projectionMatrix * prevMV);
+	m_MainShader->SetUniform1i("u_UseNormalMap", g_UseNormalMap);
 
 	m_VAO.Bind();
 
@@ -257,6 +271,14 @@ void Model::Render(const Renderer& renderer)
 	{
 		if (mesh.materialIndex >= 0)
 			m_Materials[mesh.materialIndex].Bind(*m_MainShader);
+
+		if (g_UseNormalMap && mesh.normalMap)
+		{
+			mesh.normalMap->Bind(6);
+			m_MainShader->SetUniform1i("u_UseNormalMap", 1);
+		}
+		else
+			m_MainShader->SetUniform1i("u_UseNormalMap", 0);
 
 		GLCall(glDrawArrays(GL_TRIANGLES, mesh.startIndex, (GLsizei)mesh.vertexCount));
 	}
