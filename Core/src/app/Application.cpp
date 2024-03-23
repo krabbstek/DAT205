@@ -3,9 +3,7 @@
 #include "Application.h"
 
 #include <Windows.h>
-
-
-//EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+#include <GLFW/glfw3.h>
 
 namespace core {
 

@@ -32,6 +32,13 @@ workspace "DAT205"
             "ImGui"
         }
 
+        links {
+            "GLEW",
+            "GLFW",
+            "ImGui",
+            "Opengl32"
+        }
+
         filter "system:windows"
             cppdialect "C++17"
             staticruntime "On"
