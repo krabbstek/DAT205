@@ -11,6 +11,8 @@ public:
 	void Render();
 	void ImGuiRender();
 
+	static Test* Create() { return new ClearColorTest(); }
+
 private:
 	core::vec3 m_ClearColor;
 };

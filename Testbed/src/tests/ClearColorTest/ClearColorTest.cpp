@@ -21,7 +21,5 @@ void ClearColorTest::Render()
 
 void ClearColorTest::ImGuiRender()
 {
-	ImGui::Begin("ClearColor");
 	ImGui::ColorPicker3("Clear color", &m_ClearColor.r);
-	ImGui::End();
 }
