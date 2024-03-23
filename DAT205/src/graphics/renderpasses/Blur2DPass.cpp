@@ -6,7 +6,8 @@ Blur2DPass::Blur2DPass(Renderer& renderer, std::shared_ptr<GLShader> shader,
 	: RenderPass(renderer, shader),
 	m_InputTexture(inputTexture),
 	m_OutputTexture(outputTexture),
-	m_IntermediateTexture(std::make_shared<GLTexture2D>())
+	m_IntermediateTexture(std::make_shared<GLTexture2D>()),
+	m_FullscreenMesh(shader)
 {
 	m_IntermediateTexture->Load(GL_RGBA32F, nullptr, g_WindowWidth, g_WindowHeight, GL_RGBA, GL_UNSIGNED_BYTE);
 	m_IntermediateTexture->SetMinMagFilter(GL_NEAREST);
@@ -42,12 +43,12 @@ void Blur2DPass::Render(std::vector<Renderable*>& renderables)
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer1));
 	m_InputTexture->Bind(0);
 	m_Shader->SetUniform1i("u_VerticalBlur", 0);
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer2));
 	m_IntermediateTexture->Bind(0);
 	m_Shader->SetUniform1i("u_VerticalBlur", 1);
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 
 	GLCall(glEnable(GL_DEPTH_TEST));
 }

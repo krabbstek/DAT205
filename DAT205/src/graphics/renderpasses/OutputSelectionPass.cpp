@@ -19,7 +19,8 @@ OutputSelectionPass::OutputSelectionPass(Renderer& renderer, std::shared_ptr<GLS
 	m_SSAOTexture(ssaoTexture),
 	m_LightingColorTexture(lightingColorTexture),
 	m_MotionBlurredTexture(motionBlurredTexture),
-	m_BloomTexture(bloomTexture)
+	m_BloomTexture(bloomTexture),
+	m_FullscreenMesh(depthShader)
 {
 }
 
@@ -35,37 +36,43 @@ void OutputSelectionPass::Render(std::vector<Renderable*>& renderables)
 	{
 	case OUTPUT_SELECTION_DEPTH:
 		m_ViewSpacePositionTexture->Bind(0);
-		m_FullscreenMesh.Render(m_Renderer, *m_DepthShader);
+		m_FullscreenMesh.SetMainShader(m_DepthShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 
 	case OUTPUT_SELECTION_NORMAL:
 		m_ViewSpaceNormalTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
-		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 
 	case OUTPUT_SELECTION_SSAO:
 		m_SSAOTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_R);
-		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 
 	case OUTPUT_SELECTION_LIGHTING:
 		m_LightingColorTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
-		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 
 	case OUTPUT_SELECTION_MOTION_BLUR:
 		m_MotionBlurredTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
-		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 
 	case OUTPUT_SELECTION_BLOOM:
 		m_BloomTexture->Bind(0);
 		m_FullscreenShader->SetUniform1i("u_TextureData", OUTPUT_RGB);
-		m_FullscreenMesh.Render(m_Renderer, *m_FullscreenShader);
+		m_FullscreenMesh.SetMainShader(m_FullscreenShader);
+		m_FullscreenMesh.Render(m_Renderer);
 		break;
 	}
 

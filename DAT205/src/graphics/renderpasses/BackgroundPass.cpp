@@ -1,7 +1,10 @@
 #include "BackgroundPass.h"
 
 BackgroundPass::BackgroundPass(Renderer& renderer, std::shared_ptr<GLShader> shader, GLuint targetFramebuffer, std::shared_ptr<GLTexture2D> environmentMap)
-	: RenderPass(renderer, shader), m_TargetFramebuffer(targetFramebuffer), m_EnvironmentMap(environmentMap)
+	: RenderPass(renderer, shader),
+	m_TargetFramebuffer(targetFramebuffer),
+	m_EnvironmentMap(environmentMap),
+	m_FullscreenMesh(shader)
 {
 }
 
@@ -19,6 +22,6 @@ void BackgroundPass::Render(std::vector<Renderable*>&)
 	GLCall(glViewport(0, 0, g_WindowWidth, g_WindowHeight));
 
 	GLCall(glDisable(GL_DEPTH_TEST));
-	m_FullscreenMesh.Render(m_Renderer, *m_Shader);
+	m_FullscreenMesh.Render(m_Renderer);
 	GLCall(glEnable(GL_DEPTH_TEST));
 }

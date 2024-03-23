@@ -6,13 +6,13 @@
 #include <iostream>
 #include <filesystem>
 
-Model::Model()
-	: modelMatrix(1.0f)
+Model::Model(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader)
+	: Renderable(prepassShader, mainShader), modelMatrix(1.0f)
 {
 }
 
 
-Model* Model::LoadModelFromOBJ(const char* file)
+Model* Model::LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader)
 {
 	std::filesystem::path filepath(file);
 	std::string directory = filepath.parent_path().string();
@@ -32,7 +32,7 @@ Model* Model::LoadModelFromOBJ(const char* file)
 	if (!warn.empty())
 		std::cout << "Warning: " << warn << std::endl;
 
-	Model* model = new Model();
+	Model* model = new Model(prepassShader, mainShader);
 
 	// Read materials
 	for (const tinyobj::material_t& m : materials) {
@@ -221,24 +221,42 @@ void Model::PushMesh(const Mesh& mesh)
 }
 
 
-void Model::Render(const Renderer& renderer, GLShader& shader) const
+void Model::PrepassRender(const Renderer& renderer) const
 {
 	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
 	mat4 prevMV = renderer.camera.GetPreviousViewMatrix() * prevModelMatrix;
 
-	shader.Bind();
-	shader.SetUniformMat4("u_MV", MV);
-	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
-	shader.SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
-	shader.SetUniformMat4("u_PrevMV", prevMV);
-	shader.SetUniformMat4("u_PrevMVP", renderer.camera.projectionMatrix * prevMV);
+	m_PrepassShader->Bind();
+	m_PrepassShader->SetUniformMat4("u_MV", MV);
+	m_PrepassShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	m_PrepassShader->SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
+	m_PrepassShader->SetUniformMat4("u_PrevMV", prevMV);
+	m_PrepassShader->SetUniformMat4("u_PrevMVP", renderer.camera.projectionMatrix * prevMV);
+
+	m_VAO.Bind();
+
+	for (const Mesh& mesh : m_Meshes)
+		GLCall(glDrawArrays(GL_TRIANGLES, mesh.startIndex, (GLsizei)mesh.vertexCount));
+}
+
+void Model::Render(const Renderer& renderer) const
+{
+	mat4 MV = renderer.camera.GetViewMatrix() * modelMatrix;
+	mat4 prevMV = renderer.camera.GetPreviousViewMatrix() * prevModelMatrix;
+
+	m_MainShader->Bind();
+	m_MainShader->SetUniformMat4("u_MV", MV);
+	m_MainShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	m_MainShader->SetUniformMat4("u_MVP", renderer.camera.projectionMatrix * MV);
+	m_MainShader->SetUniformMat4("u_PrevMV", prevMV);
+	m_MainShader->SetUniformMat4("u_PrevMVP", renderer.camera.projectionMatrix * prevMV);
 
 	m_VAO.Bind();
 
 	for (const Mesh& mesh : m_Meshes)
 	{
 		if (mesh.materialIndex >= 0)
-			m_Materials[mesh.materialIndex].Bind(shader);
+			m_Materials[mesh.materialIndex].Bind(*m_MainShader);
 
 		GLCall(glDrawArrays(GL_TRIANGLES, mesh.startIndex, (GLsizei)mesh.vertexCount));
 	}

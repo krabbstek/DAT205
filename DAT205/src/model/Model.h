@@ -18,19 +18,20 @@ public:
 	mat4 modelMatrix;
 	mat4 prevModelMatrix;
 
-	static Model* LoadModelFromOBJ(const char* file);
+	static Model* LoadModelFromOBJ(const char* file, std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
 
 	inline void Update() { prevModelMatrix = modelMatrix; }
 
 	void PushMesh(const Mesh& mesh);
 
-	void Render(const Renderer& renderer, GLShader& shader) const override;
+	void PrepassRender(const Renderer& renderer) const override;
+	void Render(const Renderer& renderer) const override;
 
 	inline std::vector<Material>& GetMaterials() { return m_Materials; }
 	inline std::vector<Mesh>& GetMeshes() { return m_Meshes; }
 
 private:
-	Model();
+	Model(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader);
 
 protected:
 	GLVertexArray m_VAO;

@@ -47,6 +47,17 @@ std::shared_ptr<RenderTechnique> renderTechnique;
 
 std::shared_ptr<Model> fighterModel;
 
+std::shared_ptr<GLShader> prepassShader;
+std::shared_ptr<GLShader> ssaoShader;
+std::shared_ptr<GLShader> backgroundShader;
+std::shared_ptr<GLShader> computeLightTilesShader;
+std::shared_ptr<GLShader> lightingPassShader;
+std::shared_ptr<GLShader> depthShader;
+std::shared_ptr<GLShader> fullscreenShader;
+std::shared_ptr<GLShader> blur1DShader;
+std::shared_ptr<GLShader> motionBlurShader;
+std::shared_ptr<GLShader> bloomShader;
+
 std::shared_ptr<GLTexture2D> environmentMap;
 std::shared_ptr<GLTexture2D> irradianceMap;
 std::shared_ptr<GLTexture2D> reflectionMap;
@@ -54,6 +65,7 @@ std::shared_ptr<GLTexture2D> reflectionMap;
 OUTPUT_SELECTION outputSelection = OUTPUT_SELECTION_LIGHTING;
 
 int Init();
+void LoadShaders();
 void HandleKeyInput(float deltaTime);
 void MouseButtonCallback(GLFWwindow* window, int key, int action, int mods);
 void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
@@ -69,17 +81,16 @@ int main()
 	int initResult = Init();
 	if (initResult)
 		return initResult;
+
+	GLCall(glEnable(GL_DEPTH_TEST));
+	GLCall(glCullFace(GL_BACK));
+	GLCall(glDepthFunc(GL_LEQUAL));
 	
 	{
 		renderer.camera.projectionMatrix = mat4::Perspective(g_FOV, g_AspectRatio, g_NearPlaneDepth, g_FarPlaneDepth);
 		renderer.camera.position = vec3(0.0f, 10.0f, 20.0f);
 		renderer.camera.rotation = vec3(-0.4f, 0.0f, 0.0f);
 		mat4 V = renderer.camera.GetViewMatrix();
-
-		PlaneMesh planeMesh({ 0.0f, -10.0f, 0.0f }, { 240.0f, 240.0f });
-
-		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj"));
-		fighterModel->modelMatrix = mat4(1.0f);
 
 		{
 			int width, height, numChannels;
@@ -127,12 +138,11 @@ int main()
 			stbi_set_flip_vertically_on_load(true);
 		}
 
-		GLCall(glEnable(GL_DEPTH_TEST));
-		GLCall(glCullFace(GL_BACK));
-		GLCall(glDepthFunc(GL_LEQUAL));
-
 		/// Render technique
 		InitTiledForwardRendering();
+
+		fighterModel = std::shared_ptr<Model>(Model::LoadModelFromOBJ("res/models/NewShip.obj", prepassShader, lightingPassShader));
+		fighterModel->modelMatrix = mat4(1.0f);
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -170,11 +180,22 @@ glfwSwapBuffers(window);
 
 	fighterModel.reset();
 
+	renderTechnique.reset();
+
 	environmentMap.reset();
 	irradianceMap.reset();
 	reflectionMap.reset();
 
-	renderTechnique.reset();
+	prepassShader.reset();
+	ssaoShader.reset();
+	backgroundShader.reset();
+	computeLightTilesShader.reset();
+	lightingPassShader.reset();
+	depthShader.reset();
+	fullscreenShader.reset();
+	blur1DShader.reset();
+	motionBlurShader.reset();
+	bloomShader.reset();
 
 	ImGui_ImplGlfw_Shutdown();
 	glfwTerminate();
@@ -389,9 +410,83 @@ void ImGuiRender()
 		ImGui::SliderFloat("Emission", &material.emission, 0.0f, 10.0f);
 	}
 
+	ImGui::Separator();
+
+	if (ImGui::Button("Reload shaders", ImVec2(100.0f, 20.0f)))
+		LoadShaders();
+
 	ImGui::End();
 }
 
+
+void LoadShaders()
+{
+	prepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/prepass_vs.glsl");
+	prepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/prepass_fs.glsl");
+	prepassShader->CompileShaders();
+
+	constexpr int numSamples = 64;
+	vec3 s[numSamples];
+	for (int i = 0; i < sizeof(s) / sizeof(vec3); i++)
+		s[i] = CosineSampleHemisphere() * RandF();
+	ssaoShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/ssao_vs.glsl");
+	ssaoShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/ssao_fs.glsl");
+	ssaoShader->CompileShaders();
+	ssaoShader->SetUniform3fv("u_Samples", s, numSamples);
+	ssaoShader->SetUniform1i("u_NumSamples", numSamples);
+	ssaoShader->SetUniform2f("u_ViewportSize", vec2(float(g_WindowWidth), float(g_WindowHeight)));
+	ssaoShader->SetUniformMat4("u_ProjMatrix", renderer.camera.projectionMatrix);
+	ssaoShader->SetUniformMat4("u_InverseProjMatrix", mat4::Inverse(renderer.camera.projectionMatrix));
+
+	backgroundShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_vs.glsl");
+	backgroundShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/background_fs.glsl");
+	backgroundShader->CompileShaders();
+
+	computeLightTilesShader->AddShaderFromFile(GL_COMPUTE_SHADER, "res/shaders/compute_light_tiles_cs.glsl");
+	computeLightTilesShader->CompileShaders();
+
+	lightingPassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/lighting_pass_vs.glsl");
+	lightingPassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/lighting_pass_fs.glsl");
+	lightingPassShader->CompileShaders();
+	lightingPassShader->SetUniform4f("u_Light.viewSpacePosition", renderer.camera.GetViewMatrix() * vec4(10.0f));
+	lightingPassShader->SetUniform4f("u_Light.color", vec4(1000.0f));
+
+	depthShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/depth_vs.glsl");
+	depthShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/depth_fs.glsl");
+	depthShader->CompileShaders();
+	depthShader->SetUniformMat4("u_ProjectionMatrix", renderer.camera.projectionMatrix);
+
+	fullscreenShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/fullscreen_vs.glsl");
+	fullscreenShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/fullscreen_fs.glsl");
+	fullscreenShader->CompileShaders();
+
+	constexpr int numWeights = 7;
+	float weights[numWeights];
+	weights[0] = 1.0f;
+	float totalWeight = 1.0f;
+	float sigma = 3.0f;
+	for (int i = 1; i < numWeights; i++)
+	{
+		weights[i] = expf(-i * i / (2 * sigma * sigma));
+		totalWeight += 2.0f * weights[i];
+	}
+	for (int i = 0; i < numWeights; i++)
+		weights[i] /= totalWeight;
+	blur1DShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/blur1d_vs.glsl");
+	blur1DShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/blur1d_fs.glsl");
+	blur1DShader->CompileShaders();
+	blur1DShader->SetUniform2f("u_ViewportSize", float(g_WindowWidth), float(g_WindowHeight));
+	blur1DShader->SetUniform1fv("u_Weights", weights, numWeights);
+	blur1DShader->SetUniform1i("u_NumSamples", numWeights);
+
+	motionBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/motion_blur_vs.glsl");
+	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
+	motionBlurShader->CompileShaders();
+
+	bloomShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_vs.glsl");
+	bloomShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_fs.glsl");
+	bloomShader->CompileShaders();
+}
 
 void InitTiledForwardRendering()
 {
@@ -444,72 +539,17 @@ void InitTiledForwardRendering()
 	std::shared_ptr<GLShaderStorageBuffer> tileIndexSSBO = std::make_shared<GLShaderStorageBuffer>(nullptr, g_NumTileCols * g_NumTileRows * 2 * sizeof(int));
 
 	// Shaders
-	std::shared_ptr<GLShader> prepassShader = std::make_shared<GLShader>();
-	prepassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/prepass_vs.glsl");
-	prepassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/prepass_fs.glsl");
-	prepassShader->CompileShaders();
-
-	std::shared_ptr<GLShader> ssaoShader = std::make_shared<GLShader>();
-	ssaoShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/ssao_vs.glsl");
-	ssaoShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/ssao_fs.glsl");
-	ssaoShader->CompileShaders();
-
-	std::shared_ptr<GLShader> backgroundShader = std::make_shared<GLShader>();
-	backgroundShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/background_vs.glsl");
-	backgroundShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/background_fs.glsl");
-	backgroundShader->CompileShaders();
-
-	std::shared_ptr<GLShader> computeLightTilesShader = std::make_shared<GLShader>();
-	computeLightTilesShader->AddShaderFromFile(GL_COMPUTE_SHADER, "res/shaders/compute_light_tiles_cs.glsl");
-	computeLightTilesShader->CompileShaders();
-
-	std::shared_ptr<GLShader> lightingPassShader = std::make_shared<GLShader>();
-	lightingPassShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/lighting_pass_vs.glsl");
-	lightingPassShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/lighting_pass_fs.glsl");
-	lightingPassShader->CompileShaders();
-	lightingPassShader->SetUniform4f("u_Light.viewSpacePosition", renderer.camera.GetViewMatrix() * vec4(10.0f));
-	lightingPassShader->SetUniform4f("u_Light.color", vec4(1000.0f));
-
-	std::shared_ptr<GLShader> depthShader = std::make_shared<GLShader>();
-	depthShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/depth_vs.glsl");
-	depthShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/depth_fs.glsl");
-	depthShader->CompileShaders();
-	depthShader->SetUniformMat4("u_ProjectionMatrix", renderer.camera.projectionMatrix);
-
-	std::shared_ptr<GLShader> fullscreenShader = std::make_shared<GLShader>();
-	fullscreenShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/fullscreen_vs.glsl");
-	fullscreenShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/fullscreen_fs.glsl");
-	fullscreenShader->CompileShaders();
-
-	std::shared_ptr<GLShader> blur1DShader = std::make_shared<GLShader>();
-	blur1DShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/blur1d_vs.glsl");
-	blur1DShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/blur1d_fs.glsl");
-	blur1DShader->CompileShaders();
-	blur1DShader->SetUniform2f("u_ViewportSize", float(g_WindowWidth), float(g_WindowHeight));
-	constexpr int numWeights = 7;
-	float weights[numWeights];
-	weights[0] = 1.0f;
-	float totalWeight = 1.0f;
-	float sigma = 3.0f;
-	for (int i = 1; i < numWeights; i++)
-	{
-		weights[i] = expf(-i * i / (2 * sigma * sigma));
-		totalWeight += 2.0f * weights[i];
-	}
-	for (int i = 0; i < numWeights; i++)
-		weights[i] /= totalWeight;
-	blur1DShader->SetUniform1fv("u_Weights", weights, numWeights);
-	blur1DShader->SetUniform1i("u_NumSamples", numWeights);
-
-	std::shared_ptr<GLShader> motionBlurShader = std::make_shared<GLShader>();
-	motionBlurShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/motion_blur_vs.glsl");
-	motionBlurShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/motion_blur_fs.glsl");
-	motionBlurShader->CompileShaders();
-
-	std::shared_ptr<GLShader> bloomShader = std::make_shared<GLShader>();
-	bloomShader->AddShaderFromFile(GL_VERTEX_SHADER, "res/shaders/bloom_vs.glsl");
-	bloomShader->AddShaderFromFile(GL_FRAGMENT_SHADER, "res/shaders/bloom_fs.glsl");
-	bloomShader->CompileShaders();
+	prepassShader = std::make_shared<GLShader>();
+	ssaoShader = std::make_shared<GLShader>();
+	backgroundShader = std::make_shared<GLShader>();
+	computeLightTilesShader = std::make_shared<GLShader>();
+	lightingPassShader = std::make_shared<GLShader>();
+	depthShader = std::make_shared<GLShader>();
+	fullscreenShader = std::make_shared<GLShader>();
+	blur1DShader = std::make_shared<GLShader>();
+	motionBlurShader = std::make_shared<GLShader>();
+	bloomShader = std::make_shared<GLShader>();
+	LoadShaders();
 
 	// Render passes
 	std::shared_ptr<PlotTimersPass> plotTimersPass = std::make_shared<PlotTimersPass>(renderer);

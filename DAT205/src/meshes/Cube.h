@@ -9,10 +9,11 @@ class Cube : public Renderable
 public:
 	vec3 position;
 
-	Cube(const vec3& position = { 0.0f, 0.0f, 0.0f });
+	Cube(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader, const vec3& position = { 0.0f, 0.0f, 0.0f });
 	~Cube();
 
-	void Render(const Renderer& renderer, GLShader& shader) const override;
+	void PrepassRender(const Renderer& renderer) const override;
+	void Render(const Renderer& renderer) const override;
 
 private:
 	GLVertexArray* m_VAO;

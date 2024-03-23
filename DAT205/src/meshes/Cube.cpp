@@ -68,8 +68,8 @@ unsigned int cubeIndices[] =
 	20, 22, 23,
 };
 
-Cube::Cube(const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/)
-	: position(position)
+Cube::Cube(std::shared_ptr<GLShader> prepassShader, std::shared_ptr<GLShader> mainShader, const vec3& position /*= { 0.0f, 0.0f, 0.0f }*/)
+	: Renderable(prepassShader, mainShader), position(position)
 {
 	m_VBO = new GLVertexBuffer(cubeVertices, sizeof(cubeVertices));
 	GLVertexBufferLayout layout;
@@ -91,16 +91,32 @@ Cube::~Cube()
 }
 
 
-void Cube::Render(const Renderer& renderer, GLShader& shader) const
+void Cube::PrepassRender(const Renderer& renderer) const
 {
-	shader.Bind();
+	m_PrepassShader->Bind();
 	mat4 M = mat4::Translate(position);
 	mat4 V = renderer.camera.GetViewMatrix();
 	mat4 P = renderer.camera.projectionMatrix;
 	mat4 MV = V * M;
-	shader.SetUniformMat4("u_MV", MV);
-	shader.SetUniformMat4("u_MVP", P * MV);
-	shader.SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+	m_PrepassShader->SetUniformMat4("u_MV", MV);
+	m_PrepassShader->SetUniformMat4("u_MVP", P * MV);
+	m_PrepassShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
+
+	m_VAO->Bind();
+	m_IBO->Bind();
+	GLCall(glDrawElements(GL_TRIANGLES, m_IBO->Count(), GL_UNSIGNED_INT, 0));
+}
+
+void Cube::Render(const Renderer& renderer) const
+{
+	m_MainShader->Bind();
+	mat4 M = mat4::Translate(position);
+	mat4 V = renderer.camera.GetViewMatrix();
+	mat4 P = renderer.camera.projectionMatrix;
+	mat4 MV = V * M;
+	m_MainShader->SetUniformMat4("u_MV", MV);
+	m_MainShader->SetUniformMat4("u_MVP", P * MV);
+	m_MainShader->SetUniformMat4("u_MV_normal", mat4::Transpose(mat4::Inverse(MV)));
 
 	m_VAO->Bind();
 	m_IBO->Bind();
