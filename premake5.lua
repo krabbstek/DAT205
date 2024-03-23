@@ -59,7 +59,8 @@ workspace "DAT205"
 
             postbuildcommands
             {
-                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Testbed")
             }
 
         filter "configurations:Debug"
@@ -80,6 +81,55 @@ workspace "DAT205"
 
     project "Sandbox"
         location "Sandbox"
+        kind "WindowedApp"
+        language "C++"
+
+        targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+        objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+        files {
+            "%{prj.name}/src/**.h",
+            "%{prj.name}/src/**.cpp"
+        }
+
+        includedirs {
+            "%{wks.location.relpath}/Core",
+            "%{wks.location.relpath}/Core/src",
+            "%{wks.location.relpath}/Core/vendor/rapidxml",
+            "%{wks.location.relpath}/Core/vendor/spdlog/include",
+            "%{wks.location.relpath}/GLEW/include",
+            "%{wks.location.relpath}/ImGui"
+        }
+
+        links {
+            "Core",
+            "Opengl32",
+            "ImGui"
+        }
+
+        filter "system:windows"
+            cppdialect "C++17"
+            staticruntime "On"
+            systemversion "latest"
+
+        filter "configurations:Debug"
+            defines { "DEBUG" }
+            buildoptions "/MDd"
+            symbols "On"
+
+        filter "configurations:Release"
+            defines { "NDEBUG" }
+            buildoptions "/MD"
+            optimize "On"
+
+        filter "configurations:Dist"
+            defines { "NDEBUG" }
+            buildoptions "/MD"
+            optimize "Full"
+
+
+    project "Testbed"
+        location "Testbed"
         kind "WindowedApp"
         language "C++"
 
@@ -163,7 +213,8 @@ workspace "DAT205"
 
             postbuildcommands
             {
-                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Testbed")
             }
 
         filter "configurations:Debug"
@@ -217,7 +268,8 @@ workspace "DAT205"
 
             postbuildcommands
             {
-                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Testbed")
             }
 
         filter "configurations:Debug"
@@ -281,7 +333,8 @@ workspace "DAT205"
 
             postbuildcommands
             {
-                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Testbed")
             }
 
         filter "configurations:Debug"
@@ -359,7 +412,8 @@ workspace "DAT205"
 
             postbuildcommands
             {
-                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+                ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Testbed")
             }
 
         filter "configurations:Debug"
