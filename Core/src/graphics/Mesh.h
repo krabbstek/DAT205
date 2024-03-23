@@ -15,6 +15,7 @@ namespace core {
 	class CORE_API Mesh : public Renderable
 	{
 	public:
+		Mesh(GLVertexArray* vao, GLIndexBuffer* ibo);
 		Mesh(GLVertexArray* vao, GLIndexBuffer* ibo, GLShader* shader);
 		~Mesh();
 
@@ -32,8 +33,8 @@ namespace core {
 	protected:
 		Material* m_Material;
 		GLIndexBuffer* m_IBO;
-		GLShader* m_Shader;
 		GLVertexArray* m_VAO;
+		GLShader* m_Shader;
 		std::vector<GLTexture2D*> m_Textures;
 	};
 

@@ -66,12 +66,12 @@ GaussianBlurTest::GaussianBlurTest(unsigned int width, unsigned int height)
 	m_BlurShader.AddShaderFromFile(GL_FRAGMENT_SHADER, "src/tests/GaussianBlurTest/gaussian_blur_1d_fs.glsl");
 	m_BlurShader.CompileShaders();
 
-	m_NonBlurredFramebuffer.AttachTexture(m_NonBlurredTexture, GL_RGB32F, 0);
+	m_NonBlurredFramebuffer.AttachTexture(m_NonBlurredTexture, GL_RGB32F, GL_UNSIGNED_BYTE, 0);
 	m_NonBlurredFramebuffer.SetDrawBufferAttachments(1);
 	m_NonBlurredFramebuffer.GenerateDepthStencilRenderbuffer();
 	m_NonBlurredFramebuffer.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	m_IntermediateBlurredFramebuffer.AttachTexture(m_IntermediateBlurredTexture, GL_RGB32F, 0);
+	m_IntermediateBlurredFramebuffer.AttachTexture(m_IntermediateBlurredTexture, GL_RGB32F, GL_UNSIGNED_BYTE, 0);
 	m_IntermediateBlurredFramebuffer.SetDrawBufferAttachments(1);
 	m_IntermediateBlurredFramebuffer.GenerateDepthStencilRenderbuffer();
 	m_IntermediateBlurredFramebuffer.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);

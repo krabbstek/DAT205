@@ -31,7 +31,7 @@ namespace core {
 	}
 
 
-	GLTexture2D* GLFramebuffer::AttachTexture(GLuint internalFormat, unsigned int attachment /*= 0*/) const
+	GLTexture2D* GLFramebuffer::AttachTexture(GLuint internalFormat, GLuint storageType, unsigned int attachment /*= 0*/) const
 	{
 		GLint fbDim[4];
 		GLCall(glGetIntegerv(GL_VIEWPORT, fbDim));
@@ -44,7 +44,7 @@ namespace core {
 		}
 
 		GLTexture2D* texture = new GLTexture2D();
-		texture->Load(internalFormat, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], format, GL_UNSIGNED_BYTE);
+		texture->Load(internalFormat, NULL, /*width =*/ fbDim[2], /*height =*/ fbDim[3], format, storageType);
 		texture->SetMinMagFilter(GL_LINEAR);
 		texture->SetWrapST(GL_CLAMP_TO_EDGE);
 
@@ -60,10 +60,10 @@ namespace core {
 		return texture;
 	}
 
-	void GLFramebuffer::AttachTexture(GLTexture2D& texture, GLuint internalFormat, unsigned int attachment /*= 0*/) const
+	void GLFramebuffer::AttachTexture(GLTexture2D& texture, GLuint internalFormat, GLuint storageType, unsigned int attachment /*= 0*/) const
 	{
 		GLuint format = GetBaseFormat(internalFormat);
-		texture.Load(internalFormat, NULL, /*width =*/ m_Width, /*height =*/ m_Height, format, GL_UNSIGNED_BYTE);
+		texture.Load(internalFormat, NULL, /*width =*/ m_Width, /*height =*/ m_Height, format, storageType);
 		texture.SetMinMagFilter(GL_NEAREST);
 		texture.SetWrapST(GL_CLAMP_TO_EDGE);
 
@@ -136,6 +136,21 @@ namespace core {
 	void GLFramebuffer::Clear(GLuint mask)
 	{
 		GLCall(glClear(mask));
+	}
+
+
+	void GLFramebuffer::EnableBlending(GLenum srcFactor, GLenum dstFactor) const
+	{
+		Bind();
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(srcFactor, dstFactor));
+	}
+
+	void GLFramebuffer::EnableDefaultBlending(GLenum srcFactor, GLenum dstFactor)
+	{
+		SetDefaultFramebuffer();
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(srcFactor, dstFactor));
 	}
 
 
