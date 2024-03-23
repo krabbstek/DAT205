@@ -6,18 +6,27 @@ namespace core {
 
 	class CORE_API Entity;
 
-	enum CORE_API ComponentType
+	/// <summary>
+	/// Used internally to map components of different types.
+	/// </summary>
+	struct CORE_API ComponentType
 	{
-		NONE = 0,
-		TRANSFORM,
+		const char* name;
 	};
 
+	/// <summary>
+	/// Base class of components for entities.
+	/// </summary>
 	class CORE_API Component
 	{
 	public:
 		virtual ~Component() {}
 
-		virtual ComponentType GetComponentType() const = 0;
+		/// <summary>
+		/// To be implemented by each sub-class of Component.
+		/// Used to internally map components of different types.
+		/// </summary>
+		virtual ComponentType* GetComponentType() const = 0;
 
 		inline Entity* GetEntity() const { return m_Entity; }
 

@@ -12,19 +12,6 @@
 
 namespace core {
 
-	/// <summary>
-	/// Left-most rotation axis is the most "general" one.
-	/// </summary>
-	enum CORE_API RotationOrder
-	{
-		XYZ = 1,
-		XZY,
-		YXZ,
-		YZX,
-		ZXY,
-		ZYX,
-	};
-
 	struct CORE_API Transform
 	{
 	public:
@@ -37,12 +24,8 @@ namespace core {
 
 		mat4 GetTransformationMatrix() const;
 
-		inline void SetRotationOrder(RotationOrder rotationOrder) { m_RotationOrder = rotationOrder; }
-
-		virtual ComponentType GetComponentType() const { return TRANSFORM; }
-
-	private:
-		RotationOrder m_RotationOrder;
+		inline virtual ComponentType* GetComponentType() const { return GetComponentTypeStatic(); }
+		static ComponentType* GetComponentTypeStatic();
 	};
 
 }
