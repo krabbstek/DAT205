@@ -4,9 +4,6 @@
 
 #define INDEX(ROW, COL) (ROW + (COL << 2))
 
-#undef near
-#undef far
-
 namespace core {
 
 	mat4::mat4()

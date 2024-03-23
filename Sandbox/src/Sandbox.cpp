@@ -73,7 +73,7 @@ void core::OnStart()
 		velocityFramebufferVelocityTexture = velocityFramebuffer->AttachTexture(GL_RGB32F, 1);
 		velocityFramebuffer->SetDrawBufferAttachments(2);
 		velocityFramebuffer->GenerateDepthStencilRenderbuffer();
-		velocityFramebuffer->ClearColor(0.0f, 0.0f, 0.1f, 1.0f);
+		velocityFramebuffer->ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		GLFramebuffer::Unbind();
 	}

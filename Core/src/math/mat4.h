@@ -5,6 +5,9 @@
 #include "vec3.h"
 #include "vec4.h"
 
+#undef near
+#undef far
+
 namespace core {
 
 	struct CORE_API mat4
