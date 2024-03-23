@@ -11,7 +11,7 @@ namespace core {
 	class CORE_API GLVertexArray
 	{
 	public:
-		GLVertexArray(const GLVertexBuffer& vbo, const GLVertexBufferLayout& layout);
+		GLVertexArray(const GLVertexBuffer& vbo);
 		~GLVertexArray();
 
 		void Bind() const;

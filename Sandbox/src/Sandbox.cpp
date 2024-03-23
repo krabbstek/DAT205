@@ -28,7 +28,8 @@ float v[] =
 	GLVertexBufferLayout layout;
 	layout.Push(GL_FLOAT, 2);
 	layout.Push(GL_FLOAT, 2);
-	vao = new GLVertexArray(*vbo, layout);
+	vbo->SetVertexBufferLayout(layout);
+	vao = new GLVertexArray(*vbo);
 	vao->Bind();
 	ibo = new GLIndexBuffer(i, sizeof(i) / sizeof(unsigned int));
 	ibo->Bind();
@@ -39,7 +40,7 @@ float v[] =
 	shader->CompileShaders();
 	shader->Bind();
 	//shader->SetUniform4f("color", vec4(0.2f, 0.3f, 0.8f, 1.0f));
-	//shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
+	shader->SetUniformMat4("transformation", mat4::Orthographic(-16.0f / 9.0f, 16.0f / 9.0f, -1.0f, 1.0f, 1.0f, -1.0f));
 
 	texture = new GLTexture("../Core/res/textures/Test.jpg", GL_RGB);
 	texture->Bind(0);
