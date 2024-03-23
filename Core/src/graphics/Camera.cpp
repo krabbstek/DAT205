@@ -14,11 +14,12 @@ namespace core {
 	}
 
 
-	void Camera::GenerateViewMatrix()
+	const mat4& Camera::GenerateViewMatrix()
 	{
 		Transform* transform = GetEntity()->GetComponent<Transform>();
 		if (transform)
 			m_ViewMatrix = transform->GetInverseTransformationMatrix();
+		return m_ViewMatrix;
 	}
 
 

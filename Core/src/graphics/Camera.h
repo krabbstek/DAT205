@@ -13,7 +13,7 @@ namespace core {
 	public:
 		Camera();
 
-		void GenerateViewMatrix();
+		const mat4& GenerateViewMatrix();
 
 		vec3 GetForward() const;
 
